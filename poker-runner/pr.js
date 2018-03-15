@@ -1,3 +1,8 @@
+const context = cast.framework.CastReceiverContext.getInstance();
+const options = new cast.framework.CastReceiverOptions();
+options.maxInactivity = 20;
+context.start(options);
+
 angular.module('prApp', [])
   .controller('prController', function() {
       var game = this;
@@ -11,7 +16,7 @@ angular.module('prApp', [])
       };
 
       game.start = function() {
-          
+
       };
 
       game.pause = function() {
