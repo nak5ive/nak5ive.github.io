@@ -9,7 +9,7 @@ angular.module('prApp', [])
 
       game.blindLevels = [10, 20, 40, 80, 100, 200, 400, 800, 1600, 3200];
       game.blindInterval = 15 * 60 * 1000; // millis
-      game.currentTime = 0;
+      game.currentTime = "100000";
 
       game.formattedTime = function() {
           return game.currentTime;
