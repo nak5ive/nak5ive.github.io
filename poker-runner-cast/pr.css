@@ -1,3 +1,7 @@
+body {
+    background-color: #000;
+    color: #fff;
+}
 #title {
     text-align: center;
 }
