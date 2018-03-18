@@ -19,7 +19,7 @@ const blindInterval = 15 * 60 * 1000; // millis
 var buyInCount = 0;
 
 function increaseBuyIn() {
-    $('#buyInCount').text(++buyInCount);
+    $('#buyInCount').text(++buyInCount + '');
     console.log("Buy In Count increased to " + buyInCount);
 
     // TODO update payouts
