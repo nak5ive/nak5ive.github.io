@@ -1,14 +1,4 @@
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
-const context = cast.framework.CastReceiverContext.getInstance();
-context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
-    console.log(event);
-});
-context.start();
-
-const options = new cast.framework.CastReceiverOptions();
-options.maxInactivity = 3600;
-context.start(options);
-
 
 angular.module('prApp', [])
   .controller('prController', function() {
@@ -35,4 +25,21 @@ angular.module('prApp', [])
       game.stop = function() {
 
       };
+
+
+      var context = cast.framework.CastReceiverContext.getInstance();
+      context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
+          console.log(event);
+          switch (event.data.action) {
+              case "IncreaseBuyIn":
+                  game.buyInCount += 1;
+                  break;
+              default:
+          }
+      });
+      context.start();
+
+      var options = new cast.framework.CastReceiverOptions();
+      options.maxInactivity = 3600;
+      context.start(options);
   });
