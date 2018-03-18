@@ -30,12 +30,9 @@ angular.module('prApp', [])
       var context = cast.framework.CastReceiverContext.getInstance();
       context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
           console.log(event);
-          switch (event.data.action) {
-              case "IncreaseBuyIn":
-                  console.log("Increasing Buy In Count");
-                  game.buyInCount += 1;
-                  break;
-              default:
+          if (event.data.action == "IncreaseBuyIn") {
+              console.log("Increasing Buy In Count");
+              game.buyInCount += 1;
           }
       });
 
