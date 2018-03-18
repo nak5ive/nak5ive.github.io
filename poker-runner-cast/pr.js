@@ -5,9 +5,9 @@ context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
 });
 context.start();
 
-// var options = new cast.framework.CastReceiverOptions();
-// options.maxInactivity = 20;
-// context.start(options);
+const options = new cast.framework.CastReceiverOptions();
+options.maxInactivity = 3600;
+context.start(options);
 
 
 angular.module('prApp', [])
