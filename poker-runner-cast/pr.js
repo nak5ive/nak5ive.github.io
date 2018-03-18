@@ -1,42 +1,28 @@
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
+var context = cast.framework.CastReceiverContext.getInstance();
+context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
+    console.log(event);
+    if (event.data.action == "IncreaseBuyIn") {
+        increaseBuyIn();
+    }
+});
 
-angular.module('prApp', [])
-  .controller('prController', function() {
-      var game = this;
-      console.log("initializing app");
+var options = new cast.framework.CastReceiverOptions();
+options.maxInactivity = 3600;
+context.start(options);
 
-      game.blindLevels = [10, 20, 40, 80, 100, 200, 400, 800, 1600, 3200];
-      game.blindInterval = 15 * 60 * 1000; // millis
-      game.currentTime = "100000";
-      game.buyInCount = 0;
+// game specs
+const blindLevels = [10, 20, 40, 80, 100, 200, 400, 800, 1600, 3200];
+const blindInterval = 15 * 60 * 1000; // millis
 
-      game.formattedTime = function() {
-          return game.currentTime;
-      };
+// game info
+var buyInCount = 0;
 
-      game.start = function() {
+function increaseBuyIn() {
+    buyInCount++;
+    $('#buyInCount').text = buyInCount;
 
-      };
+    console.log("Buy In Count increased to " + buyInCount);
 
-      game.pause = function() {
-
-      };
-
-      game.stop = function() {
-
-      };
-
-
-      var context = cast.framework.CastReceiverContext.getInstance();
-      context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
-          console.log(event);
-          if (event.data.action == "IncreaseBuyIn") {
-              console.log("Increasing Buy In Count");
-              game.buyInCount += 1;
-          }
-      });
-
-      var options = new cast.framework.CastReceiverOptions();
-      options.maxInactivity = 3600;
-      context.start(options);
-  });
+    // TODO update payouts
+}
