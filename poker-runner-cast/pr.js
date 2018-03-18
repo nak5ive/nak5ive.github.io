@@ -32,12 +32,12 @@ angular.module('prApp', [])
           console.log(event);
           switch (event.data.action) {
               case "IncreaseBuyIn":
+                  console.log("Increasing Buy In Count");
                   game.buyInCount += 1;
                   break;
               default:
           }
       });
-      context.start();
 
       var options = new cast.framework.CastReceiverOptions();
       options.maxInactivity = 3600;
