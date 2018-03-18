@@ -28,6 +28,7 @@ angular.module('prApp', [])
       // init cast framework
       var context = cast.framework.CastReceiverContext.getInstance();
       context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
+          console.log(event);
           game.buyInCount += 1;
       });
 
