@@ -7,12 +7,18 @@ var game = {
         prev: 0,
     },
     blind: {
-        levels: [10, 20, 40, 80, 100, 200, 400, 800, 1600, 3200],
+        levels: [10, 20, 40, 80, 100, 200, 400, 800, 1000, 2000, 4000, 8000],
         interval: 15 * 60 * 1000
     },
     buyIn: {
         count: 0,
         cost: 10
+    },
+    chips {
+        white: {value: 5, count: 10},
+        blue: {value: 10, count: 10},
+        green: {value: 25, count: 8},
+        black: {value: 100, count: 4}
     }
 };
 
@@ -21,7 +27,11 @@ const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
 const context = cast.framework.CastReceiverContext.getInstance();
 context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
     console.log(event);
-    if (event.data.action == "IncreaseBuyIn") {
+    if (event.data.action == "Play") {
+        play();
+    } else if (event.data.action == "Pause") {
+        pause();
+    } else if (event.data.action == "IncreaseBuyIn") {
         increaseBuyIn();
     } else if (event.data.action == "DecreaseBuyIn") {
         decreaseBuyIn();
@@ -63,12 +73,12 @@ function ready() {
     game.buyIn.count = 0;
 }
 
-function start() {
-    game.state = "STARTED";
-    if (game.time.start == 0) {
+function play() {
+    if (game.state == "READY") {
         game.time.start = Date.now();
         game.time.prev = game.time.start;
     }
+    game.state = "PLAYING";
 }
 
 function pause() {
@@ -76,12 +86,12 @@ function pause() {
 }
 
 function stop() {
-    game.state = "STOPPED";
     game.time.stop = Date.now();
+    game.state = "STOPPED";
 }
 
 function loop() {
-    if (game.state == "STARTED") {
+    if (game.state == "PLAYING") {
         var time = Date.now();
         game.time.elapsed += time - game.time.prev;
 
