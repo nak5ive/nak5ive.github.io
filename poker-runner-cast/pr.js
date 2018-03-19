@@ -116,7 +116,7 @@ function loop() {
         game.time.prev = Date.now();
     }
 
-    if (game.state == "STARTED" || game.state == "PAUSED") {
+    if (game.state == "PLAYING" || game.state == "PAUSED") {
         var time = formatTimeElapsed(Date.now() - game.time.start);
         $('#clock').text(time);
     }
