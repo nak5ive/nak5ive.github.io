@@ -145,6 +145,14 @@ function formatTimeElapsed(time) {
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
+function ping() {
+    context.sendCustomMessage(CAST_NAMESPACE, undefined, JSON.stringify(game));
+}
+
+var loopInterval;
+var pingInterval;
+
 $(function(){
-    setInterval(function() { loop() }, 50);
+    loopInterval = setInterval(function() { loop() }, 50);
+    pingInterval = setInterval(function() { ping() }, 5000);
 });
