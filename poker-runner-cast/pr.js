@@ -14,7 +14,7 @@ var game = {
         count: 0,
         cost: 10
     },
-    chips {
+    chips: {
         white: {value: 5, count: 10},
         blue: {value: 10, count: 10},
         green: {value: 25, count: 8},
