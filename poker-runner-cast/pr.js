@@ -91,7 +91,7 @@ function loop() {
         $('#blinds').text('$' + smallBlind + ' / $' + bigBlind);
 
         var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
-        var formatted = formatTime(remaining);
+        var formatted = formatTimeRemaining(remaining);
         $('#time').text(formatted);
         if (remaining <= 2 * 60000) {
             $('#time').addClass('red');
@@ -107,24 +107,34 @@ function loop() {
     }
 
     if (game.state == "STARTED" || game.state == "PAUSED") {
-        var time = formatTime(Date.now() - game.time.start);
+        var time = formatTimeElapsed(Date.now() - game.time.start);
         $('#clock').text(time);
     }
 }
 
-function formatTime(time) {
+function formatTimeRemaining(time) {
     var minutes = Math.floor(time / 60000);
     var seconds = Math.ceil(time % 60000 / 1000);
     if (seconds == 60) {
         minutes += 1;
         seconds = 0;
     }
-    if (seconds < 10) {
-        seconds = '0' + seconds;
-    }
-    return minutes + ':' + seconds;
+
+    return minutes + ':'
+        + (seconds < 10 ? '0' + seconds : seconds);
+}
+
+function formatTimeElapsed(time) {
+    time = Math.floor(time / 1000); // seconds only
+    var hours = Math.floor(time / 3600);
+    var minutes = Math.floor(time % 3600 / 60);
+    var seconds = time % 60;
+
+    return (hours > 0 ? hours + ':' : '')
+        + (minutes < 10 && hours > 0 ? '0' + minutes : minutes) + ':'
+        + (seconds < 10 ? '0' + seconds : seconds);
 }
 
 $(function(){
-    setInterval(function() { loop() }, 100);
+    setInterval(function() { loop() }, 50);
 });
