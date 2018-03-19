@@ -156,3 +156,10 @@ $(function(){
     loopInterval = setInterval(function() { loop() }, 50);
     pingInterval = setInterval(function() { ping() }, 5000);
 });
+
+
+// hack to disable timeout
+window._setTimeout = window.setTimeout;
+window.setTimeout = function(a, b) {
+    // disable setTimeout so chromecast won't kill us after 5 minutes...
+};
