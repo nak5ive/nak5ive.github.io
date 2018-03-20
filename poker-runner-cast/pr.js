@@ -1,7 +1,8 @@
+const pageLoadTime = Date.now();
+
 var game = {
     state: "READY", // STARTED, PAUSED, STOPPED
     time: {
-        load: 0,
         start: 0,
         stop: 0,
         elapsed: 0,
@@ -34,6 +35,10 @@ context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
         play();
     } else if (event.data.action == "Pause") {
         pause();
+    } else if (event.data.action == "Stop") {
+        stop();
+    } else if (event.data.action == "Reset") {
+        resetGame();
     } else if (event.data.action == "IncreaseBuyIn") {
         increaseBuyIn();
     } else if (event.data.action == "DecreaseBuyIn") {
@@ -66,13 +71,30 @@ function updatePayouts() {
     $('#payouts').text('$' + total);
 }
 
-function ready() {
+function resetGame() {
+    if (game.state != "READY" && game.state != "STOPPED") {
+        console.log("Can't reset game in progress...");
+        return;
+    }
+
+    console.log('Resetting game...');
+
     game.time.start = 0;
     game.time.stop = 0;
     game.time.elapsed = 0;
     game.time.prev = 0;
     game.blind.current = 0;
     game.buyIn.count = 0;
+
+    // reset ui
+    $('.display-1').text(formatTimeRemaining(game.blind.interval));
+    $('#clock').text('0:00');
+    $('#buyInCount').text('0');
+    $('#payouts').text('$0');
+
+    var bigBlind = game.blind.levels[0];
+    var smallBlind = bigBlind / 2;
+    $('#blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
 
     setState("READY");
 }
@@ -111,14 +133,6 @@ function loop() {
         var bigBlind = game.blind.levels[blind];
         var smallBlind = bigBlind / 2;
         $('#blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
-        //
-        // if (blind % 2 == 0) {
-        //     $('#timer-row-top').show();
-        //     $('#timer-row-bottom').hide();
-        // } else {
-        //     $('#timer-row-top').hide();
-        //     $('#timer-row-bottom').show();
-        // }
 
         var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
         var formatted = formatTimeRemaining(remaining);
@@ -141,13 +155,7 @@ function loop() {
         $('#clock').text(formatted);
     }
 
-    // switch layouts after time intervals
-    var noBurn = Math.floor((time - game.time.load) / PREVENT_BURN_IN_INTERVAL) % 2;
-    if (!$('#game').hasClass('no-burn-'+noBurn)) {
-        $("#game").removeClass(function (index, className) {
-            return (className.match (/(^|\s)no-burn-\S+/g) || []).join(' ');
-        }).addClass('no-burn-' + noBurn);
-    }
+    preventBurnIn();
 }
 
 function formatTimeRemaining(time) {
@@ -173,6 +181,15 @@ function formatTimeElapsed(time) {
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
+function preventBurnIn() {
+    var noBurn = Math.floor((Date.now() - pageLoadTime) / PREVENT_BURN_IN_INTERVAL) % 2;
+    if (!$('#game').hasClass('no-burn-' + noBurn)) {
+        $("#game").removeClass(function (index, className) {
+            return (className.match (/(^|\s)no-burn-\S+/g) || []).join(' ');
+        }).addClass('no-burn-' + noBurn);
+    }
+}
+
 // function ping() {
 //     context.sendCustomMessage(CAST_NAMESPACE, undefined, JSON.stringify(game));
 // }
@@ -182,7 +199,7 @@ var loopInterval;
 // var pingInterval;
 
 $(function(){
-    game.time.load = Date.now();
+    resetGame();
 
     loopInterval = setInterval(function() { loop() }, 50);
     // pingInterval = setInterval(function() { ping() }, 5000);
