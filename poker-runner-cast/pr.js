@@ -1,6 +1,7 @@
 var game = {
     state: "READY", // STARTED, PAUSED, STOPPED
     time: {
+        load: 0,
         start: 0,
         stop: 0,
         elapsed: 0,
@@ -21,6 +22,8 @@ var game = {
         black: {value: 100, count: 4}
     }
 };
+
+const PREVENT_BURN_IN_INTERVAL = 7 * 60 * 1000;
 
 // init cast framework
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
@@ -99,22 +102,23 @@ function setState(state) {
 }
 
 function loop() {
+    var time = Date.now();
+
     if (game.state == "PLAYING") {
-        var time = Date.now();
         game.time.elapsed += time - game.time.prev;
 
         var blind = Math.floor(game.time.elapsed / game.blind.interval);
         var bigBlind = game.blind.levels[blind];
         var smallBlind = bigBlind / 2;
         $('#blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
-
-        if (blind % 2 == 0) {
-            $('#timer-row-top').show();
-            $('#timer-row-bottom').hide();
-        } else {
-            $('#timer-row-top').hide();
-            $('#timer-row-bottom').show();
-        }
+        //
+        // if (blind % 2 == 0) {
+        //     $('#timer-row-top').show();
+        //     $('#timer-row-bottom').hide();
+        // } else {
+        //     $('#timer-row-top').hide();
+        //     $('#timer-row-bottom').show();
+        // }
 
         var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
         var formatted = formatTimeRemaining(remaining);
@@ -129,12 +133,20 @@ function loop() {
     }
 
     if (game.state == "PAUSED") {
-        game.time.prev = Date.now();
+        game.time.prev = time;
     }
 
     if (game.state == "PLAYING" || game.state == "PAUSED") {
-        var time = formatTimeElapsed(Date.now() - game.time.start);
-        $('#clock').text(time);
+        var formatted = formatTimeElapsed(time - game.time.start);
+        $('#clock').text(formatted);
+    }
+
+    // switch layouts after time intervals
+    var noBurn = Math.floor((time - game.time.load) / PREVENT_BURN_IN_INTERVAL) % 2;
+    if (!$('#game').hasClass('no-burn-'+noBurn)) {
+        $("#game").removeClass(function (index, className) {
+            return (className.match (/(^|\s)no-burn-\S+/g) || []).join(' ');
+        }).addClass('no-burn-' + noBurn);
     }
 }
 
@@ -170,6 +182,8 @@ var loopInterval;
 // var pingInterval;
 
 $(function(){
+    game.time.load = Date.now();
+
     loopInterval = setInterval(function() { loop() }, 50);
     // pingInterval = setInterval(function() { ping() }, 5000);
 

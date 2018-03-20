@@ -2,6 +2,16 @@ html, body {
   height: 100%;
 }
 
+.no-burn-0 #timer-row-top,
+.no-burn-1 #timer-row-bottom {
+    display: flex;
+}
+
+.no-burn-1 #timer-row-top,
+.no-burn-0 #timer-row-bottom {
+    display: none;
+}
+
 .jumbotron.vertical-center {
     margin-bottom: 0; /* Remove the default bottom margin of .jumbotron */
 }
