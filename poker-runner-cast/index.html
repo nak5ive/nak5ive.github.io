@@ -2,22 +2,45 @@
 <html ng-app="prApp">
     <head>
         <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="pr.js"></script>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="pr.css"/>
     </head>
     <body>
-        <div id="game" class="ready">
-            <div>Poker Boiz</div>
-            <div id="blindTimer" >15:00</div>
-            <div id="blindLevels">$5 / $10</div>
-            <div id="state">READY</div>
-            <div id="lowerLeft">
-                <div id="buyIns">Buy-Ins: <span id="buyInCount">0</span></div>
-                <div id="payouts">Payouts: <span id="payouts">$0</span></div>
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+                <div id="timer-row-top" class="row border-bottom">
+                    <div class="col">
+                        <h1 class="display-1">15:00</h1>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm border-right">
+                        <h6>POKER BOIZ</h6>
+                        <p id="clock" class="lead">0:00</p>
+                    </div>
+                    <div class="col-sm border-right">
+                        <h6>BUY-INS</h6>
+                        <p id="buyInCount" class="lead">0</p>
+                    </div>
+                    <div class="col-sm border-right">
+                        <h6>WINNERS</h6>
+                        <p id="payouts" class="lead">$0</p>
+                    </div>
+                    <div class="col-sm">
+                        <h6>BLINDS</h6>
+                        <p id="blindLevels" class="lead">$5 / $10</p>
+                    </div>
+                </div>
+                <div id="timer-row-bottom" class="row border-top">
+                    <div class="col">
+                        <h1 class="display-1">15:00</h1>
+                    </div>
+                </div>
             </div>
-            <div id="gameClock">Game Clock: <span id="clock">0:00</span></div>
         </div>
     </body>
 </html>
