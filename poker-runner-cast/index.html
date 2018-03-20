@@ -8,11 +8,16 @@
         <link rel="stylesheet" href="pr.css"/>
     </head>
     <body>
-        <h1>Poker Boiz</h1>
-        <h2 id="time">15:00</h2>
-        <h2>Blinds: <span id="blinds">$5 / $10</span></h2>
-        <h2>Buy-Ins: <span id="buyInCount">0</span></h2>
-        <h2>Payouts: <span id="payouts">$0</span></h2>
-        <h2>Game Clock: <span id="clock">0:00</span></h2>
+        <div id="game" class="ready">
+            <div>Poker Boiz</div>
+            <div id="blindTimer" >15:00</div>
+            <div id="blindLevels">$5 / $10</div>
+            <div id="state">READY</div>
+            <div id="lowerLeft">
+                <div id="buyIns">Buy-Ins: <span id="buyInCount">0</span></div>
+                <div id="payouts">Payouts: <span id="payouts">$0</span></div>
+            </div>
+            <div id="gameClock">Game Clock: <span id="clock">0:00</span></div>
+        </div>
     </body>
 </html>

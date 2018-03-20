@@ -64,13 +64,14 @@ function updatePayouts() {
 }
 
 function ready() {
-    game.state = "READY";
     game.time.start = 0;
     game.time.stop = 0;
     game.time.elapsed = 0;
     game.time.prev = 0;
     game.blind.current = 0;
     game.buyIn.count = 0;
+
+    setState("READY");
 }
 
 function play() {
@@ -78,16 +79,23 @@ function play() {
         game.time.start = Date.now();
         game.time.prev = game.time.start;
     }
-    game.state = "PLAYING";
+    setState("PLAYING");
 }
 
 function pause() {
-    game.state = "PAUSED";
+    setState("PAUSED");
 }
 
 function stop() {
     game.time.stop = Date.now();
-    game.state = "STOPPED";
+    setState("STOPPED");
+}
+
+// private
+function setState(state) {
+    game.state = state;
+    $('#game').removeClass().addClass(state.toLowerCase());
+    $('#state').text(state);
 }
 
 function loop() {
@@ -98,15 +106,15 @@ function loop() {
         var blind = Math.floor(game.time.elapsed / game.blind.interval);
         var bigBlind = game.blind.levels[blind];
         var smallBlind = bigBlind / 2;
-        $('#blinds').text('$' + smallBlind + ' / $' + bigBlind);
+        $('#blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
 
         var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
         var formatted = formatTimeRemaining(remaining);
-        $('#time').text(formatted);
+        $('#blindTimer').text(formatted);
         if (remaining <= 2 * 60000) {
-            $('#time').addClass('red');
+            $('#blindTimer').addClass('red');
         } else {
-            $('#time').removeClass('red');
+            $('#blindTimer').removeClass('red');
         }
 
         game.time.prev = time;
@@ -149,6 +157,7 @@ function ping() {
     context.sendCustomMessage(CAST_NAMESPACE, undefined, JSON.stringify(game));
 }
 
+
 var loopInterval;
 var pingInterval;
 
@@ -158,7 +167,5 @@ $(function(){
 
     // hack to disable timeout
     window._setTimeout = window.setTimeout;
-    window.setTimeout = function(a, b) {
-        // disable setTimeout so chromecast won't kill us after 5 minutes...
-    };
+    window.setTimeout = function(a, b) {};
 });

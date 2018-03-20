@@ -1,8 +1,40 @@
 body {
     background-color: #000;
     color: #fff;
+}
+
+#game {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
     text-align: center;
 }
+
+#blindTimer {
+    font-size: 15em;
+}
+
+#blindLevels {
+    font-size: 2em;
+}
+
+#state {
+    display: none;
+}
+
+#game.paused #state {
+    display: block;
+}
+
+#lowerLeft {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    text-align: left;
+}
+
 .red {
     color: #f00;
 }
