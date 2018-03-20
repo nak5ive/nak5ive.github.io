@@ -8,7 +8,7 @@ var game = {
     },
     blind: {
         levels: [10, 20, 40, 80, 100, 200, 400, 800, 1000, 2000, 4000, 8000],
-        interval: 1 * 60 * 1000
+        interval: 15 * 60 * 1000
     },
     buyIn: {
         count: 0,
@@ -119,7 +119,7 @@ function loop() {
         var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
         var formatted = formatTimeRemaining(remaining);
         $('.display-1').text(formatted);
-        if (remaining <= 2 * 60000) {
+        if (remaining <= 1 * 60000) {
             $('.display-1').addClass('red');
         } else {
             $('.display-1').removeClass('red');
@@ -161,19 +161,17 @@ function formatTimeElapsed(time) {
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
-function ping() {
-    context.sendCustomMessage(CAST_NAMESPACE, undefined, JSON.stringify(game));
-}
+// function ping() {
+//     context.sendCustomMessage(CAST_NAMESPACE, undefined, JSON.stringify(game));
+// }
 
 
 var loopInterval;
-var pingInterval;
+// var pingInterval;
 
 $(function(){
-    $('#timer-row-bottom').hide();
-
     loopInterval = setInterval(function() { loop() }, 50);
-    pingInterval = setInterval(function() { ping() }, 5000);
+    // pingInterval = setInterval(function() { ping() }, 5000);
 
     // hack to disable timeout
     window._setTimeout = window.setTimeout;
