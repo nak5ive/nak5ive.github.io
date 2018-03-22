@@ -29,6 +29,8 @@ const PREVENT_BURN_IN_INTERVAL = 7 * 60 * 1000;
 // init cast framework
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
 const context = cast.framework.CastReceiverContext.getInstance();
+const playerManager = context.getPlayerManager();
+
 context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
     console.log(event);
     if (event.data.action == "Play") {
@@ -45,6 +47,11 @@ context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
         decreaseBuyIn();
     }
 });
+
+playerManager.addEventListener(cast.framework.events.category.CORE,
+        event => {
+            console.log(event);
+        });
 
 const options = new cast.framework.CastReceiverOptions();
 options.maxInactivity = 3600;
@@ -168,7 +175,7 @@ function loop() {
         $('#clock').text(formatted);
     }
 
-    preventBurnIn();
+    // preventBurnIn();
 }
 
 function formatTimeRemaining(time) {
@@ -194,14 +201,14 @@ function formatTimeElapsed(time) {
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
-function preventBurnIn() {
-    var noBurn = Math.floor((Date.now() - pageLoadTime) / PREVENT_BURN_IN_INTERVAL) % 2;
-    if (!$('#game').hasClass('no-burn-' + noBurn)) {
-        $("#game").removeClass(function (index, className) {
-            return (className.match (/(^|\s)no-burn-\S+/g) || []).join(' ');
-        }).addClass('no-burn-' + noBurn);
-    }
-}
+// function preventBurnIn() {
+//     var noBurn = Math.floor((Date.now() - pageLoadTime) / PREVENT_BURN_IN_INTERVAL) % 2;
+//     if (!$('#game').hasClass('no-burn-' + noBurn)) {
+//         $("#game").removeClass(function (index, className) {
+//             return (className.match (/(^|\s)no-burn-\S+/g) || []).join(' ');
+//         }).addClass('no-burn-' + noBurn);
+//     }
+// }
 
 // function ping() {
 //     context.sendCustomMessage(CAST_NAMESPACE, undefined, JSON.stringify(game));

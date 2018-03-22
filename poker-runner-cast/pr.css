@@ -4,19 +4,11 @@ html, body {
   color: #e3e3e3;
 }
 
-.no-burn-0 #timer-row-top,
-.no-burn-1 #timer-row-bottom {
-    display: flex;
-}
-
-.no-burn-1 #timer-row-top,
-.no-burn-0 #timer-row-bottom {
-    display: none;
+#player {
+    visibility: hidden;
 }
 
 .blindTimer {
-    position: absolute;
-    bottom: 0;
 }
 
 .progress {
@@ -62,8 +54,8 @@ html, body {
     text-align: center;
 }
 
-.blindLevels {
-    text-align: right;
+#details {
+    min-height: 10rem;
 }
 
 .red {
