@@ -1,10 +1,15 @@
 html, body {
   height: 100%;
-  background-color: #000;
+  /* background-color: #000; */
   color: #e3e3e3;
+  overflow: hidden;
 }
 
-#header {
+#player {
+    visibility: hidden;
+}
+
+header {
     position: absolute;
     width: 90%;
     top: 5%;
@@ -13,33 +18,40 @@ html, body {
 }
 
 #title {
+    float: left;
+    border-bottom-width: 0.25rem !important;
+    border-bottom-color: #f8f9fa !important;
 }
 
 #clock {
-    color: #aaa;
+    clear: left;
+    float: left;
 }
 
 #timer {
     float: right;
 }
 
-#player {
-    visibility: hidden;
+footer {
+    position: absolute;
+    width: 100%;
+    bottom: 5%;
 }
 
 
-
-.blindTimer {
+.blindLevels {
+    text-align: right;
+}
+#blind-levels-top {
+    display: none;
+}
+#blind-timer-bottom {
+    display: none;
 }
 
 .progress {
     height: 0.5rem;
-    background-color: #444;
     border-radius: 0;
-}
-
-.progress-bar {
-    background-color: #e3e3e3;
 }
 
 .vertical-center {

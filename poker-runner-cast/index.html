@@ -10,37 +10,38 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="pr.css"/>
     </head>
-    <body>
-        <div id="header">
-            <h2 id="timer"></h2>
-            <h1 id="title">POKER BOIZ</h1>
-            <h3 id="clock"></h3>
-        </div>
+    <body class="bg-dark text-light">
         <cast-media-player id="player"></cast-media-player>
-        <div id="game" class="vertical-center no-burn-0">
+        <header>
+            <h1 id="timer"></h1>
+            <h1 id="title" class="border-bottom"></h1>
+            <h3 id="clock" class="text-secondary"></h3>
+        </header>
+        <div class="vertical-center no-burn-0">
             <div class="container">
-                <div id="details" class="row align-items-center">
-                    <div class="col-sm">
-                        <h3>BUY-INS</h3>
-                        <h3 id="buyInCount">0</h3>
-                    </div>
-                    <div class="col-sm">
-                        <h3>WINNERS</h3>
-                        <h3 id="payouts">$0</h3>
-                    </div>
+                <h1 id="blind-timer-top" class="blindTimer">0:00</h1>
+                <h1 id="blind-levels-top" class="blindLevels display-1">0:00</h1>
+                <div class="progress bg-secondary">
+                    <div class="progress-bar bg-light" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <div id="test" class="row">
-                    <div class="col" style="position:relative;">
-                        <h1 class="blindTimer">0:00</h1>
+                <h1 id="blind-timer-bottom" class="blindTimer">0:00</h1>
+                <h1 id="blind-levels-bottom" class="blindLevels display-1">0:00</h1>
+            </div>
+        </div>
+        <footer>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-auto border-right">
+                        <h1><span id="buyInCount">0</span> BUYS</h1>
                     </div>
-                    <div class="col-lg-auto">
-                        <h1 class="blindLevels display-1">0:00</h1>
+                    <div class="col-auto border-right">
+                        <h1><span id="potSize">$0</span> POT</h1>
+                    </div>
+                    <div class="col-auto">
+                        <h1><span id="payouts">$0</span></h1>
                     </div>
                 </div>
             </div>
-        </div>
+        </footer>
     </body>
 </html>

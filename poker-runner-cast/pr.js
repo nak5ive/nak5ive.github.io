@@ -1,6 +1,7 @@
 const pageLoadTime = Date.now();
 
 var game = {
+    title: 'POKER BOIZ',
     state: "READY", // STARTED, PAUSED, STOPPED
     time: {
         start: 0,
@@ -85,6 +86,7 @@ function updatePayouts() {
         formatted += ' / $' + third;
     }
 
+    $('#potSize').text('$' + total);
     $('#payouts').text(formatted);
 }
 
@@ -104,9 +106,11 @@ function resetGame() {
     game.buyIn.count = 0;
 
     // reset ui
+    $('#title').text(game.title);
     $('.blindTimer').text(formatTimeRemaining(game.blind.interval));
     $('#timer').text('');
     $('#buyInCount').text('0');
+    $('#potSize').text('$0');
     $('#payouts').text('$0');
 
     var bigBlind = game.blind.levels[0];
@@ -175,7 +179,11 @@ function loop() {
         $('#timer').text(formatted);
     }
 
-    $('#clock').html(moment().format('H:mma'));
+    // update clock
+    var clock = moment().format('h:mma');
+    if ($('#clock').text() != clock) {
+        $('#clock').text(clock);
+    }
 }
 
 function formatTimeRemaining(time) {
