@@ -68,7 +68,17 @@ function decreaseBuyIn() {
 
 function updatePayouts() {
     var total = game.buyIn.count * game.buyIn.cost;
-    $('#payouts').text('$' + total);
+
+    var first = Math.ceil(total / 15) * 10;
+    var second = Math.ceil((total - first) / 15) * 10;
+    var third = total - first - second;
+
+    var formatted = '$' + first + ' / $' + second;
+    if (third != 0) {
+        formatted += ' / $' + third;
+    }
+
+    $('#payouts').text(formatted);
 }
 
 function resetGame() {
@@ -87,14 +97,14 @@ function resetGame() {
     game.buyIn.count = 0;
 
     // reset ui
-    $('.display-1').text(formatTimeRemaining(game.blind.interval));
+    $('.blindTimer').text(formatTimeRemaining(game.blind.interval));
     $('#clock').text('0:00');
     $('#buyInCount').text('0');
     $('#payouts').text('$0');
 
     var bigBlind = game.blind.levels[0];
     var smallBlind = bigBlind / 2;
-    $('#blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
+    $('#blindLevels, .blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
 
     setState("READY");
 }
@@ -132,15 +142,18 @@ function loop() {
         var blind = Math.floor(game.time.elapsed / game.blind.interval);
         var bigBlind = game.blind.levels[blind];
         var smallBlind = bigBlind / 2;
-        $('#blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
+        $('#blindLevels, .blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
 
         var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
         var formatted = formatTimeRemaining(remaining);
-        $('.display-1').text(formatted);
+        $('.blindTimer').text(formatted);
+
+        $('.progress-bar').css('width', (100 * (game.blind.interval - remaining) / game.blind.interval) + '%');
+
         if (remaining <= 1 * 60000) {
-            $('.display-1').addClass('red');
+            $('.blindTimer').addClass('red');
         } else {
-            $('.display-1').removeClass('red');
+            $('.blindTimer').removeClass('red');
         }
 
         game.time.prev = time;

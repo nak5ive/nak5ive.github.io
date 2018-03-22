@@ -10,12 +10,18 @@
         <link rel="stylesheet" href="pr.css"/>
     </head>
     <body>
-        <div id="game" class="jumbotron jumbotron-fluid vertical-center no-burn-0">
+        <div id="game" class="vertical-center no-burn-0">
             <div class="container">
-                <div id="timer-row-top" class="row border-bottom">
-                    <div class="col">
-                        <h1 class="display-1">0:00</h1>
+                <div id="timer-row-top" class="row">
+                    <div class="col-4" style="position:relative;">
+                        <h1 class="blindTimer">0:00</h1>
                     </div>
+                    <div class="col">
+                        <h1 class="blindLevels display-1">0:00</h1>
+                    </div>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <div class="row">
                     <div class="col-sm border-right">
@@ -35,7 +41,7 @@
                         <h3 id="blindLevels">$5 / $10</h3>
                     </div>
                 </div>
-                <div id="timer-row-bottom" class="row border-top">
+                <div id="timer-row-bottom" class="row">
                     <div class="col">
                         <h1 class="display-1">0:00</h1>
                     </div>
