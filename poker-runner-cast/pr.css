@@ -17,19 +17,15 @@ header {
     margin-right: 5%;
 }
 
-#title {
-    float: left;
-    border-bottom-width: 0.25rem !important;
-    border-bottom-color: #f8f9fa !important;
+#table-name {
+    border-bottom: 0.25rem solid #6c757d;
 }
 
 #clock {
-    clear: left;
-    float: left;
+    
 }
 
 #timer {
-    float: right;
 }
 
 footer {

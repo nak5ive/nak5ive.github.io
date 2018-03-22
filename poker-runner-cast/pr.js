@@ -1,7 +1,8 @@
 const pageLoadTime = Date.now();
 
 var game = {
-    title: 'POKER BOIZ',
+    table: 'POKER BOIZ',
+    type: 'TEXAS HOLD &lsquo;EM',
     state: "READY", // STARTED, PAUSED, STOPPED
     time: {
         start: 0,
@@ -106,7 +107,9 @@ function resetGame() {
     game.buyIn.count = 0;
 
     // reset ui
-    $('#title').text(game.title);
+    $('#table-name').text(game.table);
+    $('#buy-in-cost').text('$' + game.buyIn.cost);
+    $('#game-type').html(game.type);
     $('.blindTimer').text(formatTimeRemaining(game.blind.interval));
     $('#timer').text('');
     $('#buyInCount').text('0');
