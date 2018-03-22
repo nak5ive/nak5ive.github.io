@@ -105,7 +105,7 @@ function resetGame() {
 
     // reset ui
     $('.blindTimer').text(formatTimeRemaining(game.blind.interval));
-    $('#clock').text('0:00');
+    $('#timer').text('');
     $('#buyInCount').text('0');
     $('#payouts').text('$0');
 
@@ -172,10 +172,10 @@ function loop() {
 
     if (game.state == "PLAYING" || game.state == "PAUSED") {
         var formatted = formatTimeElapsed(time - game.time.start);
-        $('#clock').text(formatted);
+        $('#timer').text(formatted);
     }
 
-    // preventBurnIn();
+    $('#clock').html(moment().format('H:mma'));
 }
 
 function formatTimeRemaining(time) {
@@ -201,28 +201,13 @@ function formatTimeElapsed(time) {
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
-// function preventBurnIn() {
-//     var noBurn = Math.floor((Date.now() - pageLoadTime) / PREVENT_BURN_IN_INTERVAL) % 2;
-//     if (!$('#game').hasClass('no-burn-' + noBurn)) {
-//         $("#game").removeClass(function (index, className) {
-//             return (className.match (/(^|\s)no-burn-\S+/g) || []).join(' ');
-//         }).addClass('no-burn-' + noBurn);
-//     }
-// }
-
-// function ping() {
-//     context.sendCustomMessage(CAST_NAMESPACE, undefined, JSON.stringify(game));
-// }
-
 
 var loopInterval;
-// var pingInterval;
 
 $(function(){
     resetGame();
 
     loopInterval = setInterval(function() { loop() }, 50);
-    // pingInterval = setInterval(function() { ping() }, 5000);
 
     // hack to disable timeout
     window._setTimeout = window.setTimeout;

@@ -4,9 +4,30 @@ html, body {
   color: #e3e3e3;
 }
 
+#header {
+    position: absolute;
+    width: 90%;
+    top: 5%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+#title {
+}
+
+#clock {
+    color: #aaa;
+}
+
+#timer {
+    float: right;
+}
+
 #player {
     visibility: hidden;
 }
+
+
 
 .blindTimer {
 }

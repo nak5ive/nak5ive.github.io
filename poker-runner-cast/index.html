@@ -4,20 +4,22 @@
         <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js" integrity="sha256-9YAuB2VnFZNJ+lKfpaQ3dKQT9/C0j3VUla76hHbiVF8=" crossorigin="anonymous"></script>
         <script src="pr.js"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="pr.css"/>
     </head>
     <body>
+        <div id="header">
+            <h2 id="timer"></h2>
+            <h1 id="title">POKER BOIZ</h1>
+            <h3 id="clock"></h3>
+        </div>
         <cast-media-player id="player"></cast-media-player>
         <div id="game" class="vertical-center no-burn-0">
             <div class="container">
                 <div id="details" class="row align-items-center">
-                    <div class="col-sm">
-                        <h3>POKER BOIZ</h3>
-                        <h3 id="clock">0:00</h3>
-                    </div>
                     <div class="col-sm">
                         <h3>BUY-INS</h3>
                         <h3 id="buyInCount">0</h3>
@@ -25,10 +27,6 @@
                     <div class="col-sm">
                         <h3>WINNERS</h3>
                         <h3 id="payouts">$0</h3>
-                    </div>
-                    <div class="col-sm">
-                        <h3>BLINDS</h3>
-                        <h3 id="blindLevels">$5 / $10</h3>
                     </div>
                 </div>
                 <div class="progress">
