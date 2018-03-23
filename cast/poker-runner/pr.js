@@ -155,7 +155,7 @@ function pause() {
 }
 
 function stop() {
-    if (game.state != 'PLAYING' || game.state != 'PAUSED') {
+    if (game.state != 'PLAYING' && game.state != 'PAUSED') {
         return console.log('Can only stop a game in progress');
     }
 
