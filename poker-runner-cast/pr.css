@@ -5,6 +5,10 @@ html, body {
   overflow: hidden;
 }
 
+.bg-dark {
+    background-color: #000!important;
+}
+
 #player {
     visibility: hidden;
 }
@@ -22,7 +26,7 @@ header {
 }
 
 #clock {
-    
+
 }
 
 #timer {
