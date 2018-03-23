@@ -91,10 +91,17 @@ function updatePayouts() {
     $('#payouts').text(formatted);
 }
 
+function addTime(amount) {
+    if (game.state != 'PLAYING' && game.state != 'PAUSED') {
+        return console.log('Can only add time to a game in progress');
+    }
+
+    game.time.elapsed = Math.max(game.time.elapsed + amount, 0);
+}
+
 function resetGame() {
     if (game.state != 'READY' && game.state != 'STOPPED') {
-        console.log('Can\'t reset game in progress...');
-        return;
+        return console.log('Can\'t reset game in progress');
     }
 
     console.log('Resetting game...');
@@ -110,15 +117,15 @@ function resetGame() {
     $('#table-name').text(game.table);
     $('#buy-in-cost').text('$' + game.buyIn.cost);
     $('#game-type').html(game.type);
-    $('.blindTimer').text(formatTimeRemaining(game.blind.interval));
-    $('#timer').text('');
+    $('#blind-timer').text(formatTimeRemaining(game.blind.interval));
+    $('#game-timer').text('0:00');
     $('#buyInCount').text('0');
     $('#potSize').text('$0');
     $('#payouts').text('$0');
 
     var bigBlind = game.blind.levels[0];
     var smallBlind = bigBlind / 2;
-    $('#blindLevels, .blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
+    $('#blind-levels').text('$' + smallBlind + ' / $' + bigBlind);
 
     setState('READY');
 }
@@ -132,10 +139,17 @@ function play() {
 }
 
 function pause() {
+    if (game.state != 'PLAYING') {
+        return console.log('Can only pause a game in progress');
+    }
     setState('PAUSED');
 }
 
 function stop() {
+    if (game.state != 'PLAYING' || game.state != 'PAUSED') {
+        return console.log('Can only stop a game in progress');
+    }
+
     game.time.stop = Date.now();
     setState('STOPPED');
 }
@@ -143,12 +157,11 @@ function stop() {
 // private
 function setState(state) {
     game.state = state;
-    $('#state').text(state);
 
-    if ($(document.body).hasClass('state-' + state.toLowerCase()) == false) {
+    if ($(document.body).hasClass('game-state-' + state.toLowerCase()) == false) {
         $(document.body).removeClass(function (index, className) {
-            return (className.match (/(^|\s)state-\S+/g) || []).join(' ');
-        }).addClass('state-' + state.toLowerCase());
+            return (className.match (/(^|\s)game-state-\S+/g) || []).join(' ');
+        }).addClass('game-state-' + state.toLowerCase());
     }
 }
 
@@ -161,18 +174,21 @@ function loop() {
         var blind = Math.floor(game.time.elapsed / game.blind.interval);
         var bigBlind = game.blind.levels[blind];
         var smallBlind = bigBlind / 2;
-        $('#blindLevels, .blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
+        var blindLevels = '$' + smallBlind + ' / $' + bigBlind;
+        if ($('#blind-levels').text() != blindLevels) {
+            $('#blind-levels').text(blindLevels);
+        }
 
         var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
         var formatted = formatTimeRemaining(remaining);
-        $('.blindTimer').text(formatted);
+        $('#blind-timer').text(formatted);
 
         $('.progress-bar').css('width', (100 * (game.blind.interval - remaining) / game.blind.interval) + '%');
 
         if (remaining <= 1 * 60000) {
-            $('.blindTimer').addClass('red');
+            $('#blind-timer').addClass('red');
         } else {
-            $('.blindTimer').removeClass('red');
+            $('#blind-timer').removeClass('red');
         }
 
         game.time.prev = time;
@@ -183,8 +199,8 @@ function loop() {
     }
 
     if (game.state == "PLAYING" || game.state == "PAUSED") {
-        var formatted = formatTimeElapsed(time - game.time.start);
-        $('#timer').text(formatted);
+        var formatted = formatTimeElapsed(game.time.elapsed);
+        $('#game-timer').text(formatted);
     }
 
     // update clock

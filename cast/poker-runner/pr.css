@@ -1,0 +1,44 @@
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background-color: #000 !important;
+}
+
+*[class^="game-state-"] *[class^="state-aware-"],
+*[class^="game-state-"] *[class*=" state-aware-"],
+*[class*=" game-state-"] *[class^="state-aware-"],
+*[class*=" game-state-"] *[class*=" state-aware-"] {
+    display: none;
+}
+
+.game-state-ready .state-aware-ready,
+.game-state-playing .state-aware-playing,
+.game-state-paused .state-aware-paused,
+.game-state-stopped .state-aware-stopped {
+    display: block;
+}
+
+#page {
+    height: 100%;
+    padding: 5%;
+}
+
+#title-bar {
+    border-bottom: 0.25rem solid #999;
+}
+
+.progress {
+    height: 0.5rem;
+    border-radius: 0;
+}
+
+.text-secondary {
+    color: #999!important;
+}
+.text-red {
+    color: #f00;
+}
+
+.bg-secondary {
+    background-color: #666!important;
+}
