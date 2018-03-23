@@ -43,6 +43,8 @@ context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
         stop();
     } else if (event.data.action == "Reset") {
         resetGame();
+    } else if (event.data.action == 'AddTime') {
+        addTime(event.data.value);
     } else if (event.data.action == "IncreaseBuyIn") {
         increaseBuyIn();
     } else if (event.data.action == "DecreaseBuyIn") {
@@ -91,6 +93,7 @@ function updatePayouts() {
     $('#payouts').text(formatted);
 }
 
+// amount in millis
 function addTime(amount) {
     if (game.state != 'PLAYING' && game.state != 'PAUSED') {
         return console.log('Can only add time to a game in progress');
