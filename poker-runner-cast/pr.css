@@ -1,8 +1,18 @@
 html, body {
   height: 100%;
-  /* background-color: #000; */
-  color: #e3e3e3;
   overflow: hidden;
+}
+
+body.state-ready #timer,
+body.state-paused #timer,
+body.state-stopped #timer {
+    display: none;
+}
+
+body.state-ready #state,
+body.state-paused #state,
+body.state-playing #timer {
+    display: block;
 }
 
 .bg-dark {
@@ -15,14 +25,19 @@ html, body {
 
 header {
     position: absolute;
-    width: 90%;
+    width: 100%;
     top: 5%;
-    margin-left: 5%;
-    margin-right: 5%;
+    padding-left: 5%;
+    padding-right: 5%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-#table-name {
-    border-bottom: 0.25rem solid #6c757d;
+header .border-bottom {
+    border-bottom: 0.25rem solid #6c757d !important;
+}
+header h1 {
+    margin: 0;
 }
 
 #clock {

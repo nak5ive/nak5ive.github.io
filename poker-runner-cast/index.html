@@ -13,12 +13,23 @@
     <body class="bg-dark text-light">
         <cast-media-player id="player"></cast-media-player>
         <header>
-            <div class="float-right">
-                <h1><span id="buy-in-cost"></span> <span id="game-type"></span></h1>
-                <h1 id="timer" class="text-secondary"></h1>
+            <div class="row no-gutters border-bottom">
+                <div class="col">
+                    <h1 id="table-name"></h1>
+                </div>
+                <div class="col-auto">
+                    <h1><span id="buy-in-cost"></span> <span id="game-type"></span></h1>
+                </div>
             </div>
-            <h1 id="table-name"></h1>
-            <h3 id="clock" class="text-secondary"></h3>
+            <div class="row no-gutters">
+                <div class="col">
+                    <h3 id="clock" class="text-secondary"></h3>
+                </div>
+                <div class="col-auto">
+                    <h3 id="timer" class="text-secondary"></h3>
+                    <h3 id="state"></h3>
+                </div>
+            </div>
         </header>
         <div class="vertical-center no-burn-0">
             <div class="container">

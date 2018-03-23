@@ -3,7 +3,7 @@ const pageLoadTime = Date.now();
 var game = {
     table: 'POKER BOIZ',
     type: 'TEXAS HOLD &lsquo;EM',
-    state: "READY", // STARTED, PAUSED, STOPPED
+    state: 'READY', // PLAYING, PAUSED, STOPPED
     time: {
         start: 0,
         stop: 0,
@@ -92,8 +92,8 @@ function updatePayouts() {
 }
 
 function resetGame() {
-    if (game.state != "READY" && game.state != "STOPPED") {
-        console.log("Can't reset game in progress...");
+    if (game.state != 'READY' && game.state != 'STOPPED') {
+        console.log('Can\'t reset game in progress...');
         return;
     }
 
@@ -120,37 +120,42 @@ function resetGame() {
     var smallBlind = bigBlind / 2;
     $('#blindLevels, .blindLevels').text('$' + smallBlind + ' / $' + bigBlind);
 
-    setState("READY");
+    setState('READY');
 }
 
 function play() {
-    if (game.state == "READY") {
+    if (game.state == 'READY') {
         game.time.start = Date.now();
         game.time.prev = game.time.start;
     }
-    setState("PLAYING");
+    setState('PLAYING');
 }
 
 function pause() {
-    setState("PAUSED");
+    setState('PAUSED');
 }
 
 function stop() {
     game.time.stop = Date.now();
-    setState("STOPPED");
+    setState('STOPPED');
 }
 
 // private
 function setState(state) {
     game.state = state;
-    // $('#game').removeClass().addClass(state.toLowerCase());
-    // $('#state').text(state);
+    $('#state').text(state);
+
+    if ($(document.body).hasClass('state-' + state.toLowerCase()) == false) {
+        $(document.body).removeClass(function (index, className) {
+            return (className.match (/(^|\s)state-\S+/g) || []).join(' ');
+        }).addClass('state-' + state.toLowerCase());
+    }
 }
 
 function loop() {
     var time = Date.now();
 
-    if (game.state == "PLAYING") {
+    if (game.state == 'PLAYING') {
         game.time.elapsed += time - game.time.prev;
 
         var blind = Math.floor(game.time.elapsed / game.blind.interval);
