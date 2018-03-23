@@ -3,11 +3,12 @@
     <head>
         <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js" integrity="sha256-9YAuB2VnFZNJ+lKfpaQ3dKQT9/C0j3VUla76hHbiVF8=" crossorigin="anonymous"></script>
         <script src="./pr.js"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
         <link rel="stylesheet" href="./pr.css"/>
     </head>
     <body class="game-state-ready">
@@ -21,7 +22,7 @@
                 <div class="d-flex justify-content-between">
                     <h3 id="clock" class="text-secondary"></h3>
                     <h3 class="text-red state-aware-paused">PAUSED</h3>
-                    <h3 id="game-timer" class="text-secondary">0:00</h3>
+                    <h3 class="text-secondary"><span id="game-timer">0:00</span> <span class="oi oi-timer" title="timer" aria-hidden="true"></span></h3>
                 </div>
             </header>
 
@@ -40,18 +41,10 @@
             </main>
 
             <footer>
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-auto border-right">
-                            <h1><span id="buyInCount">0</span> BUYS</h1>
-                        </div>
-                        <div class="col-auto border-right">
-                            <h1><span id="potSize">$0</span> POT</h1>
-                        </div>
-                        <div class="col-auto">
-                            <h1><span id="payouts">$0</span></h1>
-                        </div>
-                    </div>
+                <div class="d-flex justify-content-center">
+                    <h1 class="mr-5"><span class="oi oi-people text-secondary" title="people" aria-hidden="true"></span> <span id="players">0</span></h1>
+                    <h1 class="ml-5 mr-5"><span class="oi oi-reload text-secondary" title="reload" aria-hidden="true"></span> <span id="rebuys">0</span></h1>
+                    <h1 class="ml-5"><span class="oi oi-badge text-secondary" title="badge" aria-hidden="true"></span> <span id="payouts">$0</span></h1>
                 </div>
             </footer>
         </div>

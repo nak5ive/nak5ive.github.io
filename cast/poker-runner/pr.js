@@ -2,6 +2,7 @@ const pageLoadTime = Date.now();
 
 var game = {
     table: 'POKER BOIZ',
+    buyin: 10,
     type: 'TEXAS HOLD &lsquo;EM',
     state: 'READY', // PLAYING, PAUSED, STOPPED
     time: {
@@ -14,9 +15,9 @@ var game = {
         levels: [10, 20, 40, 80, 100, 200, 400, 800, 1000, 2000, 4000, 8000],
         interval: 15 * 60 * 1000
     },
-    buyIn: {
+    players: {
         count: 0,
-        cost: 10
+        rebuys: 0
     },
     chips: {
         white: {value: 5, count: 10},
@@ -45,10 +46,10 @@ context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
         resetGame();
     } else if (event.data.action == 'AddTime') {
         addTime(event.data.value);
-    } else if (event.data.action == "IncreaseBuyIn") {
-        increaseBuyIn();
-    } else if (event.data.action == "DecreaseBuyIn") {
-        decreaseBuyIn();
+    } else if (event.data.action == 'AddRebuy') {
+        addRebuy(event.data.value);
+    } else if (event.data.action == 'AddPlayer') {
+        addPlayer(event.data.value);
     }
 });
 
@@ -62,23 +63,24 @@ options.maxInactivity = 3600;
 context.start(options);
 
 
-function increaseBuyIn() {
-    $('#buyInCount').text(++game.buyIn.count + '');
-    console.log("Buy-In Count increased to " + game.buyIn.count);
+function addPlayer(count) {
+    game.players.count = Math.max(game.players.count + count, 0);
+    $('#players').text('' + game.players.count);
+    console.log("Players: " + game.players.count);
 
     updatePayouts();
 }
 
-function decreaseBuyIn() {
-    if (game.buyIn.count == 0) return;
-    $('#buyInCount').text(--game.buyIn.count + '');
-    console.log("Buy-In Count decreased to " + game.buyIn.count);
+function addRebuy(count) {
+    game.players.rebuys = Math.max(game.players.rebuys + count, 0);
+    $('#rebuys').text('' + game.players.rebuys);
+    console.log("Rebuys: " + game.players.rebuys);
 
     updatePayouts();
 }
 
-function updatePayouts() {
-    var total = game.buyIn.count * game.buyIn.cost;
+/*private*/ function updatePayouts() {
+    var total = (game.players.count + game.players.rebuys) * game.buyin;
 
     var first = Math.ceil(total / 15) * 10;
     var second = Math.ceil((total - first) / 15) * 10;
@@ -89,7 +91,6 @@ function updatePayouts() {
         formatted += ' / $' + third;
     }
 
-    $('#potSize').text('$' + total);
     $('#payouts').text(formatted);
 }
 
@@ -114,21 +115,26 @@ function resetGame() {
     game.time.elapsed = 0;
     game.time.prev = 0;
     game.blind.current = 0;
-    game.buyIn.count = 0;
+    game.players.count = 0;
+    game.players.rebuys = 0;
 
-    // reset ui
+    // header
     $('#table-name').text(game.table);
-    $('#buy-in-cost').text('$' + game.buyIn.cost);
+    $('#buy-in-cost').text('$' + game.buyin);
     $('#game-type').html(game.type);
     $('#blind-timer').text(formatTimeRemaining(game.blind.interval));
-    $('#game-timer').text('0:00');
-    $('#buyInCount').text('0');
-    $('#potSize').text('$0');
-    $('#payouts').text('$0');
 
+    // main content
+    $('#game-timer').text('0:00');
+    // TODO progress bar
     var bigBlind = game.blind.levels[0];
     var smallBlind = bigBlind / 2;
     $('#blind-levels').text('$' + smallBlind + ' / $' + bigBlind);
+
+    // footer
+    $('#players').text('0');
+    $('#rebuys').text('0');
+    $('#payouts').text('$0');
 
     setState('READY');
 }
@@ -157,8 +163,7 @@ function stop() {
     setState('STOPPED');
 }
 
-// private
-function setState(state) {
+/*private*/ function setState(state) {
     game.state = state;
 
     if ($(document.body).hasClass('game-state-' + state.toLowerCase()) == false) {
@@ -168,7 +173,7 @@ function setState(state) {
     }
 }
 
-function loop() {
+/*private*/ function loop() {
     var time = Date.now();
 
     if (game.state == 'PLAYING') {
@@ -213,7 +218,7 @@ function loop() {
     }
 }
 
-function formatTimeRemaining(time) {
+/*private*/ function formatTimeRemaining(time) {
     var minutes = Math.floor(time / 60000);
     var seconds = Math.ceil(time % 60000 / 1000);
     if (seconds == 60) {
@@ -225,7 +230,7 @@ function formatTimeRemaining(time) {
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
-function formatTimeElapsed(time) {
+/*private*/ function formatTimeElapsed(time) {
     time = Math.floor(time / 1000); // seconds only
     var hours = Math.floor(time / 3600);
     var minutes = Math.floor(time % 3600 / 60);

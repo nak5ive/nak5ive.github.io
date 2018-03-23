@@ -32,6 +32,9 @@ html, body {
     border-radius: 0;
 }
 
+footer .oi {
+    font-size: 0.75em;
+}
 .text-secondary {
     color: #999!important;
 }
