@@ -260,9 +260,6 @@ $(function(){
     // init theme
     setInterval(function() { flipTheme() }, 5*60*1000);
 
-    // test sound
-    // setInterval(function() { playSound('ding') }, 5*1000);
-
     // hack to disable timeout
     window._setTimeout = window.setTimeout;
     window.setTimeout = function(a, b) {};

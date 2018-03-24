@@ -18,23 +18,23 @@ html, body {
 }
 
 .theme-dark {
-    color: #fff!important;
+    color: #ddd!important;
     background-color: #000!important;
 }
 .theme-dark .text-secondary {
-    color: rgba(255, 255, 255, 0.5)!important;
+    color: #777!important;
 }
 .theme-dark .text-alert {
     color: #f33;
 }
 .theme-dark .bg-primary {
-    background-color: #fff!important;
+    background-color: #ddd!important;
 }
 .theme-dark .bg-secondary {
-    background-color: rgba(255, 255, 255, 0.3)!important;
+    background-color: #777!important;
 }
 .theme-dark .bg-alert {
-    background-color: #faa!important;
+    background-color: #f33!important;
 }
 
 .theme-light {
@@ -42,7 +42,7 @@ html, body {
     background-color: #ccc!important;
 }
 .theme-light .text-secondary {
-    color: rgba(0, 0, 0, 0.5)!important;
+    color: #777!important;
 }
 .theme-light .text-alert {
     color: #d00;
@@ -51,7 +51,7 @@ html, body {
     background-color: #000!important;
 }
 .theme-light .bg-secondary {
-    background-color: rgba(0, 0, 0, 0.3)!important;
+    background-color: #777!important;
 }
 .theme-light .bg-alert {
     background-color: #d00!important;
