@@ -17,24 +17,42 @@ html, body {
     display: block;
 }
 
-.text-light {
+.theme-dark {
     color: #fff!important;
 }
-.text-light .text-secondary {
+.theme-dark .text-secondary {
     color: rgba(255, 255, 255, 0.5)!important;
 }
-.text-light .bg-secondary {
+.theme-dark .text-alert {
+    color: #faa;
+}
+.theme-dark .bg-primary {
+    background-color: #fff!important;
+}
+.theme-dark .bg-secondary {
     background-color: rgba(255, 255, 255, 0.3)!important;
 }
+.theme-dark .bg-alert {
+    background-color: #faa!important;
+}
 
-.text-dark {
+.theme-light {
     color: #000!important;
 }
-.text-dark .text-secondary {
+.theme-light .text-secondary {
     color: rgba(0, 0, 0, 0.5)!important;
 }
-.text-dark .bg-secondary {
+.theme-light .text-alert {
+    color: #d00;
+}
+.theme-light .bg-primary {
+    background-color: #000!important;
+}
+.theme-light .bg-secondary {
     background-color: rgba(0, 0, 0, 0.3)!important;
+}
+.theme-light .bg-alert {
+    background-color: #d00!important;
 }
 
 #page {
@@ -42,18 +60,13 @@ html, body {
     padding: 5% 10%;
 }
 
-header {
-}
-
-footer {
-}
-
 main {
-    padding: 0 10% 0 10%;
+    padding: 0 15% 0 15%;
 }
 
-#title-bar {
-
+#blind-test-progress {
+    height: 0.5em;
+    width: 25%;
 }
 
 .progress {

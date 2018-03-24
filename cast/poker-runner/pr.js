@@ -178,24 +178,20 @@ function stop() {
         game.time.elapsed += time - game.time.prev;
 
         var blind = Math.floor(game.time.elapsed / game.blind.interval);
-        var bigBlind = game.blind.levels[blind];
-        var smallBlind = bigBlind / 2;
-        var blindLevels = '$' + smallBlind + ' / $' + bigBlind;
-        if ($('#blind-levels').text() != blindLevels) {
-            $('#blind-levels').text(blindLevels);
-        }
+        $('#blind-big').text('' + game.blind.levels[blind]);
+        $('#blind-small').text('' + (game.blind.levels[blind] / 2));
 
         var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
-        var formatted = formatTimeRemaining(remaining);
-        $('#blind-timer').text(formatted);
 
-        $('.progress-bar').css('width', (100 * (game.blind.interval - remaining) / game.blind.interval) + '%');
+        $('#blind-test-progress').css('width', (100 * remaining / game.blind.interval) + '%');
 
-        if (remaining <= 1 * 60000) {
-            $('#blind-timer').addClass('red');
-        } else {
-            $('#blind-timer').removeClass('red');
-        }
+        // $('#blind-progress').css('width', (100 * (game.blind.interval - remaining) / game.blind.interval) + '%');
+
+        $('#blind-timer').text(formatTimeRemaining(remaining));
+        $('#blind-timer').css('visibility', remaining <= 1 * 60000 ? 'visible' : 'hidden');
+
+
+        $('#game-timer').text(formatTimeElapsed(game.time.elapsed));
 
         game.time.prev = time;
     }
@@ -204,19 +200,16 @@ function stop() {
         game.time.prev = time;
     }
 
-    if (game.state == "PLAYING" || game.state == "PAUSED") {
-        var formatted = formatTimeElapsed(game.time.elapsed);
-        $('#game-timer').text(formatted);
-    }
-
     // update clock
     var clock = moment().format('h:mma');
-    if ($('#clock').text() != clock) {
-        $('#clock').text(clock);
-    }
+    $('#clock').text(clock);
 }
 
 /*private*/ function formatTimeRemaining(time) {
+    if (time < 60000) {
+        return Math.floor(time / 1000) + '.' + Math.floor(time % 1000 / 100);
+    }
+
     var minutes = Math.floor(time / 60000);
     var seconds = Math.ceil(time % 60000 / 1000);
     if (seconds == 60) {
@@ -239,25 +232,43 @@ function stop() {
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
+var backgroundColor;
+
 /*private*/ function randomTheme() {
-    var bgColor = tinycolor.random().desaturate(20);
+    if (backgroundColor == undefined) {
+        backgroundColor = generateBackgroundColor();
+    } else {
+        // invert to a new color
+        var isLight = backgroundColor.isLight();
+        var newBgColor;
+        do {
+            newBgColor = generateBackgroundColor();
+        } while (newBgColor.isLight() == isLight);
+        backgroundColor = newBgColor;
+    }
 
     $('#page')
-        .removeClass('text-light text-dark')
-        .addClass('text-' + (bgColor.isLight() ? 'dark' : 'light'))
-        .css('background-color', bgColor.toString());
+        .removeClass('theme-light theme-dark')
+        .addClass('theme-' + (backgroundColor.isLight() ? 'light' : 'dark'))
+        .css('background-color', backgroundColor.toString());
 }
 
-var loopInterval;
-var burnInInterval;
+/*private*/ function generateBackgroundColor() {
+    var color = tinycolor.random().desaturate(30)
+    return color;
+    var rgb = color.toRgb();
+    rgb.r = Math.floor(rgb.r * 0.5);
+    return tinycolor(rgb);
+}
 
 $(function(){
+    // init game
     resetGame();
+    setInterval(function() { loop() }, 50);
 
-    loopInterval = setInterval(function() { loop() }, 50);
-
+    // init theme
     randomTheme();
-    burnInInterval = setInterval(function() { randomTheme() }, 1000);
+    setInterval(function() { randomTheme() }, 5*60*1000);
 
     // hack to disable timeout
     window._setTimeout = window.setTimeout;
