@@ -240,7 +240,7 @@ function stop() {
 /*private*/ function playSound(sound) {
     console.log('Playing sound: ' + sound);
 
-    new Audio('sounds/' + sound + '.mp3').play();
+    document.getElementById('sound-' + sound).play();
     return;
 
     var media = new cast.framework.messages.MediaInformation();
