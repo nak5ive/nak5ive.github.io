@@ -1,21 +1,26 @@
 <!doctype html>
 <html ng-app="prApp">
     <head>
+
         <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha256-5+02zu5UULQkO7w1GIr6vftCgMfFdZcAHeDtFnKZsBs=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js" integrity="sha256-9YAuB2VnFZNJ+lKfpaQ3dKQT9/C0j3VUla76hHbiVF8=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.1/tinycolor.min.js" integrity="sha256-loi+HIzG37ZU3Ch2Hdmnuz+UrPHOV+mg/iGoJM4CI18=" crossorigin="anonymous"></script>
         <script src="./pr.js"></script>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
         <link rel="stylesheet" href="./pr.css"/>
+
     </head>
+
     <body class="game-state-ready">
         <cast-media-player id="player" class="invisible"></cast-media-player>
-        <div id="page" class="text-white d-flex flex-column">
+        <div id="page" class="d-flex flex-column">
             <header>
-                <div id="title-bar" class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between">
                     <h1 id="table-name" class="mb-0"></h1>
                     <h1 class="mb-0"><span id="buy-in-cost"></span> <span id="game-type"></span></h1>
                 </div>
@@ -27,17 +32,15 @@
             </header>
 
             <main class="mt-auto mb-auto">
-                <div class="container">
-                    <h1 class="display-1 text-secondary text-center state-aware-ready">START GAME</h1>
-                    <h1 class="display-1 text-red text-center state-aware-stopped">GAME OVER</h1>
-                    <section class="state-aware-playing state-aware-paused">
-                        <h1 id="blind-timer">0:00</h1>
-                        <div class="progress bg-secondary">
-                            <div class="progress-bar bg-white" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <h1 id="blind-levels" class="display-1 text-right">$0</h1>
-                    </section>
-                </div>
+                <h1 class="display-1 text-secondary text-center state-aware-ready">START GAME</h1>
+                <h1 class="display-1 text-red text-center state-aware-stopped">GAME OVER</h1>
+                <section class="state-aware-playing state-aware-paused">
+                    <h1 id="blind-levels" class="display-1 text-right">$0</h1>
+                    <div class="progress bg-secondary">
+                        <div class="progress-bar bg-white" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <h2 id="blind-timer">0:00</h2>
+                </section>
             </main>
 
             <footer>

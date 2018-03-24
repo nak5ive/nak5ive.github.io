@@ -166,11 +166,9 @@ function stop() {
 /*private*/ function setState(state) {
     game.state = state;
 
-    if ($(document.body).hasClass('game-state-' + state.toLowerCase()) == false) {
-        $(document.body).removeClass(function (index, className) {
-            return (className.match (/(^|\s)game-state-\S+/g) || []).join(' ');
-        }).addClass('game-state-' + state.toLowerCase());
-    }
+    $(document.body)
+        .removeClass('game-state-ready game-state-playing game-state-paused game-state-stopped')
+        .addClass('game-state-' + state.toLowerCase());
 }
 
 /*private*/ function loop() {
@@ -241,13 +239,25 @@ function stop() {
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
+/*private*/ function randomTheme() {
+    var bgColor = tinycolor.random().desaturate(20);
+
+    $('#page')
+        .removeClass('text-light text-dark')
+        .addClass('text-' + (bgColor.isLight() ? 'dark' : 'light'))
+        .css('background-color', bgColor.toString());
+}
 
 var loopInterval;
+var burnInInterval;
 
 $(function(){
     resetGame();
 
     loopInterval = setInterval(function() { loop() }, 50);
+
+    randomTheme();
+    burnInInterval = setInterval(function() { randomTheme() }, 1000);
 
     // hack to disable timeout
     window._setTimeout = window.setTimeout;

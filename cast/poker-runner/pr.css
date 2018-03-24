@@ -1,7 +1,6 @@
 html, body {
   height: 100%;
   overflow: hidden;
-  background-color: #000 !important;
 }
 
 *[class^="game-state-"] *[class^="state-aware-"],
@@ -18,13 +17,43 @@ html, body {
     display: block;
 }
 
+.text-light {
+    color: #fff!important;
+}
+.text-light .text-secondary {
+    color: rgba(255, 255, 255, 0.5)!important;
+}
+.text-light .bg-secondary {
+    background-color: rgba(255, 255, 255, 0.3)!important;
+}
+
+.text-dark {
+    color: #000!important;
+}
+.text-dark .text-secondary {
+    color: rgba(0, 0, 0, 0.5)!important;
+}
+.text-dark .bg-secondary {
+    background-color: rgba(0, 0, 0, 0.3)!important;
+}
+
 #page {
     height: 100%;
-    padding: 5%;
+    padding: 5% 10%;
+}
+
+header {
+}
+
+footer {
+}
+
+main {
+    padding: 0 10% 0 10%;
 }
 
 #title-bar {
-    border-bottom: 0.25rem solid #999;
+
 }
 
 .progress {
@@ -34,14 +63,4 @@ html, body {
 
 footer .oi {
     font-size: 0.75em;
-}
-.text-secondary {
-    color: #999!important;
-}
-.text-red {
-    color: #f00;
-}
-
-.bg-secondary {
-    background-color: #666!important;
 }
