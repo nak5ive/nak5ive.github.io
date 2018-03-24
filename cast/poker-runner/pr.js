@@ -254,11 +254,7 @@ var backgroundColor;
 }
 
 /*private*/ function generateBackgroundColor() {
-    var color = tinycolor.random().desaturate(30)
-    return color;
-    var rgb = color.toRgb();
-    rgb.r = Math.floor(rgb.r * 0.5);
-    return tinycolor(rgb);
+    return tinycolor.random().desaturate(40);
 }
 
 /*private*/ function playSound(sound) {
