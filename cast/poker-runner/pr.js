@@ -235,6 +235,8 @@ function stop() {
 var backgroundColor;
 
 /*private*/ function randomTheme() {
+    console.log('Generating random theme');
+
     if (backgroundColor == undefined) {
         backgroundColor = generateBackgroundColor();
     } else {
