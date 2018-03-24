@@ -13,7 +13,8 @@ var game = {
     },
     blind: {
         levels: [10, 20, 40, 80, 100, 200, 400, 800, 1000, 2000, 4000, 8000],
-        interval: 15 * 60 * 1000
+        interval: 15 * 60 * 1000,
+        current: 0
     },
     players: {
         count: 0,
@@ -178,17 +179,17 @@ function stop() {
         game.time.elapsed += time - game.time.prev;
 
         var blind = Math.floor(game.time.elapsed / game.blind.interval);
-        $('#blind-big').text('' + game.blind.levels[blind]);
-        $('#blind-small').text('' + (game.blind.levels[blind] / 2));
+        if (blind > game.blind.current) {
+            playSound('ding');
+            $('#blind-big').text('' + game.blind.levels[blind]);
+            $('#blind-small').text('' + (game.blind.levels[blind] / 2));
+        }
 
         var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
-
         $('#blind-test-progress').css('width', (100 * remaining / game.blind.interval) + '%');
-
-        // $('#blind-progress').css('width', (100 * (game.blind.interval - remaining) / game.blind.interval) + '%');
-
-        $('#blind-timer').text(formatTimeRemaining(remaining));
-        $('#blind-timer').css('visibility', remaining <= 1 * 60000 ? 'visible' : 'hidden');
+        $('#blind-timer')
+            .css('visibility', remaining <= 1 * 60000 ? 'visible' : 'hidden')
+            .text(formatTimeRemaining(remaining));
 
 
         $('#game-timer').text(formatTimeElapsed(game.time.elapsed));
@@ -239,20 +240,7 @@ function stop() {
 
 /*private*/ function playSound(sound) {
     console.log('Playing sound: ' + sound);
-
     document.getElementById('sound-' + sound).play();
-    return;
-
-    var media = new cast.framework.messages.MediaInformation();
-    media.contentId = 'https://nak5ive.github.io/cast/poker-runner/sounds/' + sound + '.mp3';
-    media.contentType = 'audio/mp3';
-    media.streamType = cast.framework.messages.StreamType.NONE;
-
-    var request = new cast.framework.messages.LoadRequestData();
-    request.autoplay = true;
-    request.media = media;
-
-    playerManager.load(request);
 }
 
 $(function(){
