@@ -19,12 +19,13 @@ html, body {
 
 .theme-dark {
     color: #fff!important;
+    background-color: #000!important;
 }
 .theme-dark .text-secondary {
     color: rgba(255, 255, 255, 0.5)!important;
 }
 .theme-dark .text-alert {
-    color: #faa;
+    color: #f33;
 }
 .theme-dark .bg-primary {
     background-color: #fff!important;
@@ -38,6 +39,7 @@ html, body {
 
 .theme-light {
     color: #000!important;
+    background-color: #ccc!important;
 }
 .theme-light .text-secondary {
     color: rgba(0, 0, 0, 0.5)!important;

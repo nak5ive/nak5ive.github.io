@@ -232,31 +232,9 @@ function stop() {
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
-var backgroundColor;
-
-/*private*/ function randomTheme() {
-    console.log('Generating random theme');
-
-    if (backgroundColor == undefined) {
-        backgroundColor = generateBackgroundColor();
-    } else {
-        // invert to a new color
-        var isLight = backgroundColor.isLight();
-        var newBgColor;
-        do {
-            newBgColor = generateBackgroundColor();
-        } while (newBgColor.isLight() == isLight);
-        backgroundColor = newBgColor;
-    }
-
-    $('#page')
-        .removeClass('theme-light theme-dark')
-        .addClass('theme-' + (backgroundColor.isLight() ? 'light' : 'dark'))
-        .css('background-color', backgroundColor.toString());
-}
-
-/*private*/ function generateBackgroundColor() {
-    return tinycolor.random().desaturate(40);
+/*private*/ function flipTheme() {
+    console.log('Flipping theme');
+    $('#page').toggleClass('theme-light theme-dark');
 }
 
 /*private*/ function playSound(sound) {
@@ -280,11 +258,10 @@ $(function(){
     setInterval(function() { loop() }, 50);
 
     // init theme
-    randomTheme();
-    setInterval(function() { randomTheme() }, 5*60*1000);
+    setInterval(function() { flipTheme() }, 5*60*1000);
 
     // test sound
-    setInterval(function() { playSound('ding') }, 5*1000);
+    // setInterval(function() { playSound('ding') }, 5*1000);
 
     // hack to disable timeout
     window._setTimeout = window.setTimeout;
