@@ -261,6 +261,19 @@ var backgroundColor;
     return tinycolor(rgb);
 }
 
+/*private*/ function playSound(sound) {
+    var media = new cast.framework.messages.MediaInformation();
+    media.contentId = 'https://nak5ive.github.io/cast/poker-runner/sounds/' + sound + '.mp3';
+    media.contentType = 'audio/mp3';
+    media.streamType = cast.framework.messages.StreamType.NONE;
+
+    var request = new cast.framework.messages.LoadRequestData();
+    request.autoplay = true;
+    request.media = media;
+
+    playerManager.load(request);
+}
+
 $(function(){
     // init game
     resetGame();
@@ -269,6 +282,9 @@ $(function(){
     // init theme
     randomTheme();
     setInterval(function() { randomTheme() }, 5*60*1000);
+
+    // test sound
+    setInterval(function() { playSound('ding') }, 5*1000);
 
     // hack to disable timeout
     window._setTimeout = window.setTimeout;
