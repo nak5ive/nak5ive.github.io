@@ -240,6 +240,9 @@ function stop() {
 /*private*/ function playSound(sound) {
     console.log('Playing sound: ' + sound);
 
+    new Audio('sounds/' + sound + '.mp3');
+    return;
+
     var media = new cast.framework.messages.MediaInformation();
     media.contentId = 'https://nak5ive.github.io/cast/poker-runner/sounds/' + sound + '.mp3';
     media.contentType = 'audio/mp3';
