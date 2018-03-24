@@ -180,6 +180,7 @@ function stop() {
 
         var blind = Math.floor(game.time.elapsed / game.blind.interval);
         if (blind > game.blind.current) {
+            game.blind.current = blind;
             playSound('ding');
             $('#blind-big').text('' + game.blind.levels[blind]);
             $('#blind-small').text('' + (game.blind.levels[blind] / 2));
