@@ -58,8 +58,8 @@ function addPlayers(players) {
     updatePayouts();
 }
 
-function addRebuy(count) {
-    game.rebuys = Math.max(Math.floor(game.rebuys + count), 0);
+function addRebuys(rebuys) {
+    game.rebuys = Math.max(Math.floor(game.rebuys + rebuys), 0);
     $('#rebuys').text('' + game.rebuys);
     console.log('Rebuys: ' + game.rebuys);
 
