@@ -6,23 +6,13 @@ var game = {
     buyin: 10,
     type: 'TEXAS HOLD &lsquo;EM',
     state: 'READY', // PLAYING, PAUSED, STOPPED
-    time: {
-        elapsed: 0
-    },
+    players: 0,
+    rebuys: 0,
+    time: 0,
     blind: {
         levels: [10, 20, 40, 80, 100, 200, 400, 800, 1000, 2000, 4000, 8000],
         interval: 15 * 60 * 1000,
         current: 0
-    },
-    players: {
-        count: 0,
-        rebuys: 0
-    },
-    chips: {
-        white: {value: 5, count: 10},
-        blue: {value: 10, count: 10},
-        green: {value: 25, count: 8},
-        black: {value: 100, count: 4}
     }
 };
 
@@ -60,24 +50,24 @@ options.maxInactivity = 3600;
 context.start(options);
 
 
-function addPlayer(count) {
-    game.players.count = Math.max(game.players.count + count, 0);
-    $('#players').text('' + game.players.count);
-    console.log("Players: " + game.players.count);
+function addPlayers(players) {
+    game.players = Math.max(Math.floor(game.players + players), 0);
+    $('#players').text('' + game.players);
+    console.log('Players: ' + game.players);
 
     updatePayouts();
 }
 
 function addRebuy(count) {
-    game.players.rebuys = Math.max(game.players.rebuys + count, 0);
-    $('#rebuys').text('' + game.players.rebuys);
-    console.log("Rebuys: " + game.players.rebuys);
+    game.rebuys = Math.max(Math.floor(game.rebuys + count), 0);
+    $('#rebuys').text('' + game.rebuys);
+    console.log('Rebuys: ' + game.rebuys);
 
     updatePayouts();
 }
 
 /*private*/ function updatePayouts() {
-    var total = (game.players.count + game.players.rebuys) * game.buyin;
+    var total = (game.players + game.rebuys) * game.buyin;
 
     var first = Math.ceil(total / 15) * 10;
     var second = Math.ceil((total - first) / 15) * 10;
@@ -92,15 +82,16 @@ function addRebuy(count) {
     }
 
     $('#payouts').text(formatted);
+    console.log('Payouts: ' + formatted);
 }
 
 function addMinutes(minutes) {
     if (game.state != 'PLAYING' && game.state != 'PAUSED') {
         return console.log('Can only add time to a game in progress');
     }
-
+    minutes = Math.floor(minutes);
     console.log('Adding ' + minutes + ' minutes');
-    game.time.elapsed = Math.max(game.time.elapsed + minutes * 60000, 0);
+    game.time = Math.max(game.time + minutes * 60000, 0);
 }
 
 function resetGame() {
@@ -110,9 +101,9 @@ function resetGame() {
 
     console.log('Resetting game');
 
-    game.time.elapsed = 0;
+    game.time = 0;
     game.blind.current = 0;
-    game.players.rebuys = 0;
+    game.rebuys = 0;
 
     // header
     $('#table-name').text(game.table);
@@ -128,8 +119,8 @@ function resetGame() {
     $('#blind-timer').text(formatTimeRemaining(game.blind.interval));
 
     // footer
-    $('#players').text(game.players.count);
-    $('#rebuys').text(game.players.rebuys);
+    $('#players').text(game.players);
+    $('#rebuys').text(game.rebuys);
     updatePayouts();
 
     setState('READY');
@@ -172,7 +163,7 @@ var prevTime;
 
     if (game.state == 'PLAYING') {
         // update elapsed time
-        game.time.elapsed += time - prevTime;
+        game.time += time - prevTime;
 
         refreshBlinds();
     }
@@ -186,13 +177,13 @@ var prevTime;
     $('#clock').text(clock);
 
     // update game timer
-    $('#game-timer').text(formatTimeElapsed(game.time.elapsed));
+    $('#game-timer').text(formatTimeElapsed(game.time));
 
     prevTime = time;
 }
 
 /*private*/ function refreshBlinds() {
-    var blind = Math.floor(game.time.elapsed / game.blind.interval);
+    var blind = Math.floor(game.time / game.blind.interval);
     if (blind != game.blind.current) {
         game.blind.current = blind;
         if (game.state == 'PLAYING') {
@@ -202,7 +193,7 @@ var prevTime;
     $('#blind-big').text('' + game.blind.levels[blind]);
     $('#blind-small').text('' + (game.blind.levels[blind] / 2));
 
-    var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
+    var remaining = game.blind.interval - game.time % game.blind.interval;
     var lowTime = remaining <= 1 * 60000;
     $('#blind-progress')
         .css('width', (100 * remaining / game.blind.interval) + '%')
