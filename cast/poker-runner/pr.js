@@ -246,9 +246,14 @@ var prevTime;
     $(document.body).toggleClass('theme-light theme-dark');
 }
 
+
 /*private*/ function playSound(sound) {
+    var player = document.getElementById('sounds');
+    player.setAttribute('src', 'sounds/' + sound + '.mp3');
+    player.load();
+    player.play();
+
     console.log('Playing sound: ' + sound);
-    document.getElementById('sound-' + sound).play();
 }
 
 // bootstrap
