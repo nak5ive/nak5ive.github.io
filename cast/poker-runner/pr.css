@@ -22,16 +22,16 @@ html, body {
     background-color: #000!important;
 }
 .theme-dark .text-secondary {
-    color: #777!important;
+    color: #666!important;
 }
 .theme-dark .text-alert {
-    color: #f33;
+    color: #f33!important;
 }
 .theme-dark .bg-primary {
     background-color: #ddd!important;
 }
 .theme-dark .bg-secondary {
-    background-color: #777!important;
+    background-color: #333!important;
 }
 .theme-dark .bg-alert {
     background-color: #f33!important;
@@ -45,13 +45,13 @@ html, body {
     color: #777!important;
 }
 .theme-light .text-alert {
-    color: #d00;
+    color: #d00!important;
 }
 .theme-light .bg-primary {
     background-color: #000!important;
 }
 .theme-light .bg-secondary {
-    background-color: #777!important;
+    background-color: #aaa!important;
 }
 .theme-light .bg-alert {
     background-color: #d00!important;
@@ -69,14 +69,13 @@ main {
     padding: 0 15% 0 15%;
 }
 
-#blind-test-progress {
+#blind-progress {
     height: 0.5em;
     width: 25%;
 }
 
-.progress {
-    height: 0.5rem;
-    border-radius: 0;
+#blind-timer small {
+    font-size: 0.6em;
 }
 
 footer .oi {

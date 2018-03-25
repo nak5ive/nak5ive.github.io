@@ -15,10 +15,10 @@
 
     </head>
 
-    <body class="game-state-ready">
-        <cast-media-player></cast-media-player>
-        <audio id="sound-ding" preload="auto" src="sounds/ding.mp3"></audio>
-        <div id="page" class="theme-dark d-flex flex-column">
+    <body class="theme-dark game-state-ready">
+        <!-- <cast-media-player></cast-media-player> -->
+        <audio id="sound-blinds" preload="auto" src="sounds/blinds.mp3"></audio>
+        <div id="page" class="d-flex flex-column">
             <header>
                 <div class="d-flex justify-content-between">
                     <h1 id="table-name" class="mb-0"></h1>
@@ -37,9 +37,9 @@
                 <section class="state-aware-playing state-aware-paused">
                     <h1 class="display-1 text-center">$<span id="blind-small">0</span> / $<span id="blind-big">0</span></h1>
                     <div class="d-flex justify-content-center bg-secondary">
-                        <div id="blind-test-progress" class="bg-primary"></div>
+                        <div id="blind-progress" class="bg-primary"></div>
                     </div>
-                    <h2 id="blind-timer" class="text-secondary text-center">0:00</h2>
+                    <h2 id="blind-timer" class="mt-2 text-secondary text-center">0:00</h2>
                 </section>
             </main>
 

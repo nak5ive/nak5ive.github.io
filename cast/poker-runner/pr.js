@@ -1,4 +1,5 @@
-const pageLoadTime = Date.now();
+const GAME_LOOP_INTERVAL = 50;
+const FLIP_THEME_INTERVAL = 5 * 60 * 1000;
 
 var game = {
     table: 'POKER BOIZ',
@@ -6,10 +7,7 @@ var game = {
     type: 'TEXAS HOLD &lsquo;EM',
     state: 'READY', // PLAYING, PAUSED, STOPPED
     time: {
-        start: 0,
-        stop: 0,
-        elapsed: 0,
-        prev: 0,
+        elapsed: 0
     },
     blind: {
         levels: [10, 20, 40, 80, 100, 200, 400, 800, 1000, 2000, 4000, 8000],
@@ -27,8 +25,6 @@ var game = {
         black: {value: 100, count: 4}
     }
 };
-
-const PREVENT_BURN_IN_INTERVAL = 7 * 60 * 1000;
 
 // init cast framework
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
@@ -87,7 +83,10 @@ function addRebuy(count) {
     var second = Math.ceil((total - first) / 15) * 10;
     var third = total - first - second;
 
-    var formatted = '$' + first + ' / $' + second;
+    var formatted = '$' + first;
+    if (second != 0) {
+        formatted += ' / $' + second;
+    }
     if (third != 0) {
         formatted += ' / $' + third;
     }
@@ -95,56 +94,49 @@ function addRebuy(count) {
     $('#payouts').text(formatted);
 }
 
-// amount in millis
-function addTime(amount) {
+function addMinutes(minutes) {
     if (game.state != 'PLAYING' && game.state != 'PAUSED') {
         return console.log('Can only add time to a game in progress');
     }
 
-    game.time.elapsed = Math.max(game.time.elapsed + amount, 0);
+    console.log('Adding ' + minutes + ' minutes');
+    game.time.elapsed = Math.max(game.time.elapsed + minutes * 60000, 0);
 }
 
 function resetGame() {
-    if (game.state != 'READY' && game.state != 'STOPPED') {
+    if (game.state == 'PLAYING' || game.state == 'PAUSED') {
         return console.log('Can\'t reset game in progress');
     }
 
-    console.log('Resetting game...');
+    console.log('Resetting game');
 
-    game.time.start = 0;
-    game.time.stop = 0;
     game.time.elapsed = 0;
-    game.time.prev = 0;
     game.blind.current = 0;
-    game.players.count = 0;
     game.players.rebuys = 0;
 
     // header
     $('#table-name').text(game.table);
     $('#buy-in-cost').text('$' + game.buyin);
     $('#game-type').html(game.type);
-    $('#blind-timer').text(formatTimeRemaining(game.blind.interval));
+    $('#game-timer').text('0:00');
 
     // main content
-    $('#game-timer').text('0:00');
-    // TODO progress bar
     var bigBlind = game.blind.levels[0];
     var smallBlind = bigBlind / 2;
     $('#blind-levels').text('$' + smallBlind + ' / $' + bigBlind);
+    $('#blind-progress').css('width', '');
+    $('#blind-timer').text(formatTimeRemaining(game.blind.interval));
 
     // footer
-    $('#players').text('0');
-    $('#rebuys').text('0');
-    $('#payouts').text('$0');
+    $('#players').text(game.players.count);
+    $('#rebuys').text(game.players.rebuys);
+    updatePayouts();
 
     setState('READY');
 }
 
 function play() {
-    if (game.state == 'READY') {
-        game.time.start = Date.now();
-        game.time.prev = game.time.start;
-    }
+    console.log('Playing game');
     setState('PLAYING');
 }
 
@@ -152,6 +144,8 @@ function pause() {
     if (game.state != 'PLAYING') {
         return console.log('Can only pause a game in progress');
     }
+
+    console.log('Pausing game');
     setState('PAUSED');
 }
 
@@ -160,7 +154,7 @@ function stop() {
         return console.log('Can only stop a game in progress');
     }
 
-    game.time.stop = Date.now();
+    console.log('Stopping game');
     setState('STOPPED');
 }
 
@@ -172,44 +166,55 @@ function stop() {
         .addClass('game-state-' + state.toLowerCase());
 }
 
+var prevTime;
 /*private*/ function loop() {
     var time = Date.now();
 
     if (game.state == 'PLAYING') {
-        game.time.elapsed += time - game.time.prev;
+        // update elapsed time
+        game.time.elapsed += time - prevTime;
 
-        var blind = Math.floor(game.time.elapsed / game.blind.interval);
-        if (blind > game.blind.current) {
-            game.blind.current = blind;
-            playSound('ding');
-            $('#blind-big').text('' + game.blind.levels[blind]);
-            $('#blind-small').text('' + (game.blind.levels[blind] / 2));
-        }
-
-        var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
-        $('#blind-test-progress').css('width', (100 * remaining / game.blind.interval) + '%');
-        $('#blind-timer')
-            .css('visibility', remaining <= 1 * 60000 ? 'visible' : 'hidden')
-            .text(formatTimeRemaining(remaining));
-
-
-        $('#game-timer').text(formatTimeElapsed(game.time.elapsed));
-
-        game.time.prev = time;
+        refreshBlinds();
     }
 
-    if (game.state == "PAUSED") {
-        game.time.prev = time;
+    if (game.state == 'PAUSED') {
+        refreshBlinds();
     }
 
     // update clock
     var clock = moment().format('h:mma');
     $('#clock').text(clock);
+
+    // update game timer
+    $('#game-timer').text(formatTimeElapsed(game.time.elapsed));
+
+    prevTime = time;
+}
+
+/*private*/ function refreshBlinds() {
+    var blind = Math.floor(game.time.elapsed / game.blind.interval);
+    if (blind != game.blind.current) {
+        game.blind.current = blind;
+        if (game.state == 'PLAYING') {
+            playSound('blinds');
+        }
+    }
+    $('#blind-big').text('' + game.blind.levels[blind]);
+    $('#blind-small').text('' + (game.blind.levels[blind] / 2));
+
+    var remaining = game.blind.interval - game.time.elapsed % game.blind.interval;
+    var lowTime = remaining <= 1 * 60000;
+    $('#blind-progress')
+        .css('width', (100 * remaining / game.blind.interval) + '%')
+        .toggleClass('bg-alert', lowTime);
+    $('#blind-timer')
+        .html(formatTimeRemaining(remaining))
+        .toggleClass('text-alert', lowTime);
 }
 
 /*private*/ function formatTimeRemaining(time) {
     if (time < 60000) {
-        return Math.floor(time / 1000) + '.' + Math.floor(time % 1000 / 100);
+        return Math.floor(time / 1000) + '<small>' + Math.floor(time % 1000 / 100) + '</small>';
     }
 
     var minutes = Math.floor(time / 60000);
@@ -236,7 +241,7 @@ function stop() {
 
 /*private*/ function flipTheme() {
     console.log('Flipping theme');
-    $('#page').toggleClass('theme-light theme-dark');
+    $(document.body).toggleClass('theme-light theme-dark');
 }
 
 /*private*/ function playSound(sound) {
@@ -247,10 +252,12 @@ function stop() {
 $(function(){
     // init game
     resetGame();
-    setInterval(function() { loop() }, 50);
 
-    // init theme
-    setInterval(function() { flipTheme() }, 5*60*1000);
+    // start game loop
+    setInterval(function() { loop() }, GAME_LOOP_INTERVAL);
+
+    // init theme flipper
+    setInterval(function() { flipTheme() }, FLIP_THEME_INTERVAL);
 
     // hack to disable timeout
     window._setTimeout = window.setTimeout;
