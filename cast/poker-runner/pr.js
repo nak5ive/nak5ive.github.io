@@ -23,20 +23,20 @@ const playerManager = context.getPlayerManager();
 
 context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
     console.log(event);
-    if (event.data.action == "Play") {
-        play();
-    } else if (event.data.action == "Pause") {
-        pause();
-    } else if (event.data.action == "Stop") {
-        stop();
-    } else if (event.data.action == "Reset") {
+    if (event.data.action == 'playGame') {
+        playGame();
+    } else if (event.data.action == 'pauseGame') {
+        pauseGame();
+    } else if (event.data.action == 'stopGame') {
+        stopGame();
+    } else if (event.data.action == 'resetGame') {
         resetGame();
-    } else if (event.data.action == 'AddTime') {
-        addTime(event.data.value);
-    } else if (event.data.action == 'AddRebuy') {
-        addRebuy(event.data.value);
-    } else if (event.data.action == 'AddPlayer') {
-        addPlayer(event.data.value);
+    } else if (event.data.action == 'addMinutes') {
+        addMinutes(event.data.value);
+    } else if (event.data.action == 'addRebuys') {
+        addRebuys(event.data.value);
+    } else if (event.data.action == 'addPlayers') {
+        addPlayers(event.data.value);
     }
 });
 
@@ -50,53 +50,9 @@ options.maxInactivity = 3600;
 context.start(options);
 
 
-function addPlayers(players) {
-    game.players = Math.max(Math.floor(game.players + players), 0);
-    $('#players').text('' + game.players);
-    console.log('Players: ' + game.players);
-
-    updatePayouts();
-}
-
-function addRebuys(rebuys) {
-    game.rebuys = Math.max(Math.floor(game.rebuys + rebuys), 0);
-    $('#rebuys').text('' + game.rebuys);
-    console.log('Rebuys: ' + game.rebuys);
-
-    updatePayouts();
-}
-
-/*private*/ function updatePayouts() {
-    var total = (game.players + game.rebuys) * game.buyin;
-
-    var first = Math.ceil(total / 15) * 10;
-    var second = Math.ceil((total - first) / 15) * 10;
-    var third = total - first - second;
-
-    var formatted = '$' + first;
-    if (second != 0) {
-        formatted += ' / $' + second;
-    }
-    if (third != 0) {
-        formatted += ' / $' + third;
-    }
-
-    $('#payouts').text(formatted);
-    console.log('Payouts: ' + formatted);
-}
-
-function addMinutes(minutes) {
-    if (game.state != 'PLAYING' && game.state != 'PAUSED') {
-        return console.log('Can only add time to a game in progress');
-    }
-    minutes = Math.floor(minutes);
-    console.log('Adding ' + minutes + ' minutes');
-    game.time = Math.max(game.time + minutes * 60000, 0);
-}
-
 function resetGame() {
     if (game.state == 'PLAYING' || game.state == 'PAUSED') {
-        return console.log('Can\'t reset game in progress');
+        return console.log('Can not reset game in progress');
     }
 
     console.log('Resetting game');
@@ -126,12 +82,12 @@ function resetGame() {
     setState('READY');
 }
 
-function play() {
+function playGame() {
     console.log('Playing game');
     setState('PLAYING');
 }
 
-function pause() {
+function pauseGame() {
     if (game.state != 'PLAYING') {
         return console.log('Can only pause a game in progress');
     }
@@ -140,8 +96,8 @@ function pause() {
     setState('PAUSED');
 }
 
-function stop() {
-    if (game.state != 'PLAYING' && game.state != 'PAUSED') {
+function stopGame() {
+    if (game.state == 'READY' || game.state == 'STOPPED') {
         return console.log('Can only stop a game in progress');
     }
 
@@ -149,14 +105,33 @@ function stop() {
     setState('STOPPED');
 }
 
-/*private*/ function setState(state) {
-    game.state = state;
+function addPlayers(players) {
+    game.players = Math.max(Math.floor(game.players + players), 0);
+    $('#players').text('' + game.players);
+    console.log('Players: ' + game.players);
 
-    $(document.body)
-        .removeClass('game-state-ready game-state-playing game-state-paused game-state-stopped')
-        .addClass('game-state-' + state.toLowerCase());
+    updatePayouts();
 }
 
+function addRebuys(rebuys) {
+    game.rebuys = Math.max(Math.floor(game.rebuys + rebuys), 0);
+    $('#rebuys').text('' + game.rebuys);
+    console.log('Rebuys: ' + game.rebuys);
+
+    updatePayouts();
+}
+
+function addMinutes(minutes) {
+    if (game.state == 'READY' || game.state == 'STOPPED') {
+        return console.log('Can only add time to a game in progress');
+    }
+
+    minutes = Math.floor(minutes);
+    console.log('Adding ' + minutes + ' minutes');
+    game.time = Math.max(game.time + minutes * 60000, 0);
+}
+
+// THE LOOP
 var prevTime;
 /*private*/ function loop() {
     var time = Date.now();
@@ -174,12 +149,25 @@ var prevTime;
 
     // update clock
     var clock = moment().format('h:mma');
-    $('#clock').text(clock);
+    if ($('#clock').text() != clock) {
+        $('#clock').text(clock);
+    }
 
     // update game timer
-    $('#game-timer').text(formatTimeElapsed(game.time));
+    var gameTime = formatTimeElapsed(game.time);
+    if ($('#game-timer').text() != gameTime) {
+        $('#game-timer').text(gameTime);
+    }
 
     prevTime = time;
+}
+
+/*private*/ function setState(state) {
+    game.state = state;
+
+    $(document.body)
+        .removeClass('game-state-ready game-state-playing game-state-paused game-state-stopped')
+        .addClass('game-state-' + state.toLowerCase());
 }
 
 /*private*/ function refreshBlinds() {
@@ -201,6 +189,25 @@ var prevTime;
     $('#blind-timer')
         .html(formatTimeRemaining(remaining))
         .toggleClass('text-alert', lowTime);
+}
+
+/*private*/ function updatePayouts() {
+    var total = (game.players + game.rebuys) * game.buyin;
+
+    var first = Math.ceil(total / 15) * 10;
+    var second = Math.ceil((total - first) / 15) * 10;
+    var third = total - first - second;
+
+    var formatted = '$' + first;
+    if (second != 0) {
+        formatted += ' / $' + second;
+    }
+    if (third != 0) {
+        formatted += ' / $' + third;
+    }
+
+    $('#payouts').text(formatted);
+    console.log('Payouts: ' + formatted);
 }
 
 /*private*/ function formatTimeRemaining(time) {
@@ -240,6 +247,7 @@ var prevTime;
     document.getElementById('sound-' + sound).play();
 }
 
+// bootstrap
 $(function(){
     // init game
     resetGame();
