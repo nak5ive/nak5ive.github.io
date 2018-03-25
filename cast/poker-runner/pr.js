@@ -106,7 +106,7 @@ function stopGame() {
 }
 
 function addPlayers(players) {
-    game.players = Math.max(Math.floor(game.players + players), 0);
+    game.players = Math.max(game.players + players, 0);
     $('#players').text('' + game.players);
     console.log('Players: ' + game.players);
 
@@ -114,7 +114,11 @@ function addPlayers(players) {
 }
 
 function addRebuys(rebuys) {
-    game.rebuys = Math.max(Math.floor(game.rebuys + rebuys), 0);
+    if (rebuys > 0) {
+        playSound('rebuy');
+    }
+
+    game.rebuys = Math.max(game.rebuys + rebuys, 0);
     $('#rebuys').text('' + game.rebuys);
     console.log('Rebuys: ' + game.rebuys);
 
