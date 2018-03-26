@@ -10,7 +10,6 @@
         <script src="./pr.js"></script>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
         <link rel="stylesheet" href="./pr.css"/>
 
     </head>
@@ -20,32 +19,43 @@
             <header>
                 <div class="d-flex justify-content-between">
                     <h1 id="table-name" class="mb-0"></h1>
-                    <h1 class="mb-0"><span id="buy-in-cost"></span> <span id="game-type"></span></h1>
+                    <h1 class="mb-0">
+                        <span id="buy-in-cost"></span>
+                        <span id="game-type"></span>
+                    </h1>
                 </div>
                 <div class="d-flex justify-content-between">
-                    <h3 id="clock" class="text-secondary"></h3>
-                    <h3 class="text-secondary"><span id="game-timer">0:00</span> <span class="oi oi-timer" title="timer" aria-hidden="true"></span></h3>
+                    <h3 class="text-secondary">
+                        <img src="images/clock.svg" alt="clock" width="20" height="20"/>
+                        <span id="clock"></span>
+                    </h3>
+                    <h3 class="text-secondary">
+                        <span id="game-timer">0:00</span>
+                        <img src="images/timer.svg" alt="timer" width="20" height="20"/>
+                    </h3>
                 </div>
             </header>
 
             <main class="mt-auto mb-auto">
-                <h1 class="display-1 text-secondary text-center state-aware-ready">START GAME</h1>
+                <h1 class="display-1 text-secondary text-center state-aware-ready">START GAME <img src="images/media-play.svg" alt="play" width="65" height="65"/></h1>
                 <h1 class="display-1 text-alert text-center state-aware-stopped">GAME OVER</h1>
                 <section class="state-aware-playing state-aware-paused">
                     <h1 class="display-1 text-center">$<span id="blind-small">0</span> / $<span id="blind-big">0</span></h1>
                     <div class="d-flex justify-content-center bg-secondary">
                         <div id="blind-progress" class="bg-primary"></div>
                     </div>
-                    <h2 class="mt-2 text-secondary text-center state-aware-paused">PAUSED</h2>
-                    <h2 id="blind-timer" class="mt-2 state-aware-playing text-secondary text-center">0:00</h2>
+                    <h2 class="mt-2 text-secondary text-center">
+                        <img class="state-aware-paused-inline" src="images/media-pause.svg" alt="paused" width="24" height="24"/>
+                        <span id="blind-timer">0:00</span>
+                    </h2>
                 </section>
             </main>
 
             <footer>
                 <div class="d-flex justify-content-center">
-                    <h1 class="mr-5"><span class="oi oi-people text-secondary" title="people" aria-hidden="true"></span> <span id="players">0</span></h1>
-                    <h1 class="ml-5 mr-5"><span class="oi oi-reload text-secondary" title="reload" aria-hidden="true"></span> <span id="rebuys">0</span></h1>
-                    <h1 class="ml-5"><span class="oi oi-badge text-secondary" title="badge" aria-hidden="true"></span> <span id="payouts">$0</span></h1>
+                    <h1 class="mr-5"><img src="images/people.svg" alt="players" width="28" height="28"/> <span id="players">0</span></h1>
+                    <h1 class="ml-5 mr-5"><img src="images/reload.svg" alt="rebuys" width="28" height="28"/> <span id="rebuys">0</span></h1>
+                    <h1 class="ml-5"><img src="images/badge.svg" alt="payouts" width="28" height="28"/> <span id="payouts">$0</span></h1>
                 </div>
             </footer>
         </div>

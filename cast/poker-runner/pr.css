@@ -13,8 +13,19 @@ html, body {
 .game-state-ready .state-aware-ready,
 .game-state-playing .state-aware-playing,
 .game-state-paused .state-aware-paused,
-.game-state-stopped .state-aware-stopped {
+.game-state-stopped .state-aware-stopped,
+.game-state-ready .state-aware-ready-block,
+.game-state-playing .state-aware-playing-block,
+.game-state-paused .state-aware-paused-block,
+.game-state-stopped .state-aware-stopped-block {
     display: block;
+}
+
+.game-state-ready .state-aware-ready-inline,
+.game-state-playing .state-aware-playing-inline,
+.game-state-paused .state-aware-paused-inline,
+.game-state-stopped .state-aware-stopped-inline {
+    display: inline;
 }
 
 .theme-dark {
@@ -31,10 +42,13 @@ html, body {
     background-color: #ddd!important;
 }
 .theme-dark .bg-secondary {
-    background-color: #333!important;
+    background-color: #222!important;
 }
 .theme-dark .bg-alert {
     background-color: #f33!important;
+}
+.theme-dark svg path {
+    fill: #666;
 }
 
 .theme-light {
@@ -56,6 +70,9 @@ html, body {
 .theme-light .bg-alert {
     background-color: #d00!important;
 }
+.theme-light svg path {
+    fill: #777;
+}
 
 #page {
     position: absolute;
@@ -72,12 +89,4 @@ main {
 #blind-progress {
     height: 0.5em;
     width: 25%;
-}
-
-#blind-timer small {
-    font-size: 0.6em;
-}
-
-footer .oi {
-    font-size: 0.75em;
 }

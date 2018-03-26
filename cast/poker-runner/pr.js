@@ -71,7 +71,7 @@ function resetGame() {
     var bigBlind = game.blind.levels[0];
     var smallBlind = bigBlind / 2;
     $('#blind-levels').text('$' + smallBlind + ' / $' + bigBlind);
-    $('#blind-progress').css('width', '');
+    $('#blind-progress').css('width', '100%');
     $('#blind-timer').text(formatTimeRemaining(game.blind.interval));
 
     // footer
@@ -256,8 +256,36 @@ var prevTime;
     console.log('Playing sound: ' + sound);
 }
 
+/*private*/ function fixSvg() {
+    $('img[src$=".svg"]').each(function() {
+        var $img = jQuery(this);
+        var imgURL = $img.attr('src');
+        var attributes = $img.prop("attributes");
+
+        $.get(imgURL, function(data) {
+            // Get the SVG tag, ignore the rest
+            var $svg = jQuery(data).find('svg');
+
+            // Remove any invalid XML tags
+            $svg = $svg.removeAttr('xmlns:a');
+
+            // Loop through IMG attributes and apply on SVG
+            $.each(attributes, function() {
+                $svg.attr(this.name, this.value);
+            });
+            console.log($svg);
+
+            // Replace IMG with SVG
+            $img.replaceWith($svg);
+        }, 'xml');
+    });
+}
+
 // bootstrap
 $(function(){
+    // replace svg image tags with path
+    fixSvg();
+
     // init game
     resetGame();
 
