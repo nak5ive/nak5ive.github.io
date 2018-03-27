@@ -2,11 +2,11 @@ const GAME_LOOP_INTERVAL = 50;
 const FLIP_THEME_INTERVAL = 5 * 60 * 1000;
 
 var game = {
-    table: 'POKER BOIZ',
-    buyin: 10,
     type: 'TEXAS HOLD &lsquo;EM',
+    table: 'POKER BOIZ',
     state: 'READY', // PLAYING, PAUSED, STOPPED
     players: 0,
+    buyin: 10,
     rebuys: 0,
     time: 0,
     blind: {
@@ -25,6 +25,8 @@ context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
     console.log(event);
     if (event.data.action == 'playGame') {
         playGame();
+    } else if (event.data.action == 'playPause') {
+        playPauseGame();
     } else if (event.data.action == 'pauseGame') {
         pauseGame();
     } else if (event.data.action == 'stopGame') {
@@ -80,6 +82,16 @@ function resetGame() {
     updatePayouts();
 
     setState('READY');
+}
+
+function playPauseGame() {
+    if (game.state == 'PLAYING') {
+        console.log('Pausing game');
+        setState('PAUSED');
+    } else {
+        console.log('Playing game');
+        setState('PLAYING');
+    }
 }
 
 function playGame() {
@@ -182,6 +194,7 @@ var prevTime;
             playSound('blinds');
         }
     }
+
     $('#blind-big').text('' + game.blind.levels[blind]);
     $('#blind-small').text('' + (game.blind.levels[blind] / 2));
 
