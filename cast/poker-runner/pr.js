@@ -259,14 +259,13 @@ var prevTime;
     $(document.body).toggleClass('theme-light theme-dark');
 }
 
-var sounds = {};
 /*private*/ function playSound(sound) {
-    if (sounds[sound] == undefined) {
-        sounds[sound] = new Audio('sounds/' + sound + '.mp3');
-    }
-
     console.log('Playing sound: ' + sound);
-    sounds[sound].play();
+
+    var audio = document.getElementById('sounds');
+    audio.src = 'sounds/' + sound + '.mp3';
+    audio.load();
+    audio.play();
 }
 
 /*private*/ function fixSvg() {
