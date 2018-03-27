@@ -260,12 +260,14 @@ var prevTime;
 }
 
 /*private*/ function playSound(sound) {
-    console.log('Playing sound: ' + sound);
-
     var audio = document.getElementById('sounds');
     audio.src = 'sounds/' + sound + '.mp3';
     audio.load();
-    audio.play();
+    audio.play().then(function(result){
+        console.log('Playing sound: ' + sound);
+    }).catch(function(error){
+        console.log('Unable to play sound: ' + sound);
+    });
 }
 
 /*private*/ function fixSvg() {
