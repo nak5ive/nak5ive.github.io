@@ -23,15 +23,11 @@ const playerManager = context.getPlayerManager();
 
 context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
     console.log(event);
-    if (event.data.action == 'playGame') {
-        playGame();
-    } else if (event.data.action == 'playPause') {
+    if (event.data.action == 'playPause') {
         playPauseGame();
-    } else if (event.data.action == 'pauseGame') {
-        pauseGame();
-    } else if (event.data.action == 'stopGame') {
+    } else if (event.data.action == 'stop') {
         stopGame();
-    } else if (event.data.action == 'resetGame') {
+    } else if (event.data.action == 'reset') {
         resetGame();
     } else if (event.data.action == 'addMinutes') {
         addMinutes(event.data.value);
@@ -92,20 +88,6 @@ function playPauseGame() {
         console.log('Playing game');
         setState('PLAYING');
     }
-}
-
-function playGame() {
-    console.log('Playing game');
-    setState('PLAYING');
-}
-
-function pauseGame() {
-    if (game.state != 'PLAYING') {
-        return console.log('Can only pause a game in progress');
-    }
-
-    console.log('Pausing game');
-    setState('PAUSED');
 }
 
 function stopGame() {
