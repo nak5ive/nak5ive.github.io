@@ -7,6 +7,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha256-5+02zu5UULQkO7w1GIr6vftCgMfFdZcAHeDtFnKZsBs=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js" integrity="sha256-9YAuB2VnFZNJ+lKfpaQ3dKQT9/C0j3VUla76hHbiVF8=" crossorigin="anonymous"></script>
+        <!-- <script src="./cast.js"></script> -->
         <script src="./pr.js"></script>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous" />
@@ -36,19 +37,15 @@
                 </div>
             </header>
 
-            <main class="mt-auto mb-auto">
-                <h1 class="display-1 text-secondary text-center state-aware-ready" onclick="playPauseGame();">START GAME <img src="images/media-play.svg" alt="play" width="65" height="65"/></h1>
-                <h1 class="display-1 text-alert text-center state-aware-stopped" onclick="resetGame();">GAME OVER</h1>
-                <section class="state-aware-playing state-aware-paused">
-                    <h1 class="display-1 text-center">$<span id="blind-small">0</span> / $<span id="blind-big">0</span></h1>
-                    <div class="d-flex justify-content-center bg-secondary">
-                        <div id="blind-progress" class="bg-primary"></div>
+            <h1 class="display-1 mt-auto mb-auto text-secondary text-center state-aware-ready" onclick="playPauseGame();">START GAME <img src="images/media-play.svg" alt="play" width="65" height="65"/></h1>
+            <h1 class="mt-auto mb-auto display-1 text-alert text-center state-aware-stopped" onclick="resetGame();">GAME OVER</h1>
+
+            <main class="flex-grow d-flex state-aware-playing-flex state-aware-paused-flex">
+                    <div class="align-self-center">left</div>
+                    <div class="flex-grow align-self-center">
+                        <!-- <h1 class="display-4 text-center"><span id="blind-small"></span> / <span id="blind-big"></span></h1> -->
                     </div>
-                    <h2 class="mt-2 text-secondary text-center" onclick="playPauseGame();">
-                        <img class="state-aware-paused-inline" src="images/media-pause.svg" alt="paused" width="24" height="24"/>
-                        <span id="blind-timer">0:00</span>
-                    </h2>
-                </section>
+                    <div class="align-self-center">right</div>
             </main>
 
             <footer>
@@ -59,6 +56,8 @@
                 </div>
             </footer>
         </div>
+
+        <canvas id="canvas" class="position-absolute"></canvas>
 
         <audio id="sounds"></audio>
 
