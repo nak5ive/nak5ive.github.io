@@ -1,5 +1,4 @@
-const GAME_LOOP_INTERVAL = 50;
-const INTERVAL_UI_LOOP = 50;
+const INTERVAL_LOOP = 50;
 const PREVENT_BURN_IN_RATE = 5 * 60 * 1000;
 
 // ui constants
@@ -9,30 +8,17 @@ const UI_RING_RELATIVE_THICKNESS = .03;
 const UI_PROGRESS_RING_DASH_WEIGHT = 12;
 const UI_PROGRESS_RING_RELATIVE_SCALE = .5;
 
-
-
 var theme = {
-    light: {
-        bgPrimary: '#ccc',
-        bgSecondary: '#aaa',
-        textPrimary: '#000',
-        textSecondary: '#777',
-        green: '#1C9344',
-        yellow: '#CCAE1C',
-        red: '#D12525',
-        blue: '#3673B5'
-    },
-    dark: {
-        bgPrimary: '#000',
-        bgSecondary: '#222',
-        textPrimary: '#ddd',
-        textSecondary: '#666',
-        green: '#2FB55B',
-        yellow: '#E2C222',
-        red: '#E53434',
-        blue: '#4795E8'
-    }
-};
+    grey: '#59595b',
+    white: '#fff',
+    green: '#89d92e',
+    greenPaused: '#354624',
+    yellow: '#fff22d',
+    yellowPaused: '524f1e',
+    red: '#ff0019',
+    redPause: '#571e20',
+    blue: '#a5f1ff'
+}
 
 var game = {
     type: 'TEXAS HOLD &lsquo;EM',
@@ -49,15 +35,17 @@ var game = {
     }
 };
 
-var viewModel = {
-    theme: theme.dark,
-    gameState: 'READY',
-    currentBlind: {
+var view = {
+    blind: {
         level: '5/10',
-        timeRemaining: '15:00',
-        progress: 0,
-        progressTotal: 15,
-        progressColor: 'green'
+        color: theme.white
+    },
+    timer: {
+        elapsed: '00:00',
+        remaining: '15:00',
+        color: theme.green,
+        dashesTotal: 15,
+        dashesOff: 0
     }
 };
 
@@ -175,8 +163,9 @@ var prevTime;
         $('#game-timer').text(gameTime);
     }
 
-    // update the viewmodel state after calculations
-    viewModel.gameState = game.state;
+    // update the view state after calculations
+    uiLoop();
+
     prevTime = time;
 }
 
@@ -197,27 +186,20 @@ var prevTime;
         }
     }
 
-    // $('#blind-big').text('' + game.blind.levels[blind]);
-    // $('#blind-small').text('' + (game.blind.levels[blind] / 2));
-
     var remaining = game.blind.interval - game.time % game.blind.interval;
     var lowTime = remaining <= 1 * 60000;
-    // $('#blind-timer')
-    //     .html(formatTimeRemaining(remaining))
-    //     .toggleClass('text-alert', lowTime);
 
-    viewModel.currentBlind.level = (game.blind.levels[blind] / 2) + '/' + game.blind.levels[blind];
-    viewModel.currentBlind.timeRemaining = formatTimeRemaining(remaining);
-    viewModel.currentBlind.timeRemainingColor = viewModel.theme[lowTime ? 'red' : 'textSecondary'];
-    viewModel.currentBlind.progress = Math.floor((game.time % game.blind.interval) / 60000);
-    viewModel.currentBlind.progressTotal = Math.ceil(game.blind.interval / 60000);
+    view.blind.level = (game.blind.levels[blind] / 2) + '/' + game.blind.levels[blind];
+    view.timer.remaining = formatTimeRemaining(remaining);
+    view.timer.dashesOff = Math.floor((game.time % game.blind.interval) / 60000);
+    view.timer.dashesTotal = Math.ceil(game.blind.interval / 60000);
 
-    if (viewModel.currentBlind.progress >= viewModel.currentBlind.progressTotal - 1) {
-        viewModel.currentBlind.progressColor = viewModel.theme['red'];
-    } else if (viewModel.currentBlind.progress >= 2 * viewModel.currentBlind.progressTotal / 3) {
-        viewModel.currentBlind.progressColor = viewModel.theme['yellow'];
+    if (view.timer.dashesOff >= view.timer.dashesTotal - 1) {
+        view.timer.color = theme.red;
+    } else if (view.timer.dashesOff >= 2 * view.timer.dashesTotal / 3) {
+        view.timer.color = theme.yellow;
     } else {
-        viewModel.currentBlind.progressColor = viewModel.theme['green'];
+        view.timer.color = theme.green;
     }
 }
 
@@ -261,17 +243,6 @@ var prevTime;
     return (hours > 0 ? hours + ':' : '')
         + (minutes < 10 && hours > 0 ? '0' + minutes : minutes) + ':'
         + (seconds < 10 ? '0' + seconds : seconds);
-}
-
-/*private*/ function flipTheme() {
-    console.log('Flipping theme');
-    $(document.body).toggleClass('theme-light theme-dark');
-
-    // also update canvas viewModel
-    viewModel.theme = (viewModel.theme == theme.dark) ? theme.light : theme.dark;
-
-    // update game loop as well
-    loop();
 }
 
 /*private*/ function playSound(sound) {
@@ -324,12 +295,9 @@ function uiLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // prevent burn in
-    preventBurnIn();
+    // preventBurnIn();
 
-    // set page background
-    $(canvas).css('background', viewModel.theme.bgPrimary);
-
-    if (viewModel.gameState == 'PLAYING' || viewModel.gameState == 'PAUSED') {
+    if (game.state == 'PLAYING' || game.state == 'PAUSED') {
         drawPlayingState();
     }
 
@@ -351,16 +319,16 @@ function drawPlayingState() {
     var radius = canvas.width * 0.3 / 2;
     var centerX = canvas.width * 0.2 + radius;
     var centerY = canvas.height / 2;
-    var angleGap = 2 * Math.PI / (viewModel.currentBlind.progressTotal * (UI_PROGRESS_RING_DASH_WEIGHT + 1));
+    var angleGap = 2 * Math.PI / (view.timer.dashesTotal * (UI_PROGRESS_RING_DASH_WEIGHT + 1));
     var angleDash = angleGap * UI_PROGRESS_RING_DASH_WEIGHT;
 
     ctx.lineWidth = radius * UI_RING_RELATIVE_THICKNESS;
-    var progressColor = viewModel.currentBlind.progressColor;
-    if (viewModel.gameState == 'PAUSED') {
-        progressColor = viewModel.theme.blue;
+    var timerColor = view.timer.color;
+    if (game.state == 'PAUSED') {
+        timerColor = theme.blue;
     }
-    for (var i = 0; i < viewModel.currentBlind.progressTotal; i++) {
-        ctx.strokeStyle = (i < viewModel.currentBlind.progress) ? viewModel.theme.bgSecondary : progressColor;
+    for (var i = 0; i < view.timer.dashesTotal; i++) {
+        ctx.strokeStyle = (i < view.timer.dashesOff) ? theme.grey : timerColor;
         var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
         var angleEnd = angleStart + angleDash;
         ctx.beginPath();
@@ -372,11 +340,11 @@ function drawPlayingState() {
     ctx.font = 'bold ' + (radius * 0.5) + 'px Open Sans Condensed';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    var text = viewModel.currentBlind.timeRemaining;
-    ctx.fillStyle = viewModel.currentBlind.progressColor;
-    if (viewModel.gameState == 'PAUSED') {
-        text = viewModel.gameState;
-        ctx.fillStyle = viewModel.theme.blue;
+    var text = view.timer.remaining;
+    ctx.fillStyle = view.timer.color;
+    if (game.state == 'PAUSED') {
+        text = game.state;
+        ctx.fillStyle = theme.blue;
     }
     ctx.fillText(text, centerX, centerY);
 
@@ -384,37 +352,41 @@ function drawPlayingState() {
     radius = canvas.width * 0.2 / 2;
     centerX = canvas.width * 0.8 - radius;
     ctx.lineWidth = radius * UI_RING_RELATIVE_THICKNESS;
-    ctx.strokeStyle = viewModel.theme.textSecondary;
+    ctx.strokeStyle = view.blind.color;
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.stroke();
 
     // draw current blind text
-    ctx.fillStyle = viewModel.theme.textPrimary;
+    ctx.fillStyle = view.blind.color;
     ctx.font = 'bold ' + (radius * 0.4) + 'px Open Sans Condensed';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(viewModel.currentBlind.level, centerX, centerY);
+    ctx.fillText(view.blind.level, centerX, centerY);
 
 }
+
 
 // bootstrap
 $(function(){
     // replace svg image tags with path
     fixSvg();
 
+    // init web fonts
+    WebFont.load({
+        google: {
+            families: ['Open Sans Condensed:300,700']
+        }
+    });
+
+    // init canvas + context
+    initCanvas();
+
     // init game
     resetGame();
 
     // start game loop
-    setInterval(function() { loop() }, GAME_LOOP_INTERVAL);
-
-    // init theme flipper
-    // setInterval(function() { flipTheme() }, FLIP_THEME_INTERVAL);
-
-    // init ui loop
-    initCanvas();
-    setInterval(function() { uiLoop() }, INTERVAL_UI_LOOP);
+    setInterval(loop, INTERVAL_LOOP);
 
     // hack to disable timeout
     window._setTimeout = window.setTimeout;
