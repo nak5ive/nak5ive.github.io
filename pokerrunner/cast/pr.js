@@ -5,7 +5,7 @@ const INTERVAL_UI_LOOP = 50;
 // ui constants
 const UI_HORIZONTAL_INSET = 0.1;
 const UI_VERTICAL_INSET = 0.05;
-const UI_RING_RELATIVE_THICKNESS = .02;
+const UI_RING_RELATIVE_THICKNESS = .03;
 const UI_PROGRESS_RING_DASH_WEIGHT = 12;
 const UI_PROGRESS_RING_RELATIVE_SCALE = .5;
 
@@ -16,18 +16,20 @@ var theme = {
         bgSecondary: '#aaa',
         textPrimary: '#000',
         textSecondary: '#777',
-        green: '#0d0',
-        yellow: '#dd0',
-        red: '#d00'
+        green: '#1C9344',
+        yellow: '#CCAE1C',
+        red: '#D12525',
+        blue: '#3673B5'
     },
     dark: {
         bgPrimary: '#000',
         bgSecondary: '#222',
         textPrimary: '#ddd',
         textSecondary: '#666',
-        green: '#3f3',
-        yellow: '#ff3',
-        red: '#f33'
+        green: '#2FB55B',
+        yellow: '#E2C222',
+        red: '#E53434',
+        blue: '#4795E8'
     }
 };
 
@@ -50,15 +52,15 @@ var viewModel = {
     theme: theme.dark,
     gameState: 'READY',
     currentBlind: {
-        level: '5 / 10',
+        level: '5/10',
         timeRemaining: '15:00',
-        timeRemainingColor: 'textSecondary',
         progress: 0,
         progressTotal: 15,
         progressColor: 'green'
     }
 };
 
+var canvas, ctx;
 
 
 function resetGame() {
@@ -203,7 +205,7 @@ var prevTime;
     //     .html(formatTimeRemaining(remaining))
     //     .toggleClass('text-alert', lowTime);
 
-    viewModel.currentBlind.level = (game.blind.levels[blind] / 2) + ' / ' + game.blind.levels[blind];
+    viewModel.currentBlind.level = (game.blind.levels[blind] / 2) + '/' + game.blind.levels[blind];
     viewModel.currentBlind.timeRemaining = formatTimeRemaining(remaining);
     viewModel.currentBlind.timeRemainingColor = viewModel.theme[lowTime ? 'red' : 'textSecondary'];
     viewModel.currentBlind.progress = Math.floor((game.time % game.blind.interval) / 60000);
@@ -245,7 +247,7 @@ var prevTime;
         seconds = 0;
     }
 
-    return minutes + ':'
+    return (minutes < 10 ? '0' + minutes : minutes) + ':'
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
@@ -299,7 +301,6 @@ var prevTime;
             $.each(attributes, function() {
                 $svg.attr(this.name, this.value);
             });
-            console.log($svg);
 
             // Replace IMG with SVG
             $img.replaceWith($svg);
@@ -307,7 +308,6 @@ var prevTime;
     });
 }
 
-var canvas, ctx;
 function initCanvas() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
@@ -323,23 +323,26 @@ function uiLoop() {
     // set page background
     $(canvas).css('background', viewModel.theme.bgPrimary);
 
-    if (viewModel.gameState == 'PLAYING') {
+    if (viewModel.gameState == 'PLAYING' || viewModel.gameState == 'PAUSED') {
         drawPlayingState();
     }
 }
 
 function drawPlayingState() {
-    var centerX = canvas.width / 2;
-    var centerY = canvas.height / 2;
-
     // draw the current blind progress ring
     var radius = canvas.width * 0.3 / 2;
+    var centerX = canvas.width * 0.2 + radius;
+    var centerY = canvas.height / 2;
     var angleGap = 2 * Math.PI / (viewModel.currentBlind.progressTotal * (UI_PROGRESS_RING_DASH_WEIGHT + 1));
     var angleDash = angleGap * UI_PROGRESS_RING_DASH_WEIGHT;
 
-    ctx.lineWidth = radius * 2 * UI_RING_RELATIVE_THICKNESS;
+    ctx.lineWidth = radius * UI_RING_RELATIVE_THICKNESS;
+    var progressColor = viewModel.currentBlind.progressColor;
+    if (viewModel.gameState == 'PAUSED') {
+        progressColor = viewModel.theme.blue;
+    }
     for (var i = 0; i < viewModel.currentBlind.progressTotal; i++) {
-        ctx.strokeStyle = (i < viewModel.currentBlind.progress) ? viewModel.theme.bgSecondary : viewModel.currentBlind.progressColor;
+        ctx.strokeStyle = (i < viewModel.currentBlind.progress) ? viewModel.theme.bgSecondary : progressColor;
         var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
         var angleEnd = angleStart + angleDash;
         ctx.beginPath();
@@ -348,32 +351,33 @@ function drawPlayingState() {
     }
 
     // draw current blind levels text
+    ctx.font = 'bold ' + Math.floor(radius * 0.5) + 'px Open Sans Condensed';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    var text = viewModel.currentBlind.timeRemaining;
+    ctx.fillStyle = viewModel.currentBlind.progressColor;
+    if (viewModel.gameState == 'PAUSED') {
+        text = viewModel.gameState;
+        ctx.fillStyle = viewModel.theme.blue;
+    }
+    ctx.fillText(text, centerX, centerY);
+
+    // draw the current blind ring
+    radius = canvas.width * 0.2 / 2;
+    centerX = canvas.width * 0.8 - radius;
+    ctx.lineWidth = radius * UI_RING_RELATIVE_THICKNESS;
+    ctx.strokeStyle = viewModel.theme.textPrimary;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // draw current blind text
     ctx.fillStyle = viewModel.theme.textPrimary;
-    ctx.font = Math.floor(radius * 0.3) + 'px Arial';
+    ctx.font = 'bold ' + Math.floor(radius * 0.4) + 'px Open Sans Condensed';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(viewModel.currentBlind.level, centerX, centerY);
 
-    // draw current timer text
-    ctx.fillStyle = viewModel.currentBlind.timeRemainingColor;
-    ctx.font = Math.floor(radius * 0.15) + 'px Arial';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(viewModel.currentBlind.timeRemaining, centerX, centerY + radius - 0.2*radius);
-
-    // draw the previous blind ring
-    centerX = canvas.width * 0.2;
-    radius = canvas.width * 0.2 / 2;
-    ctx.lineWidth = radius * 2 * UI_RING_RELATIVE_THICKNESS;
-    ctx.strokeStyle = viewModel.theme.bgSecondary;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.stroke();
-
-    // draw the next blind ring
-    centerX = canvas.width * 0.8;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.stroke();
 }
 
 // bootstrap
