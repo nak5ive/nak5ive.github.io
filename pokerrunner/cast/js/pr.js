@@ -2,6 +2,8 @@ const INTERVAL_LOOP = 50;
 const PREVENT_BURN_IN_RATE = 5 * 60 * 1000;
 const UI_HORIZONTAL_PADDING = 0.1;
 const UI_VERTICAL_PADDING = 0.05;
+const ANIM_FLASH_DURATION = 1000;
+const ANIM_FADEOUT_DURATION = 250;
 
 var theme = {
     grey: '#59595b',
@@ -302,7 +304,6 @@ function drawHeader() {
 }
 
 function drawPayouts() {
-    var flashDuration = 3 * 1000;
     var spacing = TEXT_MEDIUM * 2.3;
     var padding = TEXT_MEDIUM * 0.3;
     var lineHeight = TEXT_MEDIUM * 1.3;
@@ -324,15 +325,14 @@ function drawPayouts() {
     drawText('Q', x + padding, y3, TEXT_MEDIUM, color, 'left', 'middle');
 
     // draw values
-    var time = Date.now();
-    var changedColor = time - view.payouts[0].updated < flashDuration ? theme.blue : color;
-    drawText(view.payouts[0].amount, x - padding, y1, TEXT_MEDIUM, changedColor, 'right', 'middle');
+    color = calculateEventColor(view.payouts[0].updated);
+    drawText(view.payouts[0].amount, x - padding, y1, TEXT_MEDIUM, color, 'right', 'middle');
 
-    changedColor = time - view.payouts[1].updated < flashDuration ? theme.blue : color;
-    drawText(view.payouts[1].amount, x - padding, y2, TEXT_MEDIUM, changedColor, 'right', 'middle');
+    color = calculateEventColor(view.payouts[1].updated);
+    drawText(view.payouts[1].amount, x - padding, y2, TEXT_MEDIUM, color, 'right', 'middle');
 
-    changedColor = time - view.payouts[2].updated < flashDuration ? theme.blue : color;
-    drawText(view.payouts[2].amount, x - padding, y3, TEXT_MEDIUM, changedColor, 'right', 'middle');
+    color = calculateEventColor(view.payouts[2].updated);
+    drawText(view.payouts[2].amount, x - padding, y3, TEXT_MEDIUM, color, 'right', 'middle');
 }
 
 function drawGameState() {
@@ -394,13 +394,33 @@ function drawGameState() {
     ctx.fillText(text, x, y);
 }
 
-function drawLine(x0, y0, x1, y1, width, color) {
+/*private*/ function drawLine(x0, y0, x1, y1, width, color) {
     ctx.strokeStyle = color;
     ctx.lineWidth = width;
     ctx.beginPath();
     ctx.moveTo(x0, y0);
     ctx.lineTo(x1, y1);
     ctx.stroke();
+}
+
+/*private*/ function calculateEventColor(eventTime) {
+    if (game.state != 'PLAYING') {
+        return theme.blue;
+    }
+
+    var now = Date.now();
+
+    var diff = now - eventTime;
+    if (diff > ANIM_FLASH_DURATION + ANIM_FADEOUT_DURATION) {
+        return theme.grey;
+    }
+
+    if (diff <= ANIM_FLASH_DURATION) {
+        return theme.blue;
+    }
+
+    var ratio = 100 * (diff - ANIM_FLASH_DURATION) / ANIM_FADEOUT_DURATION;
+    return tinycolor.mix(theme.blue, theme.grey, ratio);
 }
 
 // on ready
