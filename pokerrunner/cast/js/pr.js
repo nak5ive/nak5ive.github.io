@@ -1,12 +1,7 @@
 const INTERVAL_LOOP = 50;
 const PREVENT_BURN_IN_RATE = 5 * 60 * 1000;
-
-// ui constants
-const UI_HORIZONTAL_INSET = 0.1;
-const UI_VERTICAL_INSET = 0.05;
-const UI_RING_RELATIVE_THICKNESS = .03;
-const UI_PROGRESS_RING_DASH_WEIGHT = 12;
-const UI_PROGRESS_RING_RELATIVE_SCALE = .5;
+const UI_HORIZONTAL_PADDING = 0.1;
+const UI_VERTICAL_PADDING = 0.05;
 
 var theme = {
     grey: '#59595b',
@@ -21,8 +16,8 @@ var theme = {
 }
 
 var game = {
-    type: 'TEXAS HOLD &lsquo;EM',
-    table: 'POKER BOIZ',
+    tournamentName: 'POKER BOIZ',
+    type: 'TEXAS HOLD \u2018EM',
     state: 'READY', // PLAYING, PAUSED, STOPPED
     players: 0,
     buyin: 10,
@@ -36,6 +31,9 @@ var game = {
 };
 
 var view = {
+    tournament: 'TOURNAMENT',
+    description: '$10 TEXAS HOLD \u2018EM',
+    clock: '12:00 p',
     blind: {
         level: '5/10',
         color: theme.white
@@ -46,10 +44,15 @@ var view = {
         color: theme.green,
         dashesTotal: 15,
         dashesOff: 0
-    }
+    },
+    payouts: [
+        {amount: '0', updated: 0},
+        {amount: '0', updated: 0},
+        {amount: '0', updated: 0}
+    ]
 };
 
-var canvas, ctx;
+var canvas, ctx, WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 
 
 function resetGame() {
@@ -58,39 +61,25 @@ function resetGame() {
     }
 
     console.log('Resetting game');
-    setState('READY');
+    game.state = 'READY';
 
     game.time = 0;
     game.blind.current = 0;
     game.rebuys = 0;
 
-    // header
-    $('#table-name').text(game.table);
-    $('#buy-in-cost').text('$' + game.buyin);
-    $('#game-type').html(game.type);
-    $('#game-timer').text('0:00');
-
-    // main content
-    // $('#blind-big').text('' + game.blind.levels[0]);
-    // $('#blind-small').text('' + (game.blind.levels[0] / 2));
-    // $('#blind-timer').text(formatTimeRemaining(game.blind.interval));
-
-    // footer
-    $('#players').text(game.players);
-    $('#rebuys').text(game.rebuys);
     updatePayouts();
 }
 
 function playPauseGame() {
     if (game.state == 'PLAYING') {
         console.log('Pausing game');
-        setState('PAUSED');
+        game.state = 'PAUSED';
     } else {
         if (game.state == 'READY') {
             playSound('play');
         }
         console.log('Playing game');
-        setState('PLAYING');
+        game.state = 'PLAYING';
     }
 }
 
@@ -101,12 +90,11 @@ function stopGame() {
 
     playSound('stop');
     console.log('Stopping game');
-    setState('STOPPED');
+    game.state = 'STOPPED';
 }
 
 function addPlayers(players) {
     game.players = Math.max(game.players + players, 0);
-    $('#players').text('' + game.players);
     console.log('Players: ' + game.players);
 
     updatePayouts();
@@ -118,7 +106,6 @@ function addRebuys(rebuys) {
     }
 
     game.rebuys = Math.max(game.rebuys + rebuys, 0);
-    $('#rebuys').text('' + game.rebuys);
     console.log('Rebuys: ' + game.rebuys);
 
     updatePayouts();
@@ -152,29 +139,23 @@ var prevTime;
     }
 
     // update clock
-    var clock = moment().format('h:mma');
-    if ($('#clock').text() != clock) {
-        $('#clock').text(clock);
-    }
+    var clock = moment().format('h:mm a');
+    view.clock = clock.substring(0, clock.length - 1);
 
-    // update game timer
-    var gameTime = formatTimeElapsed(game.time);
-    if ($('#game-timer').text() != gameTime) {
-        $('#game-timer').text(gameTime);
-    }
+    // update total game timer
+    view.timer.elapsed = formatTimeElapsed(game.time);
+
+    view.tournament = game.tournamentName;
+    view.description = '$' + game.buyin + ' ' + game.type;
 
     // update the view state after calculations
-    uiLoop();
+    drawView();
 
     prevTime = time;
 }
 
 /*private*/ function setState(state) {
     game.state = state;
-
-    $(document.body)
-        .removeClass('game-state-ready game-state-playing game-state-paused game-state-stopped')
-        .addClass('game-state-' + state.toLowerCase());
 }
 
 /*private*/ function refreshBlinds() {
@@ -210,16 +191,22 @@ var prevTime;
     var second = Math.ceil((total - first) / 15) * 10;
     var third = total - first - second;
 
-    var formatted = '$' + first;
-    if (second != 0) {
-        formatted += ' / $' + second;
-    }
-    if (third != 0) {
-        formatted += ' / $' + third;
+    if (view.payouts[0].amount != '' + first) {
+        view.payouts[0].amount = '' + first;
+        view.payouts[0].updated = Date.now();
     }
 
-    $('#payouts').text(formatted);
-    console.log('Payouts: ' + formatted);
+    if (view.payouts[1].amount != '' + second) {
+        view.payouts[1].amount = '' + second;
+        view.payouts[1].updated = Date.now();
+    }
+
+    if (view.payouts[2].amount != '' + third) {
+        view.payouts[2].amount = '' + third;
+        view.payouts[2].updated = Date.now();
+    }
+
+    console.log('Payouts: ' + first + '/' + second +'/' + third);
 }
 
 /*private*/ function formatTimeRemaining(time) {
@@ -241,7 +228,7 @@ var prevTime;
     var seconds = time % 60;
 
     return (hours > 0 ? hours + ':' : '')
-        + (minutes < 10 && hours > 0 ? '0' + minutes : minutes) + ':'
+        + (minutes < 10 ? '0' + minutes : minutes) + ':'
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
@@ -256,50 +243,32 @@ var prevTime;
     });
 }
 
-/*private*/ function fixSvg() {
-    $('img[src$=".svg"]').each(function() {
-        var $img = jQuery(this);
-        var imgURL = $img.attr('src');
-        var attributes = $img.prop("attributes");
-
-        $.get(imgURL, function(data) {
-            // Get the SVG tag, ignore the rest
-            var $svg = jQuery(data).find('svg');
-
-            // Remove any invalid XML tags
-            $svg = $svg.removeAttr('xmlns:a');
-
-            // Loop through IMG attributes and apply on SVG
-            $.each(attributes, function() {
-                $svg.attr(this.name, this.value);
-            });
-
-            // Replace IMG with SVG
-            $img.replaceWith($svg);
-        }, 'xml');
-    });
-}
-
 function initCanvas() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+
+    WIDTH = canvas.width * (1 - 2 * UI_HORIZONTAL_PADDING);
+    HEIGHT = canvas.height * (1 - 2 * UI_VERTICAL_PADDING);
+
+    TEXT_SMALL = HEIGHT * 0.03;
+    TEXT_MEDIUM = HEIGHT * 0.04;
+    TEXT_LARGE = HEIGHT * 0.06;
+    TEXT_XLARGE = HEIGHT * 0.12;
 }
 
-function uiLoop() {
+function drawView() {
     ctx.save();
 
     // clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.translate(canvas.width * UI_HORIZONTAL_PADDING, canvas.height * UI_VERTICAL_PADDING);
 
-    // prevent burn in
-    // preventBurnIn();
-
-    if (game.state == 'PLAYING' || game.state == 'PAUSED') {
-        drawPlayingState();
-    }
+    drawHeader();
+    drawPayouts();
+    drawGameState();
 
     ctx.restore();
 }
@@ -314,15 +283,74 @@ function preventBurnIn() {
     ctx.translate(x, y);
 }
 
-function drawPlayingState() {
-    // draw the current blind progress ring
-    var radius = canvas.width * 0.3 / 2;
-    var centerX = canvas.width * 0.2 + radius;
-    var centerY = canvas.height / 2;
-    var angleGap = 2 * Math.PI / (view.timer.dashesTotal * (UI_PROGRESS_RING_DASH_WEIGHT + 1));
-    var angleDash = angleGap * UI_PROGRESS_RING_DASH_WEIGHT;
+function drawHeader() {
+    var color = game.state == 'PLAYING' ? theme.grey : theme.blue;
 
-    ctx.lineWidth = radius * UI_RING_RELATIVE_THICKNESS;
+    // draw tournament name
+    var x = WIDTH / 2;
+    var y = 0;
+    drawText(view.tournament, x, y, TEXT_MEDIUM, color, 'center', 'top');
+
+    // draw clock
+    x = WIDTH;
+    drawText(view.clock, x, y, TEXT_MEDIUM, color, 'right', 'top');
+
+    // draw description
+    x = WIDTH / 2;
+    y += TEXT_MEDIUM * 1.5;
+    drawText(view.description, x, y, TEXT_SMALL, color, 'center', 'top');
+}
+
+function drawPayouts() {
+    var flashDuration = 3 * 1000;
+    var spacing = TEXT_MEDIUM * 2.3;
+    var padding = TEXT_MEDIUM * 0.3;
+    var lineHeight = TEXT_MEDIUM * 1.3;
+    var x = WIDTH - TEXT_MEDIUM;
+    var y1 = HEIGHT / 2 - spacing;
+    var y2 = y1 + spacing;
+    var y3 = y2 + spacing;
+
+    var color = game.state == 'PLAYING' ? theme.grey : theme.blue;
+
+    // draw lines
+    drawLine(x, y1 - lineHeight / 2, x, y1 + lineHeight / 2, 2, color);
+    drawLine(x, y2 - lineHeight / 2, x, y2 + lineHeight / 2, 2, color);
+    drawLine(x, y3 - lineHeight / 2, x, y3 + lineHeight / 2, 2, color);
+
+    // draw labels
+    drawText('A', x + padding, y1, TEXT_MEDIUM, color, 'left', 'middle');
+    drawText('K', x + padding, y2, TEXT_MEDIUM, color, 'left', 'middle');
+    drawText('Q', x + padding, y3, TEXT_MEDIUM, color, 'left', 'middle');
+
+    // draw values
+    var time = Date.now();
+    var changedColor = time - view.payouts[0].updated < flashDuration ? theme.blue : color;
+    drawText(view.payouts[0].amount, x - padding, y1, TEXT_MEDIUM, changedColor, 'right', 'middle');
+
+    changedColor = time - view.payouts[1].updated < flashDuration ? theme.blue : color;
+    drawText(view.payouts[1].amount, x - padding, y2, TEXT_MEDIUM, changedColor, 'right', 'middle');
+
+    changedColor = time - view.payouts[2].updated < flashDuration ? theme.blue : color;
+    drawText(view.payouts[2].amount, x - padding, y3, TEXT_MEDIUM, changedColor, 'right', 'middle');
+}
+
+function drawGameState() {
+    var largeRadius = HEIGHT * 0.5 / 2;
+    var smallRadius = HEIGHT * 0.35 / 2;
+    var lineWidth = HEIGHT * 0.005;
+    var dashWeight = 13;
+
+    var spacing = (WIDTH - 2 * (largeRadius + smallRadius)) / 3;
+
+    var timerX = spacing + largeRadius;
+    var blindX = WIDTH - spacing - smallRadius;
+    var y = HEIGHT / 2;
+
+    // draw the current blind progress ring
+    var angleGap = 2 * Math.PI / (view.timer.dashesTotal * (dashWeight + 1));
+    var angleDash = angleGap * dashWeight;
+    ctx.lineWidth = lineWidth;
     var timerColor = view.timer.color;
     if (game.state == 'PAUSED') {
         timerColor = theme.blue;
@@ -332,46 +360,51 @@ function drawPlayingState() {
         var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
         var angleEnd = angleStart + angleDash;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, angleStart, angleEnd);
+        ctx.arc(timerX, y, largeRadius, angleStart, angleEnd);
         ctx.stroke();
     }
 
-    // draw current blind levels text
-    ctx.font = 'bold ' + (radius * 0.5) + 'px Open Sans Condensed';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    // draw current timer text
     var text = view.timer.remaining;
-    ctx.fillStyle = view.timer.color;
+    var color = view.timer.color;
     if (game.state == 'PAUSED') {
         text = game.state;
-        ctx.fillStyle = theme.blue;
+        color = theme.blue;
     }
-    ctx.fillText(text, centerX, centerY);
+    drawText(text, timerX, y, TEXT_XLARGE, color, 'center', 'middle');
+
+    // draw total elapsed time text
+    drawText(view.timer.elapsed, timerX, y + TEXT_XLARGE / 2, TEXT_MEDIUM, theme.grey, 'center', 'top');
 
     // draw the current blind ring
-    radius = canvas.width * 0.2 / 2;
-    centerX = canvas.width * 0.8 - radius;
-    ctx.lineWidth = radius * UI_RING_RELATIVE_THICKNESS;
     ctx.strokeStyle = view.blind.color;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.arc(blindX, y, smallRadius, 0, 2 * Math.PI);
     ctx.stroke();
 
     // draw current blind text
-    ctx.fillStyle = view.blind.color;
-    ctx.font = 'bold ' + (radius * 0.4) + 'px Open Sans Condensed';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(view.blind.level, centerX, centerY);
-
+    drawText(view.blind.level, blindX, y, TEXT_LARGE, view.blind.color, 'center', 'middle');
 }
 
+/*private*/ function drawText(text, x, y, size, color, h, v) {
+    ctx.fillStyle = color;
+    ctx.font = 'bold ' + size + 'px Open Sans Condensed';
+    ctx.textAlign = h;
+    ctx.textBaseline = v;
+    ctx.fillText(text, x, y);
+}
 
-// bootstrap
+function drawLine(x0, y0, x1, y1, width, color) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+}
+
+// on ready
 $(function(){
-    // replace svg image tags with path
-    fixSvg();
-
     // init web fonts
     WebFont.load({
         google: {
@@ -381,6 +414,10 @@ $(function(){
 
     // init canvas + context
     initCanvas();
+    window.onresize = function() {
+        initCanvas();
+        loop();
+    };
 
     // init game
     resetGame();
@@ -392,3 +429,29 @@ $(function(){
     window._setTimeout = window.setTimeout;
     window.setTimeout = function(a, b) {};
 });
+
+
+//
+// /*private*/ function fixSvg() {
+//     $('img[src$=".svg"]').each(function() {
+//         var $img = jQuery(this);
+//         var imgURL = $img.attr('src');
+//         var attributes = $img.prop("attributes");
+//
+//         $.get(imgURL, function(data) {
+//             // Get the SVG tag, ignore the rest
+//             var $svg = jQuery(data).find('svg');
+//
+//             // Remove any invalid XML tags
+//             $svg = $svg.removeAttr('xmlns:a');
+//
+//             // Loop through IMG attributes and apply on SVG
+//             $.each(attributes, function() {
+//                 $svg.attr(this.name, this.value);
+//             });
+//
+//             // Replace IMG with SVG
+//             $img.replaceWith($svg);
+//         }, 'xml');
+//     });
+// }

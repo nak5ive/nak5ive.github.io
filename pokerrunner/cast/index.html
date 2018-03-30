@@ -1,67 +1,16 @@
 <!doctype html>
 <html>
     <head>
-
         <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha256-5+02zu5UULQkO7w1GIr6vftCgMfFdZcAHeDtFnKZsBs=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js" integrity="sha256-9YAuB2VnFZNJ+lKfpaQ3dKQT9/C0j3VUla76hHbiVF8=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script>
-        <!-- <script src="./cast.js"></script> -->
-        <script src="./pr.js"></script>
-
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous" />
-        <link rel="stylesheet" href="./pr.css"/>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js" integrity="sha256-9YAuB2VnFZNJ+lKfpaQ3dKQT9/C0j3VUla76hHbiVF8=" crossorigin="anonymous"></script>
+        <script src="js/cast.js"></script>
+        <script src="js/pr.js"></script>
+        <link rel="stylesheet" href="css/pr.css"/>
     </head>
-
-    <body class="theme-dark game-state-ready">
-
-        <canvas id="canvas" class="position-absolute"></canvas>
-
-        <div id="page" class="d-flex flex-column">
-            <header>
-                <div class="d-flex justify-content-between">
-                    <h1 id="table-name" class="mb-0"></h1>
-                    <h1 class="mb-0">
-                        <span id="buy-in-cost"></span>
-                        <span id="game-type"></span>
-                    </h1>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <h3 class="text-secondary">
-                        <img src="images/clock.svg" alt="clock" width="20" height="20"/>
-                        <span id="clock"></span>
-                    </h3>
-                    <h3 class="text-secondary">
-                        <span id="game-timer" onclick="stopGame();">0:00</span>
-                        <img src="images/timer.svg" alt="timer" width="20" height="20"/>
-                    </h3>
-                </div>
-            </header>
-
-            <h1 class="display-1 mt-auto mb-auto text-secondary text-center state-aware-ready" onclick="playPauseGame();">START GAME <img src="images/media-play.svg" alt="play" width="65" height="65"/></h1>
-            <h1 class="mt-auto mb-auto display-1 text-alert text-center state-aware-stopped" onclick="resetGame();">GAME OVER</h1>
-
-            <main class="flex-grow d-flex state-aware-playing-flex state-aware-paused-flex">
-                    <div class="align-self-center"></div>
-                    <div class="flex-grow align-self-center">
-                        <!-- <h1 class="display-4 text-center"><span id="blind-small"></span> / <span id="blind-big"></span></h1> -->
-                    </div>
-                    <div class="align-self-center"></div>
-            </main>
-
-            <footer>
-                <div class="d-flex justify-content-center">
-                    <h1 class="mr-5"><img src="images/people.svg" alt="players" width="28" height="28"/> <span id="players" onclick="addPlayers(1);">0</span></h1>
-                    <h1 class="ml-5 mr-5"><img src="images/reload.svg" alt="rebuys" width="28" height="28"/> <span id="rebuys" onclick="addRebuys(1);">0</span></h1>
-                    <h1 class="ml-5"><img src="images/badge.svg" alt="payouts" width="28" height="28"/> <span id="payouts">$0</span></h1>
-                </div>
-            </footer>
-        </div>
-
+    <body>
         <audio id="sounds"></audio>
-
+        <canvas id="canvas"></canvas>
     </body>
 </html>
