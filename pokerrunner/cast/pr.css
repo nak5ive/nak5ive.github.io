@@ -3,11 +3,15 @@ html, body {
   overflow: hidden;
 }
 
+.flex-grow {
+    flex: 1 0 auto;
+}
+
 *[class^="game-state-"] *[class^="state-aware-"],
 *[class^="game-state-"] *[class*=" state-aware-"],
 *[class*=" game-state-"] *[class^="state-aware-"],
 *[class*=" game-state-"] *[class*=" state-aware-"] {
-    display: none;
+    display: none!important;
 }
 
 .game-state-ready .state-aware-ready,
@@ -18,14 +22,21 @@ html, body {
 .game-state-playing .state-aware-playing-block,
 .game-state-paused .state-aware-paused-block,
 .game-state-stopped .state-aware-stopped-block {
-    display: block;
+    display: block!important;
 }
 
 .game-state-ready .state-aware-ready-inline,
 .game-state-playing .state-aware-playing-inline,
 .game-state-paused .state-aware-paused-inline,
 .game-state-stopped .state-aware-stopped-inline {
-    display: inline;
+    display: inline!important;
+}
+
+.game-state-ready .state-aware-ready-flex,
+.game-state-playing .state-aware-playing-flex,
+.game-state-paused .state-aware-paused-flex,
+.game-state-stopped .state-aware-stopped-flex {
+    display: flex!important;
 }
 
 .theme-dark {
@@ -82,11 +93,6 @@ html, body {
     z-index: 1000;
 }
 
-main {
-    padding: 0 15% 0 15%;
-}
-
-#blind-progress {
-    height: 0.5em;
-    width: 25%;
+#canvas {
+    z-index: 500;
 }
