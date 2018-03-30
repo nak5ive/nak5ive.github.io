@@ -1,6 +1,6 @@
 const GAME_LOOP_INTERVAL = 50;
-const FLIP_THEME_INTERVAL = 5 * 60 * 1000;
 const INTERVAL_UI_LOOP = 50;
+const PREVENT_BURN_IN_RATE = 5 * 60 * 1000;
 
 // ui constants
 const UI_HORIZONTAL_INSET = 0.1;
@@ -8,6 +8,7 @@ const UI_VERTICAL_INSET = 0.05;
 const UI_RING_RELATIVE_THICKNESS = .03;
 const UI_PROGRESS_RING_DASH_WEIGHT = 12;
 const UI_PROGRESS_RING_RELATIVE_SCALE = .5;
+
 
 
 var theme = {
@@ -211,9 +212,9 @@ var prevTime;
     viewModel.currentBlind.progress = Math.floor((game.time % game.blind.interval) / 60000);
     viewModel.currentBlind.progressTotal = Math.ceil(game.blind.interval / 60000);
 
-    if (viewModel.currentBlind.progress > 3 * viewModel.currentBlind.progressTotal / 4) {
+    if (viewModel.currentBlind.progress >= viewModel.currentBlind.progressTotal - 1) {
         viewModel.currentBlind.progressColor = viewModel.theme['red'];
-    } else if (viewModel.currentBlind.progress > viewModel.currentBlind.progressTotal / 2) {
+    } else if (viewModel.currentBlind.progress >= 2 * viewModel.currentBlind.progressTotal / 3) {
         viewModel.currentBlind.progressColor = viewModel.theme['yellow'];
     } else {
         viewModel.currentBlind.progressColor = viewModel.theme['green'];
@@ -317,8 +318,13 @@ function initCanvas() {
 }
 
 function uiLoop() {
+    ctx.save();
+
     // clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // prevent burn in
+    preventBurnIn();
 
     // set page background
     $(canvas).css('background', viewModel.theme.bgPrimary);
@@ -326,6 +332,18 @@ function uiLoop() {
     if (viewModel.gameState == 'PLAYING' || viewModel.gameState == 'PAUSED') {
         drawPlayingState();
     }
+
+    ctx.restore();
+}
+
+function preventBurnIn() {
+    var time = Date.now();
+    var angle = 2 * Math.PI * (time % PREVENT_BURN_IN_RATE) / PREVENT_BURN_IN_RATE;
+    var magnitude = canvas.width * .01;
+    var x = Math.cos(angle) * magnitude;
+    var y = Math.sin(angle) * magnitude;
+
+    ctx.translate(x, y);
 }
 
 function drawPlayingState() {
@@ -351,7 +369,7 @@ function drawPlayingState() {
     }
 
     // draw current blind levels text
-    ctx.font = 'bold ' + Math.floor(radius * 0.5) + 'px Open Sans Condensed';
+    ctx.font = 'bold ' + (radius * 0.5) + 'px Open Sans Condensed';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     var text = viewModel.currentBlind.timeRemaining;
@@ -366,14 +384,14 @@ function drawPlayingState() {
     radius = canvas.width * 0.2 / 2;
     centerX = canvas.width * 0.8 - radius;
     ctx.lineWidth = radius * UI_RING_RELATIVE_THICKNESS;
-    ctx.strokeStyle = viewModel.theme.textPrimary;
+    ctx.strokeStyle = viewModel.theme.textSecondary;
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.stroke();
 
     // draw current blind text
     ctx.fillStyle = viewModel.theme.textPrimary;
-    ctx.font = 'bold ' + Math.floor(radius * 0.4) + 'px Open Sans Condensed';
+    ctx.font = 'bold ' + (radius * 0.4) + 'px Open Sans Condensed';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(viewModel.currentBlind.level, centerX, centerY);
@@ -392,7 +410,7 @@ $(function(){
     setInterval(function() { loop() }, GAME_LOOP_INTERVAL);
 
     // init theme flipper
-    setInterval(function() { flipTheme() }, FLIP_THEME_INTERVAL);
+    // setInterval(function() { flipTheme() }, FLIP_THEME_INTERVAL);
 
     // init ui loop
     initCanvas();
