@@ -1,7 +1,14 @@
 const GAME_LOOP_INTERVAL = 50;
 const FLIP_THEME_INTERVAL = 5 * 60 * 1000;
 const INTERVAL_UI_LOOP = 50;
-const RING_WIDTH = 6;
+
+// ui constants
+const UI_HORIZONTAL_INSET = 0.1;
+const UI_VERTICAL_INSET = 0.05;
+const UI_RING_RELATIVE_THICKNESS = .02;
+const UI_PROGRESS_RING_DASH_WEIGHT = 12;
+const UI_PROGRESS_RING_RELATIVE_SCALE = .5;
+
 
 var theme = {
     light: {
@@ -198,16 +205,16 @@ var prevTime;
 
     viewModel.currentBlind.level = (game.blind.levels[blind] / 2) + ' / ' + game.blind.levels[blind];
     viewModel.currentBlind.timeRemaining = formatTimeRemaining(remaining);
-    viewModel.currentBlind.timeRemainingColor = lowTime ? 'red' : 'textSecondary';
+    viewModel.currentBlind.timeRemainingColor = viewModel.theme[lowTime ? 'red' : 'textSecondary'];
     viewModel.currentBlind.progress = Math.floor((game.time % game.blind.interval) / 60000);
     viewModel.currentBlind.progressTotal = Math.ceil(game.blind.interval / 60000);
 
     if (viewModel.currentBlind.progress > 3 * viewModel.currentBlind.progressTotal / 4) {
-        viewModel.currentBlind.progressColor = 'red';
+        viewModel.currentBlind.progressColor = viewModel.theme['red'];
     } else if (viewModel.currentBlind.progress > viewModel.currentBlind.progressTotal / 2) {
-        viewModel.currentBlind.progressColor = 'yellow';
+        viewModel.currentBlind.progressColor = viewModel.theme['yellow'];
     } else {
-        viewModel.currentBlind.progressColor = 'green';
+        viewModel.currentBlind.progressColor = viewModel.theme['green'];
     }
 }
 
@@ -231,10 +238,6 @@ var prevTime;
 }
 
 /*private*/ function formatTimeRemaining(time) {
-    if (time < 60000) {
-        return Math.floor(time / 1000) + '<small>' + Math.floor(time % 1000 / 100) + '</small>';
-    }
-
     var minutes = Math.floor(time / 60000);
     var seconds = Math.ceil(time % 60000 / 1000);
     if (seconds == 60) {
@@ -269,6 +272,8 @@ var prevTime;
 }
 
 /*private*/ function playSound(sound) {
+    return;
+
     var audio = document.getElementById('sounds');
     audio.src = 'sounds/' + sound + '.mp3';
     audio.load();
@@ -304,28 +309,6 @@ var prevTime;
     });
 }
 
-function drawBlindProgress(total, progress, color) {
-    var centerX = canvas.width / 2;
-    var centerY = canvas.height / 2;
-    var radius = Math.min(centerX, centerY) / 2;
-    var dashWeight = 12;
-    var gapWeight = 1;
-
-    var angleUnit = 2 * Math.PI / (total * (dashWeight + gapWeight));
-    var angleDash = angleUnit * dashWeight;
-    var angleGap = angleUnit * gapWeight;
-
-    ctx.lineWidth = RING_WIDTH;
-    for (var i = 0; i < total; i++) {
-        ctx.strokeStyle = i < progress ? viewModel.theme.bgSecondary : viewModel.theme[color];
-        var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
-        var angleEnd = angleStart + angleDash;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, angleStart, angleEnd);
-        ctx.stroke();
-    }
-}
-
 var canvas, ctx;
 function initCanvas() {
     canvas = document.getElementById('canvas');
@@ -335,33 +318,64 @@ function initCanvas() {
     canvas.height = window.innerHeight;
 }
 
-function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
 function uiLoop() {
-    clearCanvas();
+    // clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // set page background
     $(canvas).css('background', viewModel.theme.bgPrimary);
 
     if (viewModel.gameState == 'PLAYING') {
-
-        // draw current blind progress ring
-        var blind = viewModel.currentBlind;
-        drawBlindProgress(blind.progressTotal, blind.progress, blind.progressColor);
-
-        // TODO draw current blind levels
-        ctx.fillStyle = viewModel.theme.textPrimary;
-        ctx.font = '60px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(blind.level, canvas.width / 2, canvas.height / 2);
-
-        // TODO draw current blind time remaining
-
-
+        drawPlayingState();
     }
+}
+
+function drawPlayingState() {
+    var centerX = canvas.width / 2;
+    var centerY = canvas.height / 2;
+
+    // draw the current blind progress ring
+    var radius = canvas.width * 0.3 / 2;
+    var angleGap = 2 * Math.PI / (viewModel.currentBlind.progressTotal * (UI_PROGRESS_RING_DASH_WEIGHT + 1));
+    var angleDash = angleGap * UI_PROGRESS_RING_DASH_WEIGHT;
+
+    ctx.lineWidth = radius * 2 * UI_RING_RELATIVE_THICKNESS;
+    for (var i = 0; i < viewModel.currentBlind.progressTotal; i++) {
+        ctx.strokeStyle = (i < viewModel.currentBlind.progress) ? viewModel.theme.bgSecondary : viewModel.currentBlind.progressColor;
+        var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
+        var angleEnd = angleStart + angleDash;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, angleStart, angleEnd);
+        ctx.stroke();
+    }
+
+    // draw current blind levels text
+    ctx.fillStyle = viewModel.theme.textPrimary;
+    ctx.font = Math.floor(radius * 0.3) + 'px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(viewModel.currentBlind.level, centerX, centerY);
+
+    // draw current timer text
+    ctx.fillStyle = viewModel.currentBlind.timeRemainingColor;
+    ctx.font = Math.floor(radius * 0.15) + 'px Arial';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(viewModel.currentBlind.timeRemaining, centerX, centerY + radius - 0.2*radius);
+
+    // draw the previous blind ring
+    centerX = canvas.width * 0.2;
+    radius = canvas.width * 0.2 / 2;
+    ctx.lineWidth = radius * 2 * UI_RING_RELATIVE_THICKNESS;
+    ctx.strokeStyle = viewModel.theme.bgSecondary;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // draw the next blind ring
+    centerX = canvas.width * 0.8;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.stroke();
 }
 
 // bootstrap
