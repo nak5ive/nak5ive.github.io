@@ -272,8 +272,6 @@ var prevTime;
 }
 
 /*private*/ function playSound(sound) {
-    return;
-
     var audio = document.getElementById('sounds');
     audio.src = 'sounds/' + sound + '.mp3';
     audio.load();
