@@ -40,13 +40,16 @@ var game = {
     type: 'TEXAS HOLD \u2018EM',
     buyin: 10,
     state: 'READY', // PLAYING, PAUSED, STOPPED
-    players: 0,
-    rebuys: 0,
+    entries: 0,
     time: 0,
     blind: {
         levels: [10, 20, 40, 80, 100, 200, 400, 800, 1000, 2000, 4000, 8000],
         interval: 15 * 60 * 1000,
         current: 0
+    },
+    payouts: {
+        house: 0,
+        winners: [67, 23, 10]
     }
 };
 
@@ -72,7 +75,8 @@ var view = {
     ]
 };
 
-var canvas, ctx, WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
+var canvas, ctx;
+var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 
 
 function bootstrap() {
@@ -103,15 +107,15 @@ function bootstrap() {
 
 function resetGame() {
     if (game.state == 'PLAYING' || game.state == 'PAUSED') {
-        return console.log('Can not reset game in progress');
+        return log('Can not reset game in progress');
     }
 
-    console.log('Resetting game');
+    log('Resetting game');
 
     game.state = 'READY';
     game.time = 0;
     game.blind.current = 0;
-    game.rebuys = 0;
+    game.entries = 0;
 
     view.tournament = game.tournamentName;
     view.description = '$' + game.buyin + ' ' + game.type;
@@ -128,52 +132,55 @@ function resetGame() {
 
 function playPauseGame() {
     if (game.state == 'PLAYING') {
-        console.log('Pausing game');
+        log('Pausing game');
         game.state = 'PAUSED';
     } else {
         if (game.state == 'READY') {
             playSound('play');
         }
-        console.log('Playing game');
+        log('Playing game');
         game.state = 'PLAYING';
     }
 }
 
 function stopGame() {
     if (game.state == 'READY' || game.state == 'STOPPED') {
-        return console.log('Can only stop a game in progress');
+        return log('Can only stop a game in progress');
     }
 
     playSound('stop');
-    console.log('Stopping game');
+    log('Stopping game');
     game.state = 'STOPPED';
 }
 
-function addPlayers(players) {
-    game.players = Math.max(game.players + players, 0);
-    console.log('Players: ' + game.players);
+function addEntries(entries) {
+    if (entries > 0) {
+        playSound('entry');
+    }
+
+    game.entries = Math.max(game.entries + entries, 0);
+    log('Entries: ' + game.entries);
 
     updatePayouts();
 }
 
+/* DEPRECATED */
+function addPlayers(players) {
+    addEntries(players);
+}
+
+/* DEPRECATED */
 function addRebuys(rebuys) {
-    if (rebuys > 0) {
-        playSound('rebuy');
-    }
-
-    game.rebuys = Math.max(game.rebuys + rebuys, 0);
-    console.log('Rebuys: ' + game.rebuys);
-
-    updatePayouts();
+    addEntries(rebuys);
 }
 
 function addMinutes(minutes) {
     if (game.state == 'READY' || game.state == 'STOPPED') {
-        return console.log('Can only add time to a game in progress');
+        return log('Can only add time to a game in progress');
     }
 
     minutes = Math.floor(minutes);
-    console.log('Adding ' + minutes + ' minutes');
+    log('Adding ' + minutes + ' minutes');
     game.time = Math.max(game.time + minutes * 60000, 0);
 }
 
@@ -240,7 +247,7 @@ var prevTime;
 }
 
 /*private*/ function updatePayouts() {
-    var total = (game.players + game.rebuys) * game.buyin;
+    var total = game.entries * game.buyin;
 
     var first = Math.ceil(total / 15) * 10;
     var second = Math.ceil((total - first) / 15) * 10;
@@ -261,7 +268,7 @@ var prevTime;
         view.payouts[2].updated = Date.now();
     }
 
-    console.log('Payouts: ' + first + '/' + second +'/' + third);
+    log('Payouts: ' + first + '/' + second +'/' + third);
 }
 
 /*private*/ function formatTimeRemaining(time) {
@@ -288,7 +295,7 @@ var prevTime;
 }
 
 /*private*/ function playSound(sound) {
-    console.log('Playing sound: ' + sound);
+    log('Playing sound: ' + sound);
     document.getElementById('sounds').src = 'sounds/' + sound + '.mp3';
 }
 
@@ -459,4 +466,14 @@ function drawGameState() {
 
     var ratio = 100 * (diff - ANIM_FLASH_DURATION) / ANIM_FADEOUT_DURATION;
     return tinycolor.mix(Color.BLUE, Color.GREY, ratio);
+}
+
+/*private*/ function log(message) {
+    if (!isChromecast) {
+        var debugConsole = document.getElementById('console');
+        debugConsole.appendChild(document.createElement('br'));
+        debugConsole.appendChild(document.createTextNode(message));
+    }
+
+    console.log(message);
 }

@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
     <head>
+        <script>var isChromecast = navigator.userAgent.indexOf('CrKey') >= 0;</script>
         <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
@@ -12,6 +13,16 @@
     <body>
         <canvas id="canvas"></canvas>
         <audio id="sounds" oncanplaythrough="this.play();"></audio>
-        <script>bootstrap();</script>
+        <script>
+            // only load debug console if not on isChromecast
+            if (!isChromecast) {
+                // TODO show debug controls
+                var debugConsole = document.createElement('div');
+                debugConsole.id = 'console';
+                document.body.appendChild(debugConsole);
+            }
+
+            bootstrap();
+        </script>
     </body>
 </html>
