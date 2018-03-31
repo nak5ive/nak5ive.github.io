@@ -5,24 +5,42 @@ const UI_VERTICAL_PADDING = 0.05;
 const ANIM_FLASH_DURATION = 1000;
 const ANIM_FADEOUT_DURATION = 250;
 
-var theme = {
-    grey: '#59595b',
-    white: '#fff',
-    green: '#89d92e',
-    greenPaused: '#354624',
-    yellow: '#fff22d',
-    yellowPaused: '524f1e',
-    red: '#ff0019',
-    redPause: '#571e20',
-    blue: '#a5f1ff'
+const Color = {
+    GREY: '#59595b',
+    WHITE: '#fff',
+    GREEN: '#89d92e',
+    GREEN_FADE: '#354624',
+    YELLOW: '#fff22d',
+    YELLOW_FADED: '524f1e',
+    RED: '#ff0019',
+    RED_FADED: '#571e20',
+    BLUE: '#a5f1ff'
+}
+
+const BLIND_COLORS = ['#fff', '#a5f1ff', '#a5f1a9', '#00a8ec', '#00ce86', '#a6ff1a', '#ffc503', '#ffff00'];
+
+class Game {
+    constructor() {
+        this._tournamentName = 'Poker Boiz';
+        this._style = 'Texas Hold \u2018em';
+        this._buyin = 10;
+    }
+
+    get tournamentName() {
+        return this._tournamentName.toUpperCase();
+    }
+
+    get description() {
+        return '$' + this._buyin + ' ' + this._style.toUpperCase();
+    }
 }
 
 var game = {
     tournamentName: 'POKER BOIZ',
     type: 'TEXAS HOLD \u2018EM',
+    buyin: 10,
     state: 'READY', // PLAYING, PAUSED, STOPPED
     players: 0,
-    buyin: 10,
     rebuys: 0,
     time: 0,
     blind: {
@@ -38,12 +56,12 @@ var view = {
     clock: '12:00 p',
     blind: {
         level: '5/10',
-        color: theme.white
+        color: BLIND_COLORS[0]
     },
     timer: {
         elapsed: '00:00',
         remaining: '15:00',
-        color: theme.green,
+        color: Color.GREEN,
         dashesTotal: 15,
         dashesOff: 0
     },
@@ -57,17 +75,53 @@ var view = {
 var canvas, ctx, WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 
 
+function bootstrap() {
+    // init web fonts
+    WebFont.load({
+        google: {
+            families: ['Open Sans Condensed:300,700']
+        }
+    });
+
+    // init canvas + context
+    initCanvas();
+    window.onresize = function() {
+        initCanvas();
+        loop();
+    };
+
+    // init game
+    resetGame();
+
+    // start game loop
+    setInterval(loop, INTERVAL_LOOP);
+
+    // hack to disable timeout
+    window._setTimeout = window.setTimeout;
+    window.setTimeout = function(a, b) {};
+}
+
 function resetGame() {
     if (game.state == 'PLAYING' || game.state == 'PAUSED') {
         return console.log('Can not reset game in progress');
     }
 
     console.log('Resetting game');
-    game.state = 'READY';
 
+    game.state = 'READY';
     game.time = 0;
     game.blind.current = 0;
     game.rebuys = 0;
+
+    view.tournament = game.tournamentName;
+    view.description = '$' + game.buyin + ' ' + game.type;
+    view.timer.elapsed = '00:00';
+    view.timer.remaining = '15:00';
+    view.timer.color = Color.GREEN;
+    view.timer.dashesTotal = 15;
+    view.timer.dashesOff = 0;
+    view.blind.level = (game.blind.levels[0] / 2) + '/' + game.blind.levels[0];
+    view.blind.color = BLIND_COLORS[0];
 
     updatePayouts();
 }
@@ -147,9 +201,6 @@ var prevTime;
     // update total game timer
     view.timer.elapsed = formatTimeElapsed(game.time);
 
-    view.tournament = game.tournamentName;
-    view.description = '$' + game.buyin + ' ' + game.type;
-
     // update the view state after calculations
     drawView();
 
@@ -172,17 +223,19 @@ var prevTime;
     var remaining = game.blind.interval - game.time % game.blind.interval;
     var lowTime = remaining <= 1 * 60000;
 
-    view.blind.level = (game.blind.levels[blind] / 2) + '/' + game.blind.levels[blind];
     view.timer.remaining = formatTimeRemaining(remaining);
     view.timer.dashesOff = Math.floor((game.time % game.blind.interval) / 60000);
     view.timer.dashesTotal = Math.ceil(game.blind.interval / 60000);
 
+    view.blind.level = (game.blind.levels[blind] / 2) + '/' + game.blind.levels[blind];
+    view.blind.color = BLIND_COLORS[Math.min(BLIND_COLORS.length - 1, blind)];
+
     if (view.timer.dashesOff >= view.timer.dashesTotal - 1) {
-        view.timer.color = theme.red;
+        view.timer.color = Color.RED;
     } else if (view.timer.dashesOff >= 2 * view.timer.dashesTotal / 3) {
-        view.timer.color = theme.yellow;
+        view.timer.color = Color.YELLOW;
     } else {
-        view.timer.color = theme.green;
+        view.timer.color = Color.GREEN;
     }
 }
 
@@ -275,18 +328,8 @@ function drawView() {
     ctx.restore();
 }
 
-function preventBurnIn() {
-    var time = Date.now();
-    var angle = 2 * Math.PI * (time % PREVENT_BURN_IN_RATE) / PREVENT_BURN_IN_RATE;
-    var magnitude = canvas.width * .01;
-    var x = Math.cos(angle) * magnitude;
-    var y = Math.sin(angle) * magnitude;
-
-    ctx.translate(x, y);
-}
-
 function drawHeader() {
-    var color = game.state == 'PLAYING' ? theme.grey : theme.blue;
+    var color = game.state == 'PLAYING' ? Color.GREY : Color.BLUE;
 
     // draw tournament name
     var x = WIDTH / 2;
@@ -312,7 +355,7 @@ function drawPayouts() {
     var y2 = y1 + spacing;
     var y3 = y2 + spacing;
 
-    var color = game.state == 'PLAYING' ? theme.grey : theme.blue;
+    var color = game.state == 'PLAYING' ? Color.GREY : Color.BLUE;
 
     // draw lines
     drawLine(x, y1 - lineHeight / 2, x, y1 + lineHeight / 2, 2, color);
@@ -320,7 +363,7 @@ function drawPayouts() {
     drawLine(x, y3 - lineHeight / 2, x, y3 + lineHeight / 2, 2, color);
 
     // draw labels
-    drawText('A', x + padding, y1, TEXT_MEDIUM, color, 'left', 'middle');
+    drawText('1st', x + padding, y1, TEXT_MEDIUM, color, 'left', 'middle');
     drawText('K', x + padding, y2, TEXT_MEDIUM, color, 'left', 'middle');
     drawText('Q', x + padding, y3, TEXT_MEDIUM, color, 'left', 'middle');
 
@@ -353,10 +396,10 @@ function drawGameState() {
     ctx.lineWidth = lineWidth;
     var timerColor = view.timer.color;
     if (game.state == 'PAUSED') {
-        timerColor = theme.blue;
+        timerColor = Color.BLUE;
     }
     for (var i = 0; i < view.timer.dashesTotal; i++) {
-        ctx.strokeStyle = (i < view.timer.dashesOff) ? theme.grey : timerColor;
+        ctx.strokeStyle = (i < view.timer.dashesOff) ? Color.GREY : timerColor;
         var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
         var angleEnd = angleStart + angleDash;
         ctx.beginPath();
@@ -369,12 +412,13 @@ function drawGameState() {
     var color = view.timer.color;
     if (game.state == 'PAUSED') {
         text = game.state;
-        color = theme.blue;
+        color = Color.BLUE;
     }
     drawText(text, timerX, y, TEXT_XLARGE, color, 'center', 'middle');
 
     // draw total elapsed time text
-    drawText(view.timer.elapsed, timerX, y + TEXT_XLARGE / 2, TEXT_MEDIUM, theme.grey, 'center', 'top');
+    color = game.state == 'PAUSED' ? Color.BLUE : Color.GREY;
+    drawText(view.timer.elapsed, timerX, y + TEXT_XLARGE / 2, TEXT_MEDIUM, color, 'center', 'top');
 
     // draw the current blind ring
     ctx.strokeStyle = view.blind.color;
@@ -405,73 +449,20 @@ function drawGameState() {
 
 /*private*/ function calculateEventColor(eventTime) {
     if (game.state != 'PLAYING') {
-        return theme.blue;
+        return Color.BLUE;
     }
 
     var now = Date.now();
 
     var diff = now - eventTime;
     if (diff > ANIM_FLASH_DURATION + ANIM_FADEOUT_DURATION) {
-        return theme.grey;
+        return Color.GREY;
     }
 
     if (diff <= ANIM_FLASH_DURATION) {
-        return theme.blue;
+        return Color.BLUE;
     }
 
     var ratio = 100 * (diff - ANIM_FLASH_DURATION) / ANIM_FADEOUT_DURATION;
-    return tinycolor.mix(theme.blue, theme.grey, ratio);
+    return tinycolor.mix(Color.BLUE, Color.GREY, ratio);
 }
-
-// on ready
-$(function(){
-    // init web fonts
-    WebFont.load({
-        google: {
-            families: ['Open Sans Condensed:300,700']
-        }
-    });
-
-    // init canvas + context
-    initCanvas();
-    window.onresize = function() {
-        initCanvas();
-        loop();
-    };
-
-    // init game
-    resetGame();
-
-    // start game loop
-    setInterval(loop, INTERVAL_LOOP);
-
-    // hack to disable timeout
-    window._setTimeout = window.setTimeout;
-    window.setTimeout = function(a, b) {};
-});
-
-
-//
-// /*private*/ function fixSvg() {
-//     $('img[src$=".svg"]').each(function() {
-//         var $img = jQuery(this);
-//         var imgURL = $img.attr('src');
-//         var attributes = $img.prop("attributes");
-//
-//         $.get(imgURL, function(data) {
-//             // Get the SVG tag, ignore the rest
-//             var $svg = jQuery(data).find('svg');
-//
-//             // Remove any invalid XML tags
-//             $svg = $svg.removeAttr('xmlns:a');
-//
-//             // Loop through IMG attributes and apply on SVG
-//             $.each(attributes, function() {
-//                 $svg.attr(this.name, this.value);
-//             });
-//
-//             // Replace IMG with SVG
-//             $img.replaceWith($svg);
-//         }, 'xml');
-//     });
-// }
