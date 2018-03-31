@@ -288,14 +288,8 @@ var prevTime;
 }
 
 /*private*/ function playSound(sound) {
-    var audio = document.getElementById('sounds');
-    audio.src = 'sounds/' + sound + '.mp3';
-    audio.load();
-    audio.play().then(function(result){
-        console.log('Playing sound: ' + sound);
-    }).catch(function(error){
-        console.log('Unable to play sound: ' + sound);
-    });
+    console.log('Playing sound: ' + sound);
+    document.getElementById('sounds').src = 'sounds/' + sound + '.mp3';
 }
 
 function initCanvas() {
