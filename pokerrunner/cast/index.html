@@ -13,16 +13,6 @@
     <body>
         <canvas id="canvas"></canvas>
         <audio id="sounds" oncanplaythrough="this.play();"></audio>
-        <script>
-            // only load debug console if not on isChromecast
-            if (!isChromecast) {
-                // TODO show debug controls
-                var debugConsole = document.createElement('div');
-                debugConsole.id = 'console';
-                document.body.appendChild(debugConsole);
-            }
-
-            bootstrap();
-        </script>
+        <script>bootstrap();</script>
     </body>
 </html>

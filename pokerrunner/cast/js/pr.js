@@ -4,6 +4,10 @@ const UI_HORIZONTAL_PADDING = 0.1;
 const UI_VERTICAL_PADDING = 0.05;
 const ANIM_FLASH_DURATION = 1000;
 const ANIM_FADEOUT_DURATION = 250;
+const ANIM_DURATION_SHORT = 250;
+const ANIM_FILTER_SHORT = .1;
+const ANIM_FILTER_LONG = .05;
+const ANIM_FILTER_IMMEDIATE = 1;
 
 const Color = {
     GREY: '#59595b',
@@ -21,7 +25,7 @@ const BLIND_COLORS = ['#fff', '#a5f1ff', '#a5f1a9', '#00a8ec', '#00ce86', '#a6ff
 
 class Game {
     constructor() {
-        this._tournamentName = 'Poker Boiz';
+        this._tournamentName = 'Poker Night';
         this._style = 'Texas Hold \u2018em';
         this._buyin = 10;
     }
@@ -36,7 +40,7 @@ class Game {
 }
 
 var game = {
-    tournamentName: 'POKER BOIZ',
+    tournamentName: 'POKER NIGHT',
     type: 'TEXAS HOLD \u2018EM',
     buyin: 10,
     state: 'READY', // PLAYING, PAUSED, STOPPED
@@ -54,9 +58,12 @@ var game = {
 };
 
 var view = {
-    tournament: 'TOURNAMENT',
-    description: '$10 TEXAS HOLD \u2018EM',
-    clock: '12:00 p',
+    color: Color.BLUE,
+    header: {
+        title: 'TOURNAMENT',
+        description: '$10 TEXAS HOLD \u2018EM',
+        clock: '12:00 p'
+    },
     blind: {
         level: '5/10',
         color: BLIND_COLORS[0]
@@ -69,17 +76,30 @@ var view = {
         dashesOff: 0
     },
     payouts: [
-        {amount: '0', updated: 0},
-        {amount: '0', updated: 0},
-        {amount: '0', updated: 0}
+        {amount: '0', color: Color.BLUE},
+        {amount: '0', color: Color.BLUE},
+        {amount: '0', color: Color.BLUE}
     ]
 };
 
+
 var canvas, ctx;
 var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
+var payoutFlashes = []; // [{color, timeout}, ... ]
 
 
 function bootstrap() {
+    // only load debug console if not on chromecast device
+    if (!isChromecast) {
+        var div = document.createElement('div');
+        div.id = 'console';
+        document.body.appendChild(div);
+
+        div = document.createElement('div');
+        div.id = 'refresh-rate';
+        document.body.appendChild(div);
+    }
+
     // init web fonts
     WebFont.load({
         google: {
@@ -117,8 +137,8 @@ function resetGame() {
     game.blind.current = 0;
     game.entries = 0;
 
-    view.tournament = game.tournamentName;
-    view.description = '$' + game.buyin + ' ' + game.type;
+    view.header.title = game.tournamentName;
+    view.header.description = '$' + game.buyin + ' ' + game.type;
     view.timer.elapsed = '00:00';
     view.timer.remaining = '15:00';
     view.timer.color = Color.GREEN;
@@ -164,12 +184,12 @@ function addEntries(entries) {
     updatePayouts();
 }
 
-/* DEPRECATED */
+/* TODO DEPRECATED */
 function addPlayers(players) {
     addEntries(players);
 }
 
-/* DEPRECATED */
+/* TODO DEPRECATED */
 function addRebuys(rebuys) {
     addEntries(rebuys);
 }
@@ -184,9 +204,12 @@ function addMinutes(minutes) {
     game.time = Math.max(game.time + minutes * 60000, 0);
 }
 
+
+
 // THE LOOP
 var prevTime;
 /*private*/ function loop() {
+    var benchmark = window.performance.now();
     var time = Date.now();
 
     if (game.state == 'PLAYING') {
@@ -203,15 +226,34 @@ var prevTime;
 
     // update clock
     var clock = moment().format('h:mm a');
-    view.clock = clock.substring(0, clock.length - 1);
+    view.header.clock = clock.substring(0, clock.length - 1);
 
     // update total game timer
     view.timer.elapsed = formatTimeElapsed(game.time);
+
+    // update text color
+    var targetTextColor = (game.state == 'PLAYING') ? Color.GREY : Color.BLUE;
+    view.color = filterColors(view.color, targetTextColor, ANIM_FILTER_SHORT);
+
+    // calculate payout text colors
+    for (var i = 0; i < view.payouts.length; i++) {
+        if (payoutFlashes[i]) {
+            view.payouts[i].color = payoutFlashes[i].color;
+        } else {
+            view.payouts[i].color = filterColors(view.payouts[i].color, targetTextColor, ANIM_FILTER_SHORT);
+        }
+    }
 
     // update the view state after calculations
     drawView();
 
     prevTime = time;
+
+    // benchmarking
+    if (!isChromecast) {
+        benchmark = Math.round((window.performance.now() - benchmark) * 100) / 100;
+        document.getElementById('refresh-rate').innerHTML = benchmark + 'ms';
+    }
 }
 
 /*private*/ function setState(state) {
@@ -254,18 +296,42 @@ var prevTime;
     var third = total - first - second;
 
     if (view.payouts[0].amount != '' + first) {
+        if (payoutFlashes[0]) {
+            clearTimeout(payoutFlashes[0].timeout);
+        }
+
+        payoutFlashes[0] = {
+            color: Color.BLUE,
+            timeout: _setTimeout(function(){ payoutFlashes[0] = undefined }, 1000)
+        };
+
         view.payouts[0].amount = '' + first;
-        view.payouts[0].updated = Date.now();
     }
 
     if (view.payouts[1].amount != '' + second) {
+        if (payoutFlashes[1]) {
+            clearTimeout(payoutFlashes[1].timeout);
+        }
+
+        payoutFlashes[1] = {
+            color: Color.BLUE,
+            timeout: _setTimeout(function(){ payoutFlashes[1] = undefined }, 1000)
+        };
+
         view.payouts[1].amount = '' + second;
-        view.payouts[1].updated = Date.now();
     }
 
     if (view.payouts[2].amount != '' + third) {
+        if (payoutFlashes[2]) {
+            clearTimeout(payoutFlashes[2].timeout);
+        }
+
+        payoutFlashes[2] = {
+            color: Color.BLUE,
+            timeout: _setTimeout(function(){ payoutFlashes[2] = undefined }, 1000)
+        };
+
         view.payouts[2].amount = '' + third;
-        view.payouts[2].updated = Date.now();
     }
 
     log('Payouts: ' + first + '/' + second +'/' + third);
@@ -295,6 +361,7 @@ var prevTime;
 }
 
 /*private*/ function playSound(sound) {
+return;
     log('Playing sound: ' + sound);
     document.getElementById('sounds').src = 'sounds/' + sound + '.mp3';
 }
@@ -330,21 +397,19 @@ function drawView() {
 }
 
 function drawHeader() {
-    var color = game.state == 'PLAYING' ? Color.GREY : Color.BLUE;
-
     // draw tournament name
     var x = WIDTH / 2;
     var y = 0;
-    drawText(view.tournament, x, y, TEXT_MEDIUM, color, 'center', 'top');
+    drawText(view.header.title, x, y, TEXT_MEDIUM, view.color, 'center', 'top');
 
     // draw clock
     x = WIDTH;
-    drawText(view.clock, x, y, TEXT_MEDIUM, color, 'right', 'top');
+    drawText(view.header.clock, x, y, TEXT_MEDIUM, view.color, 'right', 'top');
 
     // draw description
     x = WIDTH / 2;
     y += TEXT_MEDIUM * 1.5;
-    drawText(view.description, x, y, TEXT_SMALL, color, 'center', 'top');
+    drawText(view.header.description, x, y, TEXT_SMALL, view.color, 'center', 'top');
 }
 
 function drawPayouts() {
@@ -356,27 +421,20 @@ function drawPayouts() {
     var y2 = y1 + spacing;
     var y3 = y2 + spacing;
 
-    var color = game.state == 'PLAYING' ? Color.GREY : Color.BLUE;
-
     // draw lines
-    drawLine(x, y1 - lineHeight / 2, x, y1 + lineHeight / 2, 2, color);
-    drawLine(x, y2 - lineHeight / 2, x, y2 + lineHeight / 2, 2, color);
-    drawLine(x, y3 - lineHeight / 2, x, y3 + lineHeight / 2, 2, color);
+    drawLine(x, y1 - lineHeight / 2, x, y1 + lineHeight / 2, 2, view.color);
+    drawLine(x, y2 - lineHeight / 2, x, y2 + lineHeight / 2, 2, view.color);
+    drawLine(x, y3 - lineHeight / 2, x, y3 + lineHeight / 2, 2, view.color);
 
     // draw labels
-    drawText('1st', x + padding, y1, TEXT_MEDIUM, color, 'left', 'middle');
-    drawText('K', x + padding, y2, TEXT_MEDIUM, color, 'left', 'middle');
-    drawText('Q', x + padding, y3, TEXT_MEDIUM, color, 'left', 'middle');
+    drawText('1st', x + padding, y1, TEXT_MEDIUM, view.color, 'left', 'middle');
+    drawText('K', x + padding, y2, TEXT_MEDIUM, view.color, 'left', 'middle');
+    drawText('Q', x + padding, y3, TEXT_MEDIUM, view.color, 'left', 'middle');
 
     // draw values
-    color = calculateEventColor(view.payouts[0].updated);
-    drawText(view.payouts[0].amount, x - padding, y1, TEXT_MEDIUM, color, 'right', 'middle');
-
-    color = calculateEventColor(view.payouts[1].updated);
-    drawText(view.payouts[1].amount, x - padding, y2, TEXT_MEDIUM, color, 'right', 'middle');
-
-    color = calculateEventColor(view.payouts[2].updated);
-    drawText(view.payouts[2].amount, x - padding, y3, TEXT_MEDIUM, color, 'right', 'middle');
+    drawText(view.payouts[0].amount, x - padding, y1, TEXT_MEDIUM, view.payouts[0].color, 'right', 'middle');
+    drawText(view.payouts[1].amount, x - padding, y2, TEXT_MEDIUM, view.payouts[1].color, 'right', 'middle');
+    drawText(view.payouts[2].amount, x - padding, y3, TEXT_MEDIUM, view.payouts[2].color, 'right', 'middle');
 }
 
 function drawGameState() {
@@ -465,7 +523,23 @@ function drawGameState() {
     }
 
     var ratio = 100 * (diff - ANIM_FLASH_DURATION) / ANIM_FADEOUT_DURATION;
-    return tinycolor.mix(Color.BLUE, Color.GREY, ratio);
+    return filterColors(Color.BLUE, Color.GREY, ratio);
+}
+
+// this special function allows you to run a low-pass filter
+// between 2 colors that will ultimately resolve to the final color
+// other color blending libraries run into rounding issues with low ratios
+// and never reached the final color
+/*private*/ function filterColors(c1, c2, ratio) {
+    c1 = tinycolor(c1).toRgb();
+    c2 = tinycolor(c2).toRgb();
+
+    var rgb = {
+        r: c2.r - Math.trunc((c2.r - c1.r) * (1 - ratio)),
+        g: c2.g - Math.trunc((c2.g - c1.g) * (1 - ratio)),
+        b: c2.b - Math.trunc((c2.b - c1.b) * (1 - ratio))
+    };
+    return tinycolor(rgb).toHexString();
 }
 
 /*private*/ function log(message) {
