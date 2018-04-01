@@ -25,7 +25,7 @@ const BLIND_COLORS = ['#fff', '#a5f1ff', '#a5f1a9', '#00a8ec', '#00ce86', '#a6ff
 
 class Game {
     constructor() {
-        this._tournamentName = 'Poker Night';
+        this._tournamentName = 'Poker Boiz';
         this._style = 'Texas Hold \u2018em';
         this._buyin = 10;
     }
@@ -40,7 +40,7 @@ class Game {
 }
 
 var game = {
-    tournamentName: 'POKER NIGHT',
+    tournamentName: 'POKER BOIZ',
     type: 'TEXAS HOLD \u2018EM',
     buyin: 10,
     state: 'READY', // PLAYING, PAUSED, STOPPED
@@ -361,7 +361,6 @@ var prevTime;
 }
 
 /*private*/ function playSound(sound) {
-return;
     log('Playing sound: ' + sound);
     document.getElementById('sounds').src = 'sounds/' + sound + '.mp3';
 }
