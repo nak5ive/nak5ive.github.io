@@ -93,13 +93,6 @@ function bootstrap() {
         document.getElementById('debug').style.display = 'block';
     }
 
-    // init web fonts
-    WebFont.load({
-        google: {
-            families: ['Open Sans Condensed:300,700']
-        }
-    });
-
     // init canvas + context
     initCanvas();
     window.onresize = function() {
@@ -185,6 +178,30 @@ function addPlayers(players) {
 /* TODO DEPRECATED */
 function addRebuys(rebuys) {
     addEntries(rebuys);
+}
+
+function nextMinute() {
+    if (game.state == 'READY' || game.state == 'STOPPED') {
+        return log('Can only change time of a game in progress');
+    }
+
+    var time = game.time;
+    game.time = Math.ceil(time / 60000) * 60000;
+}
+
+function prevMinute() {
+    if (game.state == 'READY' || game.state == 'STOPPED') {
+        return log('Can only change time of a game in progress');
+    }
+
+    var time = game.time;
+
+    var seconds = time % 60000;
+    if (seconds < 1000) {
+        time -= seconds;
+    }
+
+    game.time = Math.floor(time / 60000) * 60000;
 }
 
 function addMinutes(minutes) {
