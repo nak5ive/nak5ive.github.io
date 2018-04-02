@@ -234,15 +234,6 @@ var prevTime;
     var targetTextColor = (game.state == 'PLAYING') ? Color.GREY : Color.BLUE;
     view.color = filterColors(view.color, targetTextColor, ANIM_FILTER_SHORT);
 
-    // calculate payout text colors
-    // for (var i = 0; i < view.payouts.length; i++) {
-    //     if (payoutFlashes[i]) {
-    //         view.payouts[i].color = payoutFlashes[i].color;
-    //     } else {
-    //         view.payouts[i].color = filterColors(view.payouts[i].color, targetTextColor, ANIM_FILTER_SHORT);
-    //     }
-    // }
-
     // update the view state after calculations
     drawView();
 
@@ -306,55 +297,9 @@ var prevTime;
         remainingPercentage -= percentages[i];
     }
 
+    view.payouts = payouts;
+
     log(payouts);
-
-    var total = game.entries * game.buyin;
-    var first = Math.ceil(total / 15) * 10;
-    var second = Math.ceil((total - first) / 15) * 10;
-    var third = total - first - second;
-
-
-
-    if (view.payouts[0].amount != '' + first) {
-        // if (payoutFlashes[0]) {
-        //     clearTimeout(payoutFlashes[0].timeout);
-        // }
-        //
-        // payoutFlashes[0] = {
-        //     color: Color.BLUE,
-        //     timeout: _setTimeout(function(){ payoutFlashes[0] = undefined }, 1000)
-        // };
-
-        view.payouts[0].amount = '' + first;
-    }
-
-    if (view.payouts[1].amount != '' + second) {
-        // if (payoutFlashes[1]) {
-        //     clearTimeout(payoutFlashes[1].timeout);
-        // }
-        //
-        // payoutFlashes[1] = {
-        //     color: Color.BLUE,
-        //     timeout: _setTimeout(function(){ payoutFlashes[1] = undefined }, 1000)
-        // };
-
-        view.payouts[1].amount = '' + second;
-    }
-
-    if (view.payouts[2].amount != '' + third) {
-        // if (payoutFlashes[2]) {
-        //     clearTimeout(payoutFlashes[2].timeout);
-        // }
-        //
-        // payoutFlashes[2] = {
-        //     color: Color.BLUE,
-        //     timeout: _setTimeout(function(){ payoutFlashes[2] = undefined }, 1000)
-        // };
-
-        view.payouts[2].amount = '' + third;
-    }
-
-    log('Payouts: ' + first + '/' + second +'/' + third);
 }
 
 /*private*/ function formatTimeRemaining(time) {
@@ -409,8 +354,8 @@ function drawView() {
     ctx.translate(canvas.width * UI_HORIZONTAL_PADDING, canvas.height * UI_VERTICAL_PADDING);
 
     drawHeader();
-    drawPayouts();
     drawGameState();
+    drawFooter();
 
     ctx.restore();
 }
@@ -431,29 +376,21 @@ function drawHeader() {
     drawText(view.header.description, x, y, TEXT_SMALL, view.color, 'center', 'top');
 }
 
-function drawPayouts() {
-    var spacing = TEXT_MEDIUM * 2.3;
-    var padding = TEXT_MEDIUM * 0.3;
+function drawFooter() {
+    // var spacing = TEXT_MEDIUM * 2.3;
+    // var padding = TEXT_MEDIUM * 0.3;
     var lineHeight = TEXT_MEDIUM * 1.3;
-    var x = WIDTH - TEXT_MEDIUM;
-    var y1 = HEIGHT / 2 - spacing;
-    var y2 = y1 + spacing;
-    var y3 = y2 + spacing;
+    var spacing = WIDTH * .1;
+    var x = (WIDTH - spacing * (view.payouts.length - 1)) / 2;
+    var y = HEIGHT;
 
-    // draw lines
-    drawLine(x, y1 - lineHeight / 2, x, y1 + lineHeight / 2, 2, view.color);
-    drawLine(x, y2 - lineHeight / 2, x, y2 + lineHeight / 2, 2, view.color);
-    drawLine(x, y3 - lineHeight / 2, x, y3 + lineHeight / 2, 2, view.color);
-
-    // draw labels
-    drawText('1st', x + padding, y1, TEXT_MEDIUM, view.color, 'left', 'middle');
-    drawText('K', x + padding, y2, TEXT_MEDIUM, view.color, 'left', 'middle');
-    drawText('Q', x + padding, y3, TEXT_MEDIUM, view.color, 'left', 'middle');
-
-    // draw values
-    drawText(view.payouts[0].amount, x - padding, y1, TEXT_MEDIUM, view.payouts[0].color, 'right', 'middle');
-    drawText(view.payouts[1].amount, x - padding, y2, TEXT_MEDIUM, view.payouts[1].color, 'right', 'middle');
-    drawText(view.payouts[2].amount, x - padding, y3, TEXT_MEDIUM, view.payouts[2].color, 'right', 'middle');
+    // loop over payouts
+    for (var i = 0; i < view.payouts.length; i++) {
+        // draw label
+        drawText('' + (i + 1), x, y, TEXT_MEDIUM, view.color, 'center', 'bottom');
+        drawText(view.payouts[i], x, y - lineHeight, TEXT_MEDIUM, Color.GREEN, 'center', 'bottom');
+        x += spacing;
+    }
 }
 
 function drawGameState() {
@@ -515,7 +452,7 @@ function drawGameState() {
 
 /*private*/ function drawText(text, x, y, size, color, h, v) {
     ctx.fillStyle = color;
-    ctx.font = size + 'px Open Sans Condensed';
+    ctx.font = 'bold ' + size + 'px Open Sans Condensed';
     ctx.textAlign = h;
     ctx.textBaseline = v;
     ctx.fillText(text, x, y);
