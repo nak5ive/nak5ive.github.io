@@ -13,7 +13,7 @@ const Color = {
     GREY: '#59595b',
     WHITE: '#fff',
     GREEN: '#89d92e',
-    GREEN_FADE: '#354624',
+    GREEN_FADED: '#354624',
     YELLOW: '#fff22d',
     YELLOW_FADED: '524f1e',
     RED: '#ff0019',
@@ -90,13 +90,7 @@ var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 function bootstrap() {
     // only load debug console if not on chromecast device
     if (!isChromecast) {
-        var div = document.createElement('div');
-        div.id = 'console';
-        document.body.appendChild(div);
-
-        div = document.createElement('div');
-        div.id = 'refresh-rate';
-        document.body.appendChild(div);
+        document.getElementById('debug').style.display = 'block';
     }
 
     // init web fonts
@@ -240,10 +234,8 @@ var prevTime;
     prevTime = time;
 
     // benchmarking
-    if (!isChromecast) {
-        benchmark = Math.round((window.performance.now() - benchmark) * 100) / 100;
-        document.getElementById('refresh-rate').innerHTML = benchmark + 'ms';
-    }
+    benchmark = Math.round((window.performance.now() - benchmark) * 100) / 100;
+    document.getElementById('refresh-rate').innerHTML = benchmark + 'ms';
 }
 
 /*private*/ function setState(state) {
@@ -266,16 +258,20 @@ var prevTime;
     view.timer.dashesOff = Math.floor((game.time % game.blind.interval) / 60000);
     view.timer.dashesTotal = Math.ceil(game.blind.interval / 60000);
 
+    var timerColor;
+    if (view.timer.dashesOff >= view.timer.dashesTotal - 1) {
+        timerColor = (game.state == 'PLAYING') ? Color.RED : Color.RED_FADED;
+    } else if (view.timer.dashesOff >= 2 * view.timer.dashesTotal / 3) {
+        timerColor = (game.state == 'PLAYING') ? Color.YELLOW : Color.YELLOW_FADED;
+    } else {
+        timerColor = (game.state == 'PLAYING') ? Color.GREEN : Color.GREEN_FADED;
+    }
+
+    view.timer.color = filterColors(view.timer.color, timerColor, ANIM_FILTER_SHORT);
+
+    // blinds
     view.blind.level = (game.blind.levels[blind] / 2) + '/' + game.blind.levels[blind];
     view.blind.color = BLIND_COLORS[Math.min(BLIND_COLORS.length - 1, blind)];
-
-    if (view.timer.dashesOff >= view.timer.dashesTotal - 1) {
-        view.timer.color = Color.RED;
-    } else if (view.timer.dashesOff >= 2 * view.timer.dashesTotal / 3) {
-        view.timer.color = Color.YELLOW;
-    } else {
-        view.timer.color = Color.GREEN;
-    }
 }
 
 /*private*/ function updatePayouts() {
@@ -295,7 +291,7 @@ var prevTime;
         remainingPercentage -= p;
     });
 
-    var string = view.payouts.reduce((a, b) => a + '/' + b);
+    var string = view.payouts.length > 0 ? view.payouts.reduce((a, b) => a + '/' + b) : '';
     log('Payouts: ' + string);
 }
 
@@ -406,12 +402,8 @@ function drawGameState() {
     var angleGap = 2 * Math.PI / (view.timer.dashesTotal * (dashWeight + 1));
     var angleDash = angleGap * dashWeight;
     ctx.lineWidth = lineWidth;
-    var timerColor = view.timer.color;
-    if (game.state == 'PAUSED') {
-        timerColor = Color.BLUE;
-    }
     for (var i = 0; i < view.timer.dashesTotal; i++) {
-        ctx.strokeStyle = (i < view.timer.dashesOff) ? Color.GREY : timerColor;
+        ctx.strokeStyle = (i < view.timer.dashesOff) ? Color.GREY : view.timer.color;
         var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
         var angleEnd = angleStart + angleDash;
         ctx.beginPath();
@@ -429,8 +421,7 @@ function drawGameState() {
     drawText(text, timerX, y, TEXT_XLARGE, color, 'center', 'middle');
 
     // draw total elapsed time text
-    color = game.state == 'PAUSED' ? Color.BLUE : Color.GREY;
-    drawText(view.timer.elapsed, timerX, y + TEXT_XLARGE / 2, TEXT_MEDIUM, color, 'center', 'top');
+    drawText(view.timer.elapsed, timerX, y + TEXT_XLARGE / 2, TEXT_MEDIUM, Color.GREY, 'center', 'top');
 
     // draw the current blind ring
     ctx.strokeStyle = view.blind.color;

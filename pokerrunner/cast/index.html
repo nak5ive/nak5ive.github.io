@@ -13,6 +13,24 @@
     <body>
         <canvas id="canvas"></canvas>
         <audio id="sounds" oncanplaythrough="this.play();"></audio>
+
+        <!-- DEBUG -->
+        <div id="debug">
+            <div id="console"></div>
+            <div id="refresh-rate"></div>
+            <div id="controls">
+                <button onclick="playPauseGame();">Play/Pause</button>
+                <button onclick="stopGame();">Stop</button>
+                <button onclick="resetGame();">Reset</button>
+                <button onclick="addEntries(-1);">- Entry</button>
+                <button onclick="addEntries(1);">+ Entry</button>
+                <button onclick="addMinutes(-10);">-10 minutes</button>
+                <button onclick="addMinutes(-1);">-1 minute</button>
+                <button onclick="addMinutes(1);">+1 minute</button>
+                <button onclick="addMinutes(10);">+10 minutes</button>
+            </div>
+        </div>
+
         <script>bootstrap();</script>
     </body>
 </html>
