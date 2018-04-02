@@ -52,8 +52,8 @@ var game = {
         current: 0
     },
     payouts: {
-        house: 0,
-        winners: [67, 23, 10]
+        percentages: [.66, .22, .12],
+        precision: 10
     }
 };
 
@@ -85,7 +85,6 @@ var view = {
 
 var canvas, ctx;
 var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
-var payoutFlashes = []; // [{color, timeout}, ... ]
 
 
 function bootstrap() {
@@ -236,13 +235,13 @@ var prevTime;
     view.color = filterColors(view.color, targetTextColor, ANIM_FILTER_SHORT);
 
     // calculate payout text colors
-    for (var i = 0; i < view.payouts.length; i++) {
-        if (payoutFlashes[i]) {
-            view.payouts[i].color = payoutFlashes[i].color;
-        } else {
-            view.payouts[i].color = filterColors(view.payouts[i].color, targetTextColor, ANIM_FILTER_SHORT);
-        }
-    }
+    // for (var i = 0; i < view.payouts.length; i++) {
+    //     if (payoutFlashes[i]) {
+    //         view.payouts[i].color = payoutFlashes[i].color;
+    //     } else {
+    //         view.payouts[i].color = filterColors(view.payouts[i].color, targetTextColor, ANIM_FILTER_SHORT);
+    //     }
+    // }
 
     // update the view state after calculations
     drawView();
@@ -289,47 +288,68 @@ var prevTime;
 }
 
 /*private*/ function updatePayouts() {
-    var total = game.entries * game.buyin;
+    var pot = game.entries * game.buyin;
 
+    // calulate payouts based on provided percentages
+    // TODO currently 90 is incorrect
+    var payouts = [];
+    var percentages = game.payouts.percentages;
+    var precision = game.payouts.precision;
+    var remainingPercentage = 1;
+    for (var i = 0; i < percentages.length; i++) {
+        var actualPercentage = percentages[i] / remainingPercentage;
+        var amount = Math.ceil(actualPercentage * pot / precision) * precision;
+        if (amount <= 0) break;
+        if (amount > pot) amount = pot;
+        payouts[i] = amount;
+        pot -= amount;
+        remainingPercentage -= percentages[i];
+    }
+
+    log(payouts);
+
+    var total = game.entries * game.buyin;
     var first = Math.ceil(total / 15) * 10;
     var second = Math.ceil((total - first) / 15) * 10;
     var third = total - first - second;
 
-    if (view.payouts[0].amount != '' + first) {
-        if (payoutFlashes[0]) {
-            clearTimeout(payoutFlashes[0].timeout);
-        }
 
-        payoutFlashes[0] = {
-            color: Color.BLUE,
-            timeout: _setTimeout(function(){ payoutFlashes[0] = undefined }, 1000)
-        };
+
+    if (view.payouts[0].amount != '' + first) {
+        // if (payoutFlashes[0]) {
+        //     clearTimeout(payoutFlashes[0].timeout);
+        // }
+        //
+        // payoutFlashes[0] = {
+        //     color: Color.BLUE,
+        //     timeout: _setTimeout(function(){ payoutFlashes[0] = undefined }, 1000)
+        // };
 
         view.payouts[0].amount = '' + first;
     }
 
     if (view.payouts[1].amount != '' + second) {
-        if (payoutFlashes[1]) {
-            clearTimeout(payoutFlashes[1].timeout);
-        }
-
-        payoutFlashes[1] = {
-            color: Color.BLUE,
-            timeout: _setTimeout(function(){ payoutFlashes[1] = undefined }, 1000)
-        };
+        // if (payoutFlashes[1]) {
+        //     clearTimeout(payoutFlashes[1].timeout);
+        // }
+        //
+        // payoutFlashes[1] = {
+        //     color: Color.BLUE,
+        //     timeout: _setTimeout(function(){ payoutFlashes[1] = undefined }, 1000)
+        // };
 
         view.payouts[1].amount = '' + second;
     }
 
     if (view.payouts[2].amount != '' + third) {
-        if (payoutFlashes[2]) {
-            clearTimeout(payoutFlashes[2].timeout);
-        }
-
-        payoutFlashes[2] = {
-            color: Color.BLUE,
-            timeout: _setTimeout(function(){ payoutFlashes[2] = undefined }, 1000)
-        };
+        // if (payoutFlashes[2]) {
+        //     clearTimeout(payoutFlashes[2].timeout);
+        // }
+        //
+        // payoutFlashes[2] = {
+        //     color: Color.BLUE,
+        //     timeout: _setTimeout(function(){ payoutFlashes[2] = undefined }, 1000)
+        // };
 
         view.payouts[2].amount = '' + third;
     }
@@ -378,7 +398,7 @@ function initCanvas() {
     TEXT_SMALL = HEIGHT * 0.03;
     TEXT_MEDIUM = HEIGHT * 0.04;
     TEXT_LARGE = HEIGHT * 0.06;
-    TEXT_XLARGE = HEIGHT * 0.12;
+    TEXT_XLARGE = HEIGHT * 0.15;
 }
 
 function drawView() {
@@ -488,9 +508,14 @@ function drawGameState() {
     drawText(view.blind.level, blindX, y, TEXT_LARGE, view.blind.color, 'center', 'middle');
 }
 
+
+// ------------------------------------------------
+// UTILITY
+// ------------------------------------------------
+
 /*private*/ function drawText(text, x, y, size, color, h, v) {
     ctx.fillStyle = color;
-    ctx.font = 'bold ' + size + 'px Open Sans Condensed';
+    ctx.font = size + 'px Open Sans Condensed';
     ctx.textAlign = h;
     ctx.textBaseline = v;
     ctx.fillText(text, x, y);
@@ -503,26 +528,6 @@ function drawGameState() {
     ctx.moveTo(x0, y0);
     ctx.lineTo(x1, y1);
     ctx.stroke();
-}
-
-/*private*/ function calculateEventColor(eventTime) {
-    if (game.state != 'PLAYING') {
-        return Color.BLUE;
-    }
-
-    var now = Date.now();
-
-    var diff = now - eventTime;
-    if (diff > ANIM_FLASH_DURATION + ANIM_FADEOUT_DURATION) {
-        return Color.GREY;
-    }
-
-    if (diff <= ANIM_FLASH_DURATION) {
-        return Color.BLUE;
-    }
-
-    var ratio = 100 * (diff - ANIM_FLASH_DURATION) / ANIM_FADEOUT_DURATION;
-    return filterColors(Color.BLUE, Color.GREY, ratio);
 }
 
 // this special function allows you to run a low-pass filter
