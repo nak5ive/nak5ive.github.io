@@ -279,27 +279,24 @@ var prevTime;
 }
 
 /*private*/ function updatePayouts() {
-    var pot = game.entries * game.buyin;
+    view.payouts = [];
 
     // calulate payouts based on provided percentages
-    // TODO currently 90 is incorrect
-    var payouts = [];
-    var percentages = game.payouts.percentages;
-    var precision = game.payouts.precision;
-    var remainingPercentage = 1;
-    for (var i = 0; i < percentages.length; i++) {
-        var actualPercentage = percentages[i] / remainingPercentage;
-        var amount = Math.ceil(actualPercentage * pot / precision) * precision;
-        if (amount <= 0) break;
-        if (amount > pot) amount = pot;
-        payouts[i] = amount;
+    var pot = game.entries * game.buyin;
+    var remainingPercentage = game.payouts.percentages.reduce((a, b) => a + b);
+    game.payouts.percentages.forEach(p => {
+        var actualPercentage = p / remainingPercentage;
+        var amount = Math.ceil(actualPercentage * pot / game.payouts.precision) * game.payouts.precision;
+        amount = Math.min(amount, pot);
+        if (amount == 0) return;
+
+        view.payouts.push(amount);
         pot -= amount;
-        remainingPercentage -= percentages[i];
-    }
+        remainingPercentage -= p;
+    });
 
-    view.payouts = payouts;
-
-    log(payouts);
+    var string = view.payouts.reduce((a, b) => a + '/' + b);
+    log('Payouts: ' + string);
 }
 
 /*private*/ function formatTimeRemaining(time) {
