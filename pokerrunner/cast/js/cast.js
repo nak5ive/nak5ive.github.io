@@ -14,12 +14,18 @@ if (isChromecast) {
             stopGame();
         } else if (event.data.action == 'reset') {
             resetGame();
-        } else if (event.data.action == 'addMinutes') {
-            addMinutes(event.data.value);
-        } else if (event.data.action == 'addRebuys') {
-            addRebuys(event.data.value);
-        } else if (event.data.action == 'addPlayers') {
-            addPlayers(event.data.value);
+        } else if (event.data.action == 'nextMinute') {
+            nextMinute();
+        } else if (event.data.action == 'prevMinute') {
+            prevMinute();
+        } else if (event.data.action == 'nextBlind') {
+            nextBlind();
+        } else if (event.data.action == 'prevBlind') {
+            prevBlind();
+        } else if (event.data.action == 'increaseEntries') {
+            increaseEntries();
+        } else if (event.data.action == 'decreaseEntries') {
+            decreaseEntries();
         }
     });
 

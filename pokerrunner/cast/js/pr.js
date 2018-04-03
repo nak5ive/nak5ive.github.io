@@ -88,6 +88,8 @@ var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 
 
 function bootstrap() {
+    log('Bootstrapping');
+
     // only load debug console if not on chromecast device
     if (!isChromecast) {
         document.getElementById('debug').style.display = 'block';
@@ -106,7 +108,12 @@ function bootstrap() {
     // start game loop
     setInterval(loop, INTERVAL_LOOP);
 
-    // hack to disable timeout
+    // hack to disable timeout (we'll wait a minute)
+    setTimeout(disableTimeout, 60000);
+}
+
+function disableTimeout() {
+    log('Disabling timeout');
     window._setTimeout = window.setTimeout;
     window.setTimeout = function(a, b) {};
 }
@@ -159,49 +166,59 @@ function stopGame() {
     game.state = 'STOPPED';
 }
 
-function addEntries(entries) {
-    if (entries > 0) {
-        playSound('entry');
-    }
-
-    game.entries = Math.max(game.entries + entries, 0);
+function increaseEntries() {
+    playSound('entry');
+    game.entries += 1;
     log('Entries: ' + game.entries);
+    updatePayouts();
+}
 
+function decreaseEntries() {
+    game.entries = Math.max(0, game.entries - 1);
+    log('Entries: ' + game.entries);
     updatePayouts();
 }
 
 /* TODO DEPRECATED */
 function addPlayers(players) {
-    addEntries(players);
+    increaseEntries();
 }
 
 /* TODO DEPRECATED */
 function addRebuys(rebuys) {
-    addEntries(rebuys);
+    increaseEntries();
 }
 
 function nextMinute() {
-    if (game.state == 'READY' || game.state == 'STOPPED') {
-        return log('Can only change time of a game in progress');
-    }
-
-    var time = game.time;
-    game.time = Math.ceil(time / 60000) * 60000;
+    nextInterval(60000);
 }
 
 function prevMinute() {
+    prevInterval(60000);
+}
+
+function nextBlind() {
+    nextInterval(game.blind.interval);
+}
+
+function prevBlind() {
+    prevInterval(game.blind.interval);
+}
+
+/*private*/ function nextInterval(interval) {
     if (game.state == 'READY' || game.state == 'STOPPED') {
         return log('Can only change time of a game in progress');
     }
 
-    var time = game.time;
+    game.time = interval * (Math.floor(game.time / interval) + 1);
+}
 
-    var seconds = time % 60000;
-    if (seconds < 1000) {
-        time -= seconds;
+/*private*/ function prevInterval(interval) {
+    if (game.state == 'READY' || game.state == 'STOPPED') {
+        return log('Can only change time of a game in progress');
     }
 
-    game.time = Math.floor(time / 60000) * 60000;
+    game.time = Math.max(0, interval * Math.floor((game.time - 1000) / interval));
 }
 
 function addMinutes(minutes) {
@@ -457,7 +474,7 @@ function drawGameState() {
 
 /*private*/ function drawText(text, x, y, size, color, h, v) {
     ctx.fillStyle = color;
-    ctx.font = 'bold ' + size + 'px Open Sans Condensed';
+    ctx.font = 'bold ' + size + 'px "Open Sans Condensed"';
     ctx.textAlign = h;
     ctx.textBaseline = v;
     ctx.fillText(text, x, y);
