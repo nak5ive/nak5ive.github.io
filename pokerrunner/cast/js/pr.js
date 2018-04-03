@@ -1,3 +1,9 @@
+// init cast framework
+const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
+const context = cast.framework.CastReceiverContext.getInstance();
+const playerManager = context.getPlayerManager();
+const castOptions = new cast.framework.CastReceiverOptions();
+
 const INTERVAL_LOOP = 50;
 const PREVENT_BURN_IN_RATE = 5 * 60 * 1000;
 const UI_HORIZONTAL_PADDING = 0.1;
@@ -88,13 +94,6 @@ var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 
 
 function bootstrap() {
-    log('Bootstrapping');
-
-    // only load debug console if not on chromecast device
-    if (!isChromecast) {
-        document.getElementById('debug').style.display = 'block';
-    }
-
     // init canvas + context
     initCanvas();
     window.onresize = function() {
@@ -108,14 +107,49 @@ function bootstrap() {
     // start game loop
     setInterval(loop, INTERVAL_LOOP);
 
-    // hack to disable timeout (we'll wait a minute)
-    setTimeout(disableTimeout, 60000);
+    if (isChromecast) {
+        initCast();
+    } else {
+        // only show debug info if not on chromecast device
+        document.getElementById('debug').style.display = 'block';
+    }
 }
 
-function disableTimeout() {
-    log('Disabling timeout');
+function initCast() {
+    // hack to disable timeout for cast apps
     window._setTimeout = window.setTimeout;
     window.setTimeout = function(a, b) {};
+
+    context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
+        console.log(event);
+        if (event.data.action == 'playPause') {
+            playPauseGame();
+        } else if (event.data.action == 'stop') {
+            stopGame();
+        } else if (event.data.action == 'reset') {
+            resetGame();
+        } else if (event.data.action == 'nextMinute') {
+            nextMinute();
+        } else if (event.data.action == 'prevMinute') {
+            prevMinute();
+        } else if (event.data.action == 'nextBlind') {
+            nextBlind();
+        } else if (event.data.action == 'prevBlind') {
+            prevBlind();
+        } else if (event.data.action == 'increaseEntries') {
+            increaseEntries();
+        } else if (event.data.action == 'decreaseEntries') {
+            decreaseEntries();
+        }
+    });
+
+    playerManager.addEventListener(cast.framework.events.category.CORE,
+            event => {
+                console.log(event);
+            });
+
+    castOptions.maxInactivity = 3600;
+    context.start(castOptions);
 }
 
 function resetGame() {
