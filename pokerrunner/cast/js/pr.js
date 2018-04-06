@@ -117,10 +117,10 @@ function bootstrap() {
 
 function initCast() {
     castContext = cast.framework.CastReceiverContext.getInstance();
-    castPlayerManager = context.getPlayerManager();
+    castPlayerManager = castContext.getPlayerManager();
     castOptions = new cast.framework.CastReceiverOptions();
 
-    context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
+    castContext.addCustomMessageListener(CAST_NAMESPACE, function(event) {
         console.log(event);
         if (event.data.action == 'playPause') {
             playPauseGame();
@@ -143,13 +143,13 @@ function initCast() {
         }
     });
 
-    playerManager.addEventListener(cast.framework.events.category.CORE,
+    castPlayerManager.addEventListener(cast.framework.events.category.CORE,
             event => {
                 console.log(event);
             });
 
     castOptions.maxInactivity = 3600;
-    context.start(castOptions);
+    castContext.start(castOptions);
 }
 
 function resetGame() {
