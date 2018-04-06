@@ -52,7 +52,7 @@ var game = {
     time: 0,
     blind: {
         levels: [10, 20, 40, 80, 100, 200, 400, 800, 1000, 2000, 4000, 8000],
-        interval: 15 * 60 * 1000,
+        interval: 9E5,
         current: 0
     },
     payouts: {
@@ -87,7 +87,7 @@ var view = {
 };
 
 
-var canvas, ctx;
+var canvas, ctx, sounds = [];
 var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 
 
@@ -100,6 +100,9 @@ function bootstrap() {
         initCanvas();
         loop();
     };
+
+    // init sounds
+    initSounds();
 
     // init game
     resetGame();
@@ -179,14 +182,16 @@ function resetGame() {
 
 function playPauseGame() {
     if (game.state == 'PLAYING') {
-        playVoice('game paused');
+        sounds['gamepaused'].play();
         log('Pausing game');
         game.state = 'PAUSED';
     } else {
         if (game.state == 'READY') {
-            playVoice('game started', {onend: function(){ playSound('play') }});
-        } else {
-            playVoice('game restarted');
+            var sound = sounds['gamestarted'];
+            sound.once('end', function() {
+                sounds['blind0'].play();
+            });
+            sound.play();
         }
         log('Playing game');
         game.state = 'PLAYING';
@@ -198,13 +203,18 @@ function stopGame() {
         return log('Can only stop a game in progress');
     }
 
-    playVoice('game over', {onend: function(){ playSound('stop') }});
+    var sound = sounds['gameover'];
+    sound.once('end', function() {
+        sounds['payhim'].play();
+    });
+    sound.play();
+
     log('Stopping game');
     game.state = 'STOPPED';
 }
 
 function increaseEntries() {
-    playSound('entry');
+    sounds['entry'].play();
     game.entries += 1;
     log('Entries: ' + game.entries);
     updatePayouts();
@@ -282,7 +292,7 @@ var prevTime;
         // play 1 minute remaining if crossing 1 minute mark
         if (game.time % game.blind.interval <= game.blind.interval - 6E4
             && (game.time + diff) % game.blind.interval > game.blind.interval - 6E4) {
-            playVoice("One minute remaining");
+            sounds['oneminute'].play();
         }
 
         // update elapsed time
@@ -320,13 +330,13 @@ var prevTime;
     game.state = state;
 }
 
-/*private*/ function refreshBlinds() {
+/*private*/
+function refreshBlinds() {
     var blind = Math.floor(game.time / game.blind.interval);
     if (blind != game.blind.current) {
         game.blind.current = blind;
         if (game.state == 'PLAYING') {
-            var level = game.blind.levels[blind];
-            playVoice("Blinds " + (level / 2) + "|" + level);
+            sounds['blind' + blind].play();
         }
     }
 
@@ -353,7 +363,8 @@ var prevTime;
     view.blind.color = BLIND_COLORS[Math.min(BLIND_COLORS.length - 1, blind)];
 }
 
-/*private*/ function updatePayouts() {
+/*private*/
+function updatePayouts() {
     view.payouts = [];
 
     // calulate payouts based on provided percentages
@@ -374,7 +385,8 @@ var prevTime;
     log('Payouts: ' + string);
 }
 
-/*private*/ function formatTimeRemaining(time) {
+/*private*/
+function formatTimeRemaining(time) {
     var minutes = Math.floor(time / 60000);
     var seconds = Math.ceil(time % 60000 / 1000);
     if (seconds == 60) {
@@ -386,7 +398,8 @@ var prevTime;
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
-/*private*/ function formatTimeElapsed(time) {
+/*private*/
+function formatTimeElapsed(time) {
     time = Math.floor(time / 1000); // seconds only
     var hours = Math.floor(time / 3600);
     var minutes = Math.floor(time % 3600 / 60);
@@ -397,20 +410,33 @@ var prevTime;
         + (seconds < 10 ? '0' + seconds : seconds);
 }
 
-/*private*/ function playSound(sound) {
-    log('Playing sound: ' + sound);
-    document.getElementById('sounds').src = 'sounds/' + sound + '.mp3';
-}
+/*private*/
+function initSounds() {
+    loadSound('entry', 'sounds/entry.mp3');
+    loadSound('gamestarted', 'sounds/gamestarted.mp3');
+    loadSound('gamepaused', 'sounds/gamepaused.mp3');
+    loadSound('gameover', 'sounds/gameover.mp3');
+    loadSound('oneminute', 'sounds/oneminute.mp3');
+    loadSound('payhim', 'sounds/payhim.mp3');
 
-/*private*/ function playVoice(text, callbacks) {
-    if (callbacks == undefined) {
-        callbacks = {};
+    for (var i = 0; i < game.blind.levels.length; i++) {
+        var big = game.blind.levels[i];
+        var small = big / 2;
+        loadSound('blind' + i, 'https://code.responsivevoice.org/getvoice.php?t=blinds%20' + small + '%7C' + big + '&rate=0.4&pitch=0.45&tl=en-GB');
     }
-    callbacks.pitch = 0.9;
-    callbacks.rate = 0.8;
-    responsiveVoice.speak(text, "UK English Female", callbacks);
 }
 
+/*private*/
+function loadSound(key, path) {
+    sounds[key] = new Howl({
+        src: [path],
+        format: ['mp3'],
+        preload: true,
+        html5: true
+    });
+}
+
+/*private*/
 function initCanvas() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
@@ -427,6 +453,7 @@ function initCanvas() {
     TEXT_XLARGE = HEIGHT * 0.15;
 }
 
+/*private*/
 function drawView() {
     ctx.save();
 
@@ -446,6 +473,7 @@ function drawView() {
     ctx.restore();
 }
 
+/*private*/
 function drawHeader() {
     // draw tournament name
     var x = WIDTH / 2;
@@ -462,6 +490,7 @@ function drawHeader() {
     drawText(view.header.description, x, y, TEXT_SMALL, view.color, 'center', 'top');
 }
 
+/*private*/
 function drawTimer() {
     var x = WIDTH / 2;
     var y = HEIGHT / 2;
@@ -490,6 +519,7 @@ function drawTimer() {
     drawText(view.timer.elapsed, x, y + TEXT_XLARGE / 2, TEXT_MEDIUM, Color.GREY, 'center', 'top');
 }
 
+/*private*/
 function drawFooter() {
     var lineHeight = TEXT_MEDIUM * 1.3;
     var spacing = WIDTH * .1;
@@ -505,6 +535,7 @@ function drawFooter() {
     }
 }
 
+/*private*/
 function drawGameState() {
     var largeRadius = HEIGHT * 0.5 / 2;
     var smallRadius = HEIGHT * 0.35 / 2;
@@ -557,7 +588,8 @@ function drawGameState() {
 // UTILITY
 // ------------------------------------------------
 
-/*private*/ function drawText(text, x, y, size, color, h, v) {
+/*private*/
+function drawText(text, x, y, size, color, h, v) {
     ctx.fillStyle = color;
     ctx.font = 'bold ' + size + 'px "Open Sans Condensed"';
     ctx.textAlign = h;
@@ -565,7 +597,8 @@ function drawGameState() {
     ctx.fillText(text, x, y);
 }
 
-/*private*/ function drawLine(x0, y0, x1, y1, width, color) {
+/*private*/
+function drawLine(x0, y0, x1, y1, width, color) {
     ctx.strokeStyle = color;
     ctx.lineWidth = width;
     ctx.beginPath();
@@ -578,7 +611,8 @@ function drawGameState() {
 // between 2 colors that will ultimately resolve to the final color
 // other color blending libraries run into rounding issues with low ratios
 // and never reached the final color
-/*private*/ function filterColors(c1, c2, ratio) {
+/*private*/
+function filterColors(c1, c2, ratio) {
     c1 = tinycolor(c1).toRgb();
     c2 = tinycolor(c2).toRgb();
 
@@ -590,7 +624,8 @@ function drawGameState() {
     return tinycolor(rgb).toHexString();
 }
 
-/*private*/ function log(message) {
+/*private*/
+function log(message) {
     if (!isChromecast) {
         var debugConsole = document.getElementById('console');
         debugConsole.appendChild(document.createElement('br'));
@@ -600,7 +635,8 @@ function drawGameState() {
     console.log(message);
 }
 
-/*private*/ function loadScript(url, callback) {
+/*private*/
+function loadScript(url, callback) {
     // Adding the script tag to the head as suggested before
     var head = document.getElementsByTagName('head')[0];
     var script = document.createElement('script');
