@@ -2,11 +2,10 @@
 <html>
     <head>
         <script>var isChromecast = navigator.userAgent.indexOf('CrKey') >= 0;</script>
-        <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.1/tinycolor.min.js"></script>
-        <script src="js/cast.js"></script>
+        <script src='js/responsivevoice.js'></script>
         <script src="js/pr.js"></script>
         <link rel="stylesheet" href="css/pr.css"/>
     </head>
@@ -33,12 +32,29 @@
 
         <!-- bootstrap -->
         <script>
+            log('Loading fonts');
             WebFont.load({
                 google: {
                     families: ['Open Sans Condensed:300,700']
                 },
-                active: bootstrap
+                active: function() {
+                    // disable timeout
+                    window._setTimeout = window.setTimeout;
+                    window.setTimeout = function(a, b) {};
+                    
+                    if (isChromecast) {
+                        loadCast();
+                    } else {
+                        bootstrap();
+                    }
+                }
             });
+
+            function loadCast() {
+                log('Loading cast framework');
+
+                loadScript('//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js', bootstrap);
+            }
         </script>
     </body>
 </html>

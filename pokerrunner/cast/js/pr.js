@@ -1,8 +1,6 @@
 // init cast framework
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
-const context = cast.framework.CastReceiverContext.getInstance();
-const playerManager = context.getPlayerManager();
-const castOptions = new cast.framework.CastReceiverOptions();
+var castContext, castPlayerManager, castOptions;
 
 const INTERVAL_LOOP = 50;
 const PREVENT_BURN_IN_RATE = 5 * 60 * 1000;
@@ -94,6 +92,8 @@ var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 
 
 function bootstrap() {
+    log('Bootstrapping app');
+
     // init canvas + context
     initCanvas();
     window.onresize = function() {
@@ -116,9 +116,9 @@ function bootstrap() {
 }
 
 function initCast() {
-    // hack to disable timeout for cast apps
-    window._setTimeout = window.setTimeout;
-    window.setTimeout = function(a, b) {};
+    castContext = cast.framework.CastReceiverContext.getInstance();
+    castPlayerManager = context.getPlayerManager();
+    castOptions = new cast.framework.CastReceiverOptions();
 
     context.addCustomMessageListener(CAST_NAMESPACE, function(event) {
         console.log(event);
@@ -179,11 +179,14 @@ function resetGame() {
 
 function playPauseGame() {
     if (game.state == 'PLAYING') {
+        playVoice('game paused');
         log('Pausing game');
         game.state = 'PAUSED';
     } else {
         if (game.state == 'READY') {
-            playSound('play');
+            playVoice('game started', {onend: function(){ playSound('play') }});
+        } else {
+            playVoice('game restarted');
         }
         log('Playing game');
         game.state = 'PLAYING';
@@ -195,7 +198,7 @@ function stopGame() {
         return log('Can only stop a game in progress');
     }
 
-    playSound('stop');
+    playVoice('game over', {onend: function(){ playSound('stop') }});
     log('Stopping game');
     game.state = 'STOPPED';
 }
@@ -274,9 +277,16 @@ var prevTime;
     var time = Date.now();
 
     if (game.state == 'PLAYING') {
+        var diff = time - prevTime;
+
+        // play 1 minute remaining if crossing 1 minute mark
+        if (game.time % game.blind.interval <= game.blind.interval - 6E4
+            && (game.time + diff) % game.blind.interval > game.blind.interval - 6E4) {
+            playVoice("One minute remaining");
+        }
 
         // update elapsed time
-        game.time += time - prevTime;
+        game.time += diff;
 
         refreshBlinds();
     }
@@ -315,7 +325,8 @@ var prevTime;
     if (blind != game.blind.current) {
         game.blind.current = blind;
         if (game.state == 'PLAYING') {
-            playSound('blinds');
+            var level = game.blind.levels[blind];
+            playVoice("Blinds " + (level / 2) + "|" + level);
         }
     }
 
@@ -391,6 +402,15 @@ var prevTime;
     document.getElementById('sounds').src = 'sounds/' + sound + '.mp3';
 }
 
+/*private*/ function playVoice(text, callbacks) {
+    if (callbacks == undefined) {
+        callbacks = {};
+    }
+    callbacks.pitch = 0.9;
+    callbacks.rate = 0.8;
+    responsiveVoice.speak(text, "UK English Female", callbacks);
+}
+
 function initCanvas() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
@@ -415,7 +435,12 @@ function drawView() {
     ctx.translate(canvas.width * UI_HORIZONTAL_PADDING, canvas.height * UI_VERTICAL_PADDING);
 
     drawHeader();
-    drawGameState();
+
+    if (game.state == 'PLAYING' || game.state == 'PAUSED') {
+        drawTimer();
+    }
+
+    // drawGameState();
     drawFooter();
 
     ctx.restore();
@@ -437,9 +462,35 @@ function drawHeader() {
     drawText(view.header.description, x, y, TEXT_SMALL, view.color, 'center', 'top');
 }
 
+function drawTimer() {
+    var x = WIDTH / 2;
+    var y = HEIGHT / 2;
+    var lineWidth = HEIGHT * 0.01;
+    var radius = HEIGHT / 4 - lineWidth / 2;
+    var dashWeight = 13;
+
+    // draw the current blind progress ring
+    var angleGap = 2 * Math.PI / (view.timer.dashesTotal * (dashWeight + 1));
+    var angleDash = angleGap * dashWeight;
+    ctx.lineWidth = lineWidth;
+    for (var i = 0; i < view.timer.dashesTotal; i++) {
+        ctx.strokeStyle = (i < view.timer.dashesOff) ? Color.GREY : view.timer.color;
+        var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
+        var angleEnd = angleStart + angleDash;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, angleStart, angleEnd);
+        ctx.stroke();
+    }
+
+    // draw current timer text
+    var text = game.state == 'PAUSED' ? game.state : view.timer.remaining;
+    drawText(text, x, y, TEXT_XLARGE, view.timer.color, 'center', 'middle');
+
+    // draw total elapsed time text
+    drawText(view.timer.elapsed, x, y + TEXT_XLARGE / 2, TEXT_MEDIUM, Color.GREY, 'center', 'top');
+}
+
 function drawFooter() {
-    // var spacing = TEXT_MEDIUM * 2.3;
-    // var padding = TEXT_MEDIUM * 0.3;
     var lineHeight = TEXT_MEDIUM * 1.3;
     var spacing = WIDTH * .1;
     var x = (WIDTH - spacing * (view.payouts.length - 1)) / 2;
@@ -547,4 +598,20 @@ function drawGameState() {
     }
 
     console.log(message);
+}
+
+/*private*/ function loadScript(url, callback) {
+    // Adding the script tag to the head as suggested before
+    var head = document.getElementsByTagName('head')[0];
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = url;
+
+    // Then bind the event to the callback function.
+    // There are several events for cross browser compatibility.
+    script.onreadystatechange = callback;
+    script.onload = callback;
+
+    // Fire the loading
+    head.appendChild(script);
 }
