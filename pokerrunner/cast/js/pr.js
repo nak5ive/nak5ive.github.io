@@ -44,8 +44,7 @@ class Game {
 }
 
 var game = {
-    tournamentName: 'POKER BOIZ',
-    type: 'TEXAS HOLD \u2018EM',
+    title: '$10 TEXAS HOLD \u2018EM',
     buyin: 10,
     state: 'READY', // PLAYING, PAUSED, STOPPED
     entries: 0,
@@ -63,11 +62,9 @@ var game = {
 
 var view = {
     color: Color.BLUE,
-    header: {
-        title: 'TOURNAMENT',
-        description: '$10 TEXAS HOLD \u2018EM',
-        clock: '12:00 p'
-    },
+    title: 'GAME',
+    clock: '12:00 p',
+    pot: '$0',
     blind: {
         level: '5/10',
         color: BLIND_COLORS[0]
@@ -167,8 +164,7 @@ function resetGame() {
     game.blind.current = 0;
     game.entries = 0;
 
-    view.header.title = game.tournamentName;
-    view.header.description = '$' + game.buyin + ' ' + game.type;
+    view.title = game.title;
     view.timer.elapsed = '00:00';
     view.timer.remaining = '15:00';
     view.timer.color = Color.GREEN;
@@ -307,7 +303,7 @@ var prevTime;
 
     // update clock
     var clock = moment().format('h:mm a');
-    view.header.clock = clock.substring(0, clock.length - 1);
+    view.clock = clock.substring(0, clock.length - 1);
 
     // update total game timer
     view.timer.elapsed = formatTimeElapsed(game.time);
@@ -367,8 +363,10 @@ function refreshBlinds() {
 function updatePayouts() {
     view.payouts = [];
 
-    // calulate payouts based on provided percentages
     var pot = game.entries * game.buyin;
+    view.pot = '$' + pot;
+
+    // calulate payouts based on provided percentages
     var remainingPercentage = game.payouts.percentages.reduce((a, b) => a + b);
     game.payouts.percentages.forEach(p => {
         var actualPercentage = p / remainingPercentage;
@@ -448,9 +446,9 @@ function initCanvas() {
     HEIGHT = canvas.height * (1 - 2 * UI_VERTICAL_PADDING);
 
     TEXT_SMALL = HEIGHT * 0.03;
-    TEXT_MEDIUM = HEIGHT * 0.04;
-    TEXT_LARGE = HEIGHT * 0.06;
-    TEXT_XLARGE = HEIGHT * 0.15;
+    TEXT_MEDIUM = HEIGHT * 0.05;
+    TEXT_LARGE = HEIGHT * 0.09;
+    TEXT_XLARGE = HEIGHT * 0.18;
 }
 
 /*private*/
@@ -464,6 +462,8 @@ function drawView() {
     drawHeader();
 
     if (game.state == 'PLAYING' || game.state == 'PAUSED') {
+        drawPot();
+        drawBlinds();
         drawTimer();
     }
 
@@ -478,16 +478,11 @@ function drawHeader() {
     // draw tournament name
     var x = WIDTH / 2;
     var y = 0;
-    drawText(view.header.title, x, y, TEXT_MEDIUM, view.color, 'center', 'top');
+    drawText(view.title, x, y, TEXT_MEDIUM, view.color, 'center', 'top');
 
     // draw clock
     x = WIDTH;
-    drawText(view.header.clock, x, y, TEXT_MEDIUM, view.color, 'right', 'top');
-
-    // draw description
-    x = WIDTH / 2;
-    y += TEXT_MEDIUM * 1.5;
-    drawText(view.header.description, x, y, TEXT_SMALL, view.color, 'center', 'top');
+    drawText(view.clock, x, y, TEXT_MEDIUM, view.color, 'right', 'top');
 }
 
 /*private*/
@@ -512,11 +507,46 @@ function drawTimer() {
     }
 
     // draw current timer text
-    var text = game.state == 'PAUSED' ? game.state : view.timer.remaining;
-    drawText(text, x, y, TEXT_XLARGE, view.timer.color, 'center', 'middle');
+    drawText(view.timer.remaining, x, y, TEXT_XLARGE, view.timer.color, 'center', 'middle');
 
     // draw total elapsed time text
     drawText(view.timer.elapsed, x, y + TEXT_XLARGE / 2, TEXT_MEDIUM, Color.GREY, 'center', 'top');
+}
+
+/*private*/
+function drawPot() {
+    var lineWidth = HEIGHT * 0.01;
+    var radius = 0.2 * HEIGHT - lineWidth / 2;
+    var x = radius;
+    var y = HEIGHT / 2;
+
+    // draw the current blind ring
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = Color.GREY;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // draw current blind text
+    drawText(view.pot, x, y, TEXT_LARGE, Color.GREY, 'center', 'middle');
+}
+
+/*private*/
+function drawBlinds() {
+    var lineWidth = HEIGHT * 0.01;
+    var radius = 0.2 * HEIGHT - lineWidth / 2;
+    var x = WIDTH - radius;
+    var y = HEIGHT / 2;
+
+    // draw the current blind ring
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = view.blind.color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // draw current blind text
+    drawText(view.blind.level, x, y, TEXT_LARGE, view.blind.color, 'center', 'middle');
 }
 
 /*private*/
@@ -589,9 +619,9 @@ function drawGameState() {
 // ------------------------------------------------
 
 /*private*/
-function drawText(text, x, y, size, color, h, v) {
+function drawText(text, x, y, size, color, h, v, bold) {
     ctx.fillStyle = color;
-    ctx.font = 'bold ' + size + 'px "Open Sans Condensed"';
+    ctx.font = (bold ? 'bold ' : '') + size + 'px "Open Sans Condensed"';
     ctx.textAlign = h;
     ctx.textBaseline = v;
     ctx.fillText(text, x, y);
