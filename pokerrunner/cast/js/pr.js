@@ -84,7 +84,7 @@ var view = {
 };
 
 
-var canvas, ctx, sounds = {};
+var canvas, ctx, loopTime, sounds = {};
 var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 
 
@@ -300,17 +300,13 @@ function prevInterval(interval) {
     game.time = Math.max(0, interval * Math.floor((game.time - 1000) / interval));
 }
 
-
-
-// THE LOOP
-var prevTime;
 /*private*/
 function loop() {
     var benchmark = window.performance.now();
     var time = Date.now();
 
     if (game.state == 'PLAYING') {
-        var diff = time - prevTime;
+        var diff = time - loopTime;
 
         // play 1 minute remaining if crossing 1 minute mark
         if (game.time % game.blind.interval <= game.blind.interval - 6E4
@@ -342,7 +338,7 @@ function loop() {
     // update the view state after calculations
     drawView();
 
-    prevTime = time;
+    loopTime = time;
 
     // benchmarking
     benchmark = Math.round((window.performance.now() - benchmark) * 100) / 100;
