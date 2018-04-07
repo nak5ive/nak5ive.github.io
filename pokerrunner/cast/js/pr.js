@@ -1,9 +1,6 @@
 // init cast framework
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
-var castContext, castPlayerManager, castOptions;
-
 const INTERVAL_LOOP = 50;
-const PREVENT_BURN_IN_RATE = 5 * 60 * 1000;
 const UI_HORIZONTAL_PADDING = 0.1;
 const UI_VERTICAL_PADDING = 0.05;
 const ANIM_FLASH_DURATION = 1000;
@@ -12,8 +9,12 @@ const ANIM_DURATION_SHORT = 250;
 const ANIM_FILTER_SHORT = .1;
 const ANIM_FILTER_LONG = .05;
 const ANIM_FILTER_IMMEDIATE = 1;
+const ONE_SECOND = 1000;
+const ONE_MINUTE = 6E4;
+const FIVE_MINUTES = 3E5;
 
 const Color = {
+    BLACK: '#000',
     GREY: '#59595b',
     WHITE: '#fff',
     GREEN: '#89d92e',
@@ -83,8 +84,9 @@ var view = {
     ]
 };
 
+var castContext, castPlayerManager, castOptions,
+    canvas, ctx, loopTime, sounds = {};
 
-var canvas, ctx, loopTime, sounds = {};
 var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 
 
@@ -267,11 +269,11 @@ function decreaseEntries() {
 }
 
 function nextMinute() {
-    nextInterval(6E4);
+    nextInterval(ONE_MINUTE);
 }
 
 function prevMinute() {
-    prevInterval(6E4);
+    prevInterval(ONE_MINUTE);
 }
 
 function nextBlind() {
@@ -309,20 +311,16 @@ function loop() {
         var diff = time - loopTime;
 
         // play 1 minute remaining if crossing 1 minute mark
-        if (game.time % game.blind.interval <= game.blind.interval - 6E4
-            && (game.time + diff) % game.blind.interval > game.blind.interval - 6E4) {
+        if (game.time % game.blind.interval <= game.blind.interval - ONE_MINUTE
+            && (game.time + diff) % game.blind.interval > game.blind.interval - ONE_MINUTE) {
             playSound('oneminute');
         }
 
         // update elapsed time
         game.time += diff;
-
-        refreshBlinds();
     }
 
-    if (game.state == 'PAUSED') {
-        refreshBlinds();
-    }
+    refreshBlinds();
 
     // update clock
     var clock = moment().format('h:mm a');
@@ -335,9 +333,10 @@ function loop() {
     var targetTextColor = (game.state == 'PLAYING') ? Color.GREY : Color.BLUE;
     view.color = filterColors(view.color, targetTextColor, ANIM_FILTER_SHORT);
 
-    // update the view state after calculations
-    drawView();
+    // draw the view state after calculations
+    draw();
 
+    // update loop
     loopTime = time;
 
     // benchmarking
@@ -347,7 +346,7 @@ function loop() {
 
 /*private*/
 function refreshBlinds() {
-    var blind = Math.floor(game.time / game.blind.interval);
+    var blind = Math.min(Math.floor(game.time / game.blind.interval), game.blind.levels.length - 1);
     if (blind != game.blind.current) {
         game.blind.current = blind;
         if (game.state == 'PLAYING') {
@@ -356,26 +355,34 @@ function refreshBlinds() {
     }
 
     var remaining = game.blind.interval - game.time % game.blind.interval;
-    var lowTime = remaining <= 1 * 60000;
-
-    view.timer.remaining = formatTimeRemaining(remaining);
-    view.timer.dashesOff = Math.floor((game.time % game.blind.interval) / 60000);
-    view.timer.dashesTotal = Math.ceil(game.blind.interval / 60000);
+    var lowTime = remaining <= ONE_MINUTE;
 
     var timerColor;
-    if (view.timer.dashesOff >= view.timer.dashesTotal - 1) {
-        timerColor = (game.state == 'PLAYING') ? Color.RED : Color.RED_FADED;
-    } else if (view.timer.dashesOff >= 2 * view.timer.dashesTotal / 3) {
-        timerColor = (game.state == 'PLAYING') ? Color.YELLOW : Color.YELLOW_FADED;
+    // last blind for infinity...
+    if (game.blind.current == game.blind.levels.length - 1) {
+        view.timer.remaining = '\u221E';
+        view.timer.dashesTotal = view.timer.dashesOff = Math.ceil(game.blind.interval / ONE_MINUTE);
+        view.timer.color = view.blind.color = Color.GREY;
     } else {
-        timerColor = (game.state == 'PLAYING') ? Color.GREEN : Color.GREEN_FADED;
+        view.timer.remaining = formatTimeRemaining(remaining);
+        view.timer.dashesOff = Math.floor((game.time % game.blind.interval) / ONE_MINUTE);
+        view.timer.dashesTotal = Math.ceil(game.blind.interval / ONE_MINUTE);
+
+        if (view.timer.dashesOff >= view.timer.dashesTotal - 1) {
+            timerColor = (game.state == 'PLAYING') ? Color.RED : Color.RED_FADED;
+        } else if (view.timer.dashesOff >= 2 * view.timer.dashesTotal / 3) {
+            timerColor = (game.state == 'PLAYING') ? Color.YELLOW : Color.YELLOW_FADED;
+        } else {
+            timerColor = (game.state == 'PLAYING') ? Color.GREEN : Color.GREEN_FADED;
+        }
+
+        view.timer.color = filterColors(view.timer.color, timerColor, ANIM_FILTER_SHORT);
+        view.blind.color = BLIND_COLORS[Math.min(BLIND_COLORS.length - 1, blind)];
     }
 
-    view.timer.color = filterColors(view.timer.color, timerColor, ANIM_FILTER_SHORT);
-
     // blinds
-    view.blind.level = (game.blind.levels[blind] / 2) + '/' + game.blind.levels[blind];
-    view.blind.color = BLIND_COLORS[Math.min(BLIND_COLORS.length - 1, blind)];
+    var level = game.blind.levels[Math.min(blind, game.blind.levels.length - 1)];
+    view.blind.level = (level / 2) + '/' + level;
 }
 
 /*private*/
@@ -455,7 +462,7 @@ function initCanvas() {
 }
 
 /*private*/
-function drawView() {
+function draw() {
     ctx.save();
 
     // clear canvas
@@ -464,11 +471,17 @@ function drawView() {
 
     drawHeader();
 
-    if (game.state == 'PLAYING' || game.state == 'PAUSED') {
+    if (game.state == 'READY') {
+        drawState();
+    } else if (game.state == 'PLAYING') {
         drawPot();
         drawBlinds();
         drawTimer();
-    } else {
+    } else if (game.state == 'PAUSED') {
+        drawPot();
+        drawBlinds();
+        drawTimer();
+    } else if (game.state == 'STOPPED'){
         drawState();
     }
 
