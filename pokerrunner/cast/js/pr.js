@@ -66,6 +66,7 @@ var view = {
     title: 'GAME',
     clock: '12:00 p',
     pot: '$0',
+    potColor: Color.GREEN,
     blind: {
         level: '5/10',
         color: BLIND_COLORS[0]
@@ -330,8 +331,12 @@ function loop() {
     view.timer.elapsed = formatTimeElapsed(game.time);
 
     // update text color
-    var targetTextColor = (game.state == 'PLAYING') ? Color.GREY : Color.BLUE;
-    view.color = filterColors(view.color, targetTextColor, ANIM_FILTER_SHORT);
+    var color = (game.state == 'PLAYING') ? Color.GREY : Color.BLUE;
+    view.color = filterColors(view.color, color, ANIM_FILTER_SHORT);
+
+    // update pot color
+    color = (game.state == 'PLAYING') ? Color.GREEN : Color.BLUE;
+    view.potColor = filterColors(view.potColor, color, ANIM_FILTER_SHORT);
 
     // draw the view state after calculations
     draw();
@@ -357,17 +362,16 @@ function refreshBlinds() {
     var remaining = game.blind.interval - game.time % game.blind.interval;
     var lowTime = remaining <= ONE_MINUTE;
 
-    var timerColor;
     // last blind for infinity...
     if (game.blind.current == game.blind.levels.length - 1) {
         view.timer.remaining = '\u221E';
         view.timer.dashesTotal = view.timer.dashesOff = Math.ceil(game.blind.interval / ONE_MINUTE);
-        view.timer.color = view.blind.color = Color.GREY;
     } else {
         view.timer.remaining = formatTimeRemaining(remaining);
         view.timer.dashesOff = Math.floor((game.time % game.blind.interval) / ONE_MINUTE);
         view.timer.dashesTotal = Math.ceil(game.blind.interval / ONE_MINUTE);
 
+        var timerColor;
         if (view.timer.dashesOff >= view.timer.dashesTotal - 1) {
             timerColor = (game.state == 'PLAYING') ? Color.RED : Color.RED_FADED;
         } else if (view.timer.dashesOff >= 2 * view.timer.dashesTotal / 3) {
@@ -377,10 +381,12 @@ function refreshBlinds() {
         }
 
         view.timer.color = filterColors(view.timer.color, timerColor, ANIM_FILTER_SHORT);
-        view.blind.color = BLIND_COLORS[Math.min(BLIND_COLORS.length - 1, blind)];
     }
 
     // blinds
+    var color = (game.state == 'PLAYING') ? BLIND_COLORS[Math.min(BLIND_COLORS.length - 1, blind)] : Color.BLUE;
+    view.blind.color = filterColors(view.blind.color, color, ANIM_FILTER_SHORT);
+
     var level = game.blind.levels[Math.min(blind, game.blind.levels.length - 1)];
     view.blind.level = (level / 2) + '/' + level;
 }
@@ -473,11 +479,7 @@ function draw() {
 
     if (game.state == 'READY') {
         drawState();
-    } else if (game.state == 'PLAYING') {
-        drawPot();
-        drawBlinds();
-        drawTimer();
-    } else if (game.state == 'PAUSED') {
+    } else if (game.state == 'PLAYING' || game.state == 'PAUSED') {
         drawPot();
         drawBlinds();
         drawTimer();
@@ -507,7 +509,7 @@ function drawTimer() {
     var x = WIDTH / 2;
     var y = HEIGHT / 2;
     var lineWidth = HEIGHT * 0.01;
-    var radius = HEIGHT / 4 - lineWidth / 2;
+    var radius = (0.6 * HEIGHT - lineWidth) / 2;
     var dashWeight = 13;
 
     // draw the current blind progress ring
@@ -532,25 +534,25 @@ function drawTimer() {
 
 /*private*/
 function drawPot() {
-    var lineWidth = HEIGHT * 0.01;
+    var lineWidth = HEIGHT * 0.003;
     var radius = 0.2 * HEIGHT - lineWidth / 2;
     var x = radius;
     var y = HEIGHT / 2;
 
     // draw the current blind ring
     ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = Color.GREY;
+    ctx.strokeStyle = view.potColor;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
     ctx.stroke();
 
     // draw current blind text
-    drawText(view.pot, x, y, TEXT_LARGE, Color.GREY, 'center', 'middle');
+    drawText(view.pot, x, y, TEXT_LARGE, view.potColor, 'center', 'middle');
 }
 
 /*private*/
 function drawBlinds() {
-    var lineWidth = HEIGHT * 0.01;
+    var lineWidth = HEIGHT * 0.003;
     var radius = 0.2 * HEIGHT - lineWidth / 2;
     var x = WIDTH - radius;
     var y = HEIGHT / 2;
@@ -576,15 +578,18 @@ function drawState() {
 
 /*private*/
 function drawFooter() {
-    var lineHeight = TEXT_MEDIUM * 1.3;
+    var lineHeight = TEXT_SMALL * 1.3;
     var spacing = WIDTH * .1;
     var x = (WIDTH - spacing * (view.payouts.length - 1)) / 2;
     var y = HEIGHT;
 
     // loop over payouts
+    var label;
+    var suffix = ['st', 'nd', 'rd', 'th'];
     for (var i = 0; i < view.payouts.length; i++) {
         // draw label
-        drawText('' + (i + 1), x, y, TEXT_MEDIUM, view.color, 'center', 'bottom');
+        label = '' + (i + 1) + suffix[Math.min(i, suffix.length - 1)];
+        drawText(label, x, y, TEXT_SMALL, view.color, 'center', 'bottom');
         drawText(view.payouts[i], x, y - lineHeight, TEXT_MEDIUM, Color.GREEN, 'center', 'bottom');
         x += spacing;
     }
