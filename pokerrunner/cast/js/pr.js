@@ -138,12 +138,8 @@ function initCast() {
 }
 
 function loadAssets() {
-    return new Promise(function(resolve, reject) {
-        loadFonts()
-            .then(loadSounds)
-            .then(resolve)
-            .catch(reject);
-    });
+    return loadFonts()
+        .then(loadSounds);
 }
 
 function loadFonts() {
@@ -180,21 +176,23 @@ function loadSounds() {
             sounds['blind' + i] = 'https://code.responsivevoice.org/getvoice.php?t=blinds%20' + small + '%7C' + big + '&rate=0.4&pitch=0.45&tl=en-GB';
         }
 
+        resolve();
+
         // do the preload
-        var preload, pending = 0;
-        for (var key in sounds) {
-            pending++;
-            if (sounds.hasOwnProperty(key)) {
-                preload = new Audio();
-                preload.onloadeddata = function() {
-                    pending--;
-                    if (pending == 0) {
-                        resolve('Sounds loaded');
-                    }
-                };
-                preload.src = sounds[key];
-            }
-        }
+        // var preload, pending = 0;
+        // for (var key in sounds) {
+        //     pending++;
+        //     if (sounds.hasOwnProperty(key)) {
+        //         preload = new Audio();
+        //         preload.onloadeddata = function() {
+        //             pending--;
+        //             if (pending == 0) {
+        //                 resolve('Sounds loaded');
+        //             }
+        //         };
+        //         preload.src = sounds[key];
+        //     }
+        // }
 
     });
 }
