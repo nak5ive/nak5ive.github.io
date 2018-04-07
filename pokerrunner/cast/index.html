@@ -2,8 +2,6 @@
 <html>
     <head>
         <script>
-            var isChromecast = navigator.userAgent.indexOf('CrKey') >= 0;
-
             // disable timeout to prevent cast session from ending
             window._setTimeout = window.setTimeout;
             window.setTimeout = function(a, b) {};
@@ -11,17 +9,16 @@
         <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.1/tinycolor.min.js"></script>
-        <script src="js/howler.js"></script>
         <script src="js/webfontloader.js"></script>
         <script src="js/pr.js"></script>
         <link rel="stylesheet" href="css/pr.css"/>
     </head>
     <body>
         <canvas id="canvas"></canvas>
+        <audio id="sounds" oncanplaythrough="this.play();"></audio>
 
         <!-- debug -->
         <div id="debug">
-            <div id="console"></div>
             <div id="refresh-rate"></div>
             <div id="controls">
                 <button onclick="playPauseGame();">Play/Pause</button>
@@ -36,15 +33,9 @@
             </div>
         </div>
 
-        <!-- bootstrap -->
         <script>
-            log('Loading fonts');
-            WebFont.load({
-                google: {
-                    families: ['Open Sans Condensed:300,700']
-                },
-                active: bootstrap
-            });
+            const CHROMECAST = navigator.userAgent.indexOf('CrKey') >= 0;
+            initCast().then(loadAssets).then(bootstrap);
         </script>
     </body>
 </html>

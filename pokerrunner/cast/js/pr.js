@@ -84,12 +84,123 @@ var view = {
 };
 
 
-var canvas, ctx, sounds = [];
+var canvas, ctx, sounds = {};
 var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
 
 
+
+function initCast() {
+    return new Promise(function(resolve, reject) {
+        if (!CHROMECAST) {
+            // only show debug info if not on chromecast device
+            document.getElementById('debug').style.display = 'block';
+            resolve('Cast not initiated');
+            return;
+        }
+
+        castContext = cast.framework.CastReceiverContext.getInstance();
+        castPlayerManager = castContext.getPlayerManager();
+        castOptions = new cast.framework.CastReceiverOptions();
+
+        castContext.addCustomMessageListener(CAST_NAMESPACE, function(event) {
+            console.log(event);
+            if (event.data.action == 'playPause') {
+                playPauseGame();
+            } else if (event.data.action == 'stop') {
+                stopGame();
+            } else if (event.data.action == 'reset') {
+                resetGame();
+            } else if (event.data.action == 'nextMinute') {
+                nextMinute();
+            } else if (event.data.action == 'prevMinute') {
+                prevMinute();
+            } else if (event.data.action == 'nextBlind') {
+                nextBlind();
+            } else if (event.data.action == 'prevBlind') {
+                prevBlind();
+            } else if (event.data.action == 'increaseEntries') {
+                increaseEntries();
+            } else if (event.data.action == 'decreaseEntries') {
+                decreaseEntries();
+            }
+        });
+
+        castPlayerManager.addEventListener(cast.framework.events.category.CORE,
+                event => {
+                    console.log(event);
+                });
+
+        castOptions.maxInactivity = 3600;
+        castContext.start(castOptions);
+
+        resolve('Cast initiated');
+    });
+}
+
+function loadAssets() {
+    return new Promise(function(resolve, reject) {
+        loadFonts()
+            .then(loadSounds)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+function loadFonts() {
+    return new Promise(function(resolve, reject){
+        console.log('Loading fonts');
+
+        WebFont.load({
+            google: {
+                families: ['Open Sans Condensed:300,700']
+            },
+            active: function() {
+                resolve('Fonts loaded');
+            }
+        });
+    });
+}
+
+function loadSounds() {
+    return new Promise(function(resolve, reject) {
+        console.log('Loading sounds');
+
+        sounds.entry = 'sounds/entry.mp3';
+        sounds.letsplaycards = 'sounds/letsplaycards.mp3';
+        sounds.gamestarted = 'sounds/gamestarted.mp3';
+        sounds.gamepaused = 'sounds/gamepaused.mp3';
+        sounds.gameover = 'sounds/gameover.mp3';
+        sounds.oneminute = 'sounds/oneminute.mp3';
+        sounds.payhim = 'sounds/payhim.mp3';
+
+        // add blind sounds
+        for (var i = 0; i < game.blind.levels.length; i++) {
+            var big = game.blind.levels[i];
+            var small = big / 2;
+            sounds['blind' + i] = 'https://code.responsivevoice.org/getvoice.php?t=blinds%20' + small + '%7C' + big + '&rate=0.4&pitch=0.45&tl=en-GB';
+        }
+
+        // do the preload
+        var preload, pending = 0;
+        for (var key in sounds) {
+            pending++;
+            if (sounds.hasOwnProperty(key)) {
+                preload = new Audio();
+                preload.onloadeddata = function() {
+                    pending--;
+                    if (pending == 0) {
+                        resolve('Sounds loaded');
+                    }
+                };
+                preload.src = sounds[key];
+            }
+        }
+
+    });
+}
+
 function bootstrap() {
-    log('Bootstrapping app');
+    console.log('Bootstrapping app');
 
     // init canvas + context
     initCanvas();
@@ -98,66 +209,19 @@ function bootstrap() {
         loop();
     };
 
-    // init sounds
-    initSounds();
-
     // init game
     resetGame();
 
     // start game loop
     setInterval(loop, INTERVAL_LOOP);
-
-    if (isChromecast) {
-        initCast();
-    } else {
-        // only show debug info if not on chromecast device
-        document.getElementById('debug').style.display = 'block';
-    }
-}
-
-function initCast() {
-    castContext = cast.framework.CastReceiverContext.getInstance();
-    castPlayerManager = castContext.getPlayerManager();
-    castOptions = new cast.framework.CastReceiverOptions();
-
-    castContext.addCustomMessageListener(CAST_NAMESPACE, function(event) {
-        console.log(event);
-        if (event.data.action == 'playPause') {
-            playPauseGame();
-        } else if (event.data.action == 'stop') {
-            stopGame();
-        } else if (event.data.action == 'reset') {
-            resetGame();
-        } else if (event.data.action == 'nextMinute') {
-            nextMinute();
-        } else if (event.data.action == 'prevMinute') {
-            prevMinute();
-        } else if (event.data.action == 'nextBlind') {
-            nextBlind();
-        } else if (event.data.action == 'prevBlind') {
-            prevBlind();
-        } else if (event.data.action == 'increaseEntries') {
-            increaseEntries();
-        } else if (event.data.action == 'decreaseEntries') {
-            decreaseEntries();
-        }
-    });
-
-    castPlayerManager.addEventListener(cast.framework.events.category.CORE,
-            event => {
-                console.log(event);
-            });
-
-    castOptions.maxInactivity = 3600;
-    castContext.start(castOptions);
 }
 
 function resetGame() {
     if (game.state == 'PLAYING' || game.state == 'PAUSED') {
-        return log('Can not reset game in progress');
+        return console.log('Can not reset game in progress');
     }
 
-    log('Resetting game');
+    console.log('Resetting game');
 
     game.state = 'READY';
     game.time = 0;
@@ -178,66 +242,54 @@ function resetGame() {
 
 function playPauseGame() {
     if (game.state == 'PLAYING') {
-        sounds['gamepaused'].play();
-        log('Pausing game');
+        playSound('gamepaused');
+        console.log('Pausing game');
         game.state = 'PAUSED';
     } else {
         if (game.state == 'READY') {
-            var sound = sounds['gamestarted'];
-            sound.once('end', function() {
-                sounds['blind0'].play();
+            playSound('gamestarted').then(function() {
+                return playSound('blind0');
+            }).then(function() {
+                return playSound('letsplaycards');
             });
-            sound.play();
         }
-        log('Playing game');
+        console.log('Playing game');
         game.state = 'PLAYING';
     }
 }
 
 function stopGame() {
     if (game.state == 'READY' || game.state == 'STOPPED') {
-        return log('Can only stop a game in progress');
+        return console.log('Can only stop a game in progress');
     }
 
-    var sound = sounds['gameover'];
-    sound.once('end', function() {
-        sounds['payhim'].play();
+    playSound('gameover').then(function(){
+        return playSound('payhim');
     });
-    sound.play();
 
-    log('Stopping game');
+    console.log('Stopping game');
     game.state = 'STOPPED';
 }
 
 function increaseEntries() {
-    sounds['entry'].play();
+    playSound('entry');
     game.entries += 1;
-    log('Entries: ' + game.entries);
+    console.log('Entries: ' + game.entries);
     updatePayouts();
 }
 
 function decreaseEntries() {
     game.entries = Math.max(0, game.entries - 1);
-    log('Entries: ' + game.entries);
+    console.log('Entries: ' + game.entries);
     updatePayouts();
 }
 
-/* TODO DEPRECATED */
-function addPlayers(players) {
-    increaseEntries();
-}
-
-/* TODO DEPRECATED */
-function addRebuys(rebuys) {
-    increaseEntries();
-}
-
 function nextMinute() {
-    nextInterval(60000);
+    nextInterval(6E4);
 }
 
 function prevMinute() {
-    prevInterval(60000);
+    prevInterval(6E4);
 }
 
 function nextBlind() {
@@ -248,37 +300,30 @@ function prevBlind() {
     prevInterval(game.blind.interval);
 }
 
-/*private*/ function nextInterval(interval) {
+/*private*/
+function nextInterval(interval) {
     if (game.state == 'READY' || game.state == 'STOPPED') {
-        return log('Can only change time of a game in progress');
+        return console.log('Can only change time of a game in progress');
     }
 
     game.time = interval * (Math.floor(game.time / interval) + 1);
 }
 
-/*private*/ function prevInterval(interval) {
+/*private*/
+function prevInterval(interval) {
     if (game.state == 'READY' || game.state == 'STOPPED') {
-        return log('Can only change time of a game in progress');
+        return console.log('Can only change time of a game in progress');
     }
 
     game.time = Math.max(0, interval * Math.floor((game.time - 1000) / interval));
-}
-
-function addMinutes(minutes) {
-    if (game.state == 'READY' || game.state == 'STOPPED') {
-        return log('Can only add time to a game in progress');
-    }
-
-    minutes = Math.floor(minutes);
-    log('Adding ' + minutes + ' minutes');
-    game.time = Math.max(game.time + minutes * 60000, 0);
 }
 
 
 
 // THE LOOP
 var prevTime;
-/*private*/ function loop() {
+/*private*/
+function loop() {
     var benchmark = window.performance.now();
     var time = Date.now();
 
@@ -288,7 +333,7 @@ var prevTime;
         // play 1 minute remaining if crossing 1 minute mark
         if (game.time % game.blind.interval <= game.blind.interval - 6E4
             && (game.time + diff) % game.blind.interval > game.blind.interval - 6E4) {
-            sounds['oneminute'].play();
+            playSound('oneminute');
         }
 
         // update elapsed time
@@ -322,17 +367,13 @@ var prevTime;
     document.getElementById('refresh-rate').innerHTML = benchmark + 'ms';
 }
 
-/*private*/ function setState(state) {
-    game.state = state;
-}
-
 /*private*/
 function refreshBlinds() {
     var blind = Math.floor(game.time / game.blind.interval);
     if (blind != game.blind.current) {
         game.blind.current = blind;
         if (game.state == 'PLAYING') {
-            sounds['blind' + blind].play();
+            playSound('blind' + blind);
         }
     }
 
@@ -380,7 +421,7 @@ function updatePayouts() {
     });
 
     var string = view.payouts.length > 0 ? view.payouts.reduce((a, b) => a + '/' + b) : '';
-    log('Payouts: ' + string);
+    console.log('Payouts: ' + string);
 }
 
 /*private*/
@@ -409,28 +450,12 @@ function formatTimeElapsed(time) {
 }
 
 /*private*/
-function initSounds() {
-    loadSound('entry', 'sounds/entry.mp3');
-    loadSound('gamestarted', 'sounds/gamestarted.mp3');
-    loadSound('gamepaused', 'sounds/gamepaused.mp3');
-    loadSound('gameover', 'sounds/gameover.mp3');
-    loadSound('oneminute', 'sounds/oneminute.mp3');
-    loadSound('payhim', 'sounds/payhim.mp3');
-
-    for (var i = 0; i < game.blind.levels.length; i++) {
-        var big = game.blind.levels[i];
-        var small = big / 2;
-        loadSound('blind' + i, 'https://code.responsivevoice.org/getvoice.php?t=blinds%20' + small + '%7C' + big + '&rate=0.4&pitch=0.45&tl=en-GB');
-    }
-}
-
-/*private*/
-function loadSound(key, path) {
-    sounds[key] = new Howl({
-        src: [path],
-        format: ['mp3'],
-        preload: true,
-        html5: true
+function playSound(key) {
+    return new Promise(function(resolve, reject) {
+        var el = document.getElementById('sounds');
+        el.onerror = reject;
+        el.onended = resolve;
+        el.src = sounds[key];
     });
 }
 
@@ -467,7 +492,6 @@ function drawView() {
         drawTimer();
     }
 
-    // drawGameState();
     drawFooter();
 
     ctx.restore();
@@ -565,54 +589,6 @@ function drawFooter() {
     }
 }
 
-/*private*/
-function drawGameState() {
-    var largeRadius = HEIGHT * 0.5 / 2;
-    var smallRadius = HEIGHT * 0.35 / 2;
-    var lineWidth = HEIGHT * 0.005;
-    var dashWeight = 13;
-
-    var spacing = (WIDTH - 2 * (largeRadius + smallRadius)) / 3;
-
-    var timerX = spacing + largeRadius;
-    var blindX = WIDTH - spacing - smallRadius;
-    var y = HEIGHT / 2;
-
-    // draw the current blind progress ring
-    var angleGap = 2 * Math.PI / (view.timer.dashesTotal * (dashWeight + 1));
-    var angleDash = angleGap * dashWeight;
-    ctx.lineWidth = lineWidth;
-    for (var i = 0; i < view.timer.dashesTotal; i++) {
-        ctx.strokeStyle = (i < view.timer.dashesOff) ? Color.GREY : view.timer.color;
-        var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
-        var angleEnd = angleStart + angleDash;
-        ctx.beginPath();
-        ctx.arc(timerX, y, largeRadius, angleStart, angleEnd);
-        ctx.stroke();
-    }
-
-    // draw current timer text
-    var text = view.timer.remaining;
-    var color = view.timer.color;
-    if (game.state == 'PAUSED') {
-        text = game.state;
-        color = Color.BLUE;
-    }
-    drawText(text, timerX, y, TEXT_XLARGE, color, 'center', 'middle');
-
-    // draw total elapsed time text
-    drawText(view.timer.elapsed, timerX, y + TEXT_XLARGE / 2, TEXT_MEDIUM, Color.GREY, 'center', 'top');
-
-    // draw the current blind ring
-    ctx.strokeStyle = view.blind.color;
-    ctx.beginPath();
-    ctx.arc(blindX, y, smallRadius, 0, 2 * Math.PI);
-    ctx.stroke();
-
-    // draw current blind text
-    drawText(view.blind.level, blindX, y, TEXT_LARGE, view.blind.color, 'center', 'middle');
-}
-
 
 // ------------------------------------------------
 // UTILITY
@@ -652,32 +628,4 @@ function filterColors(c1, c2, ratio) {
         b: c2.b - Math.trunc((c2.b - c1.b) * (1 - ratio))
     };
     return tinycolor(rgb).toHexString();
-}
-
-/*private*/
-function log(message) {
-    if (!isChromecast) {
-        var debugConsole = document.getElementById('console');
-        debugConsole.appendChild(document.createElement('br'));
-        debugConsole.appendChild(document.createTextNode(message));
-    }
-
-    console.log(message);
-}
-
-/*private*/
-function loadScript(url, callback) {
-    // Adding the script tag to the head as suggested before
-    var head = document.getElementsByTagName('head')[0];
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = url;
-
-    // Then bind the event to the callback function.
-    // There are several events for cross browser compatibility.
-    script.onreadystatechange = callback;
-    script.onload = callback;
-
-    // Fire the loading
-    head.appendChild(script);
 }

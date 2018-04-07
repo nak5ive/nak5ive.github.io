@@ -14,16 +14,10 @@ html, body {
 #debug {
     display: none;
 }
-#console {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    color: purple;
-}
 #refresh-rate {
     position: absolute;
-    right: 0;
-    bottom: 0;
+    left: 0;
+    top: 0;
     color: red;
 }
 #controls {
