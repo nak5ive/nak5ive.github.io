@@ -177,23 +177,6 @@ function loadSounds() {
         }
 
         resolve();
-
-        // do the preload
-        // var preload, pending = 0;
-        // for (var key in sounds) {
-        //     pending++;
-        //     if (sounds.hasOwnProperty(key)) {
-        //         preload = new Audio();
-        //         preload.onloadeddata = function() {
-        //             pending--;
-        //             if (pending == 0) {
-        //                 resolve('Sounds loaded');
-        //             }
-        //         };
-        //         preload.src = sounds[key];
-        //     }
-        // }
-
     });
 }
 
@@ -244,8 +227,9 @@ function playPauseGame() {
         console.log('Pausing game');
         game.state = 'PAUSED';
     } else {
+        var promise = playSound('gamestarted');
         if (game.state == 'READY') {
-            playSound('gamestarted').then(function() {
+            promise.then(function() {
                 return playSound('blind0');
             }).then(function() {
                 return playSound('letsplaycards');
@@ -488,6 +472,8 @@ function drawView() {
         drawPot();
         drawBlinds();
         drawTimer();
+    } else {
+        drawState();
     }
 
     drawFooter();
@@ -569,6 +555,14 @@ function drawBlinds() {
 
     // draw current blind text
     drawText(view.blind.level, x, y, TEXT_LARGE, view.blind.color, 'center', 'middle');
+}
+
+/*private*/
+function drawState() {
+    var x = WIDTH / 2;
+    var y = HEIGHT / 2;
+
+    drawText(game.state, x, y, TEXT_XLARGE, view.color, 'center', 'middle');
 }
 
 /*private*/
