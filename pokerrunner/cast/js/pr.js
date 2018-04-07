@@ -218,6 +218,8 @@ function resetGame() {
     view.timer.color = Color.GREEN;
     view.timer.dashesTotal = 15;
     view.timer.dashesOff = 0;
+    view.pot = '$0';
+    view.potColor = Color.GREEN;
     view.blind.level = (game.blind.levels[0] / 2) + '/' + game.blind.levels[0];
     view.blind.color = BLIND_COLORS[0];
 
@@ -345,7 +347,7 @@ function loop() {
     loopTime = time;
 
     // benchmarking
-    benchmark = Math.round((window.performance.now() - benchmark) * 100) / 100;
+    benchmark = (window.performance.now() - benchmark).toFixed(1);
     document.getElementById('refresh-rate').innerHTML = benchmark + 'ms';
 }
 
