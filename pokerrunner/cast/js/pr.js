@@ -18,31 +18,13 @@ const Color = {
     GREY: '#59595b',
     WHITE: '#fff',
     GREEN: '#89d92e',
-    GREEN_FADED: '#354624',
     YELLOW: '#fff22d',
-    YELLOW_FADED: '524f1e',
     RED: '#ff0019',
-    RED_FADED: '#571e20',
-    BLUE: '#a5f1ff'
+    BLUE: '#a5f1ff',
+    TEAL: '#57C683'
 }
 
 const BLIND_COLORS = ['#fff', '#a5f1ff', '#a5f1a9', '#00a8ec', '#00ce86', '#a6ff1a', '#ffc503', '#ffff00'];
-
-class Game {
-    constructor() {
-        this._tournamentName = 'Poker Boiz';
-        this._style = 'Texas Hold \u2018em';
-        this._buyin = 10;
-    }
-
-    get tournamentName() {
-        return this._tournamentName.toUpperCase();
-    }
-
-    get description() {
-        return '$' + this._buyin + ' ' + this._style.toUpperCase();
-    }
-}
 
 var game = {
     title: '$10 TEXAS HOLD \u2018EM',
@@ -72,23 +54,21 @@ var view = {
         color: BLIND_COLORS[0]
     },
     timer: {
+        alpha: 1,
         elapsed: '00:00',
         remaining: '15:00',
         color: Color.GREEN,
         dashesTotal: 15,
         dashesOff: 0
     },
-    payouts: [
-        {amount: '0', color: Color.BLUE},
-        {amount: '0', color: Color.BLUE},
-        {amount: '0', color: Color.BLUE}
-    ]
+    payouts: [],
+    refreshRate: ''
 };
 
 var castContext, castPlayerManager, castOptions,
     canvas, ctx, loopTime, sounds = {};
 
-var WIDTH, HEIGHT, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE, TEXT_XLARGE;
+var WIDTH, HEIGHT, TEXT_XSMALL, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE;
 
 
 
@@ -336,8 +316,8 @@ function loop() {
     var color = (game.state == 'PLAYING') ? Color.GREY : Color.BLUE;
     view.color = filterColors(view.color, color, ANIM_FILTER_SHORT);
 
-    // update pot color
-    color = (game.state == 'PLAYING') ? Color.GREEN : Color.BLUE;
+    // update pot/payout color
+    color = (game.state == 'PLAYING') ? Color.TEAL : Color.BLUE;
     view.potColor = filterColors(view.potColor, color, ANIM_FILTER_SHORT);
 
     // draw the view state after calculations
@@ -347,8 +327,7 @@ function loop() {
     loopTime = time;
 
     // benchmarking
-    benchmark = (window.performance.now() - benchmark).toFixed(1);
-    document.getElementById('refresh-rate').innerHTML = benchmark + 'ms';
+    view.refreshRate = (window.performance.now() - benchmark).toFixed(1) + 'ms';
 }
 
 /*private*/
@@ -366,6 +345,7 @@ function refreshBlinds() {
 
     // last blind for infinity...
     if (game.blind.current == game.blind.levels.length - 1) {
+        view.timer.color = Color.GREY;
         view.timer.remaining = '\u221E';
         view.timer.dashesTotal = view.timer.dashesOff = Math.ceil(game.blind.interval / ONE_MINUTE);
     } else {
@@ -374,23 +354,29 @@ function refreshBlinds() {
         view.timer.dashesTotal = Math.ceil(game.blind.interval / ONE_MINUTE);
 
         var timerColor;
-        if (view.timer.dashesOff >= view.timer.dashesTotal - 1) {
-            timerColor = (game.state == 'PLAYING') ? Color.RED : Color.RED_FADED;
+        if (game.state == 'STOPPED') {
+            timerColor = Color.GREY;
+        } else if (view.timer.dashesOff >= view.timer.dashesTotal - 1) {
+            timerColor = Color.RED;
         } else if (view.timer.dashesOff >= 2 * view.timer.dashesTotal / 3) {
-            timerColor = (game.state == 'PLAYING') ? Color.YELLOW : Color.YELLOW_FADED;
+            timerColor = Color.YELLOW;
         } else {
-            timerColor = (game.state == 'PLAYING') ? Color.GREEN : Color.GREEN_FADED;
+            timerColor = Color.GREEN;
         }
 
         view.timer.color = filterColors(view.timer.color, timerColor, ANIM_FILTER_SHORT);
     }
+
+    // calculate timer alpha
+    var timerAlpha = (game.state == 'PAUSED') ? 0.3 : 1;
+    view.timer.alpha = filterNumber(view.timer.alpha, timerAlpha, ANIM_FILTER_SHORT);
 
     // blinds
     var color = (game.state == 'PLAYING') ? BLIND_COLORS[Math.min(BLIND_COLORS.length - 1, blind)] : Color.BLUE;
     view.blind.color = filterColors(view.blind.color, color, ANIM_FILTER_SHORT);
 
     var level = game.blind.levels[Math.min(blind, game.blind.levels.length - 1)];
-    view.blind.level = (level / 2) + '/' + level;
+    view.blind.level = shortenNumber(level / 2) + '/' + shortenNumber(level);
 }
 
 /*private*/
@@ -408,7 +394,7 @@ function updatePayouts() {
         amount = Math.min(amount, pot);
         if (amount == 0) return;
 
-        view.payouts.push(amount);
+        view.payouts.push('$' + amount);
         pot -= amount;
         remainingPercentage -= p;
     });
@@ -463,10 +449,10 @@ function initCanvas() {
     WIDTH = canvas.width * (1 - 2 * UI_HORIZONTAL_PADDING);
     HEIGHT = canvas.height * (1 - 2 * UI_VERTICAL_PADDING);
 
-    TEXT_SMALL = HEIGHT * 0.03;
-    TEXT_MEDIUM = HEIGHT * 0.05;
-    TEXT_LARGE = HEIGHT * 0.09;
-    TEXT_XLARGE = HEIGHT * 0.18;
+    TEXT_XSMALL = HEIGHT * 0.03;
+    TEXT_SMALL = HEIGHT * 0.05;
+    TEXT_MEDIUM = HEIGHT * 0.12;
+    TEXT_LARGE = HEIGHT * 0.18;
 }
 
 /*private*/
@@ -475,23 +461,33 @@ function draw() {
 
     // clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // draw debug info
+    if (!CHROMECAST) {
+        drawDebug();
+    }
+
+    // translate to usable screen area
     ctx.translate(canvas.width * UI_HORIZONTAL_PADDING, canvas.height * UI_VERTICAL_PADDING);
 
     drawHeader();
 
     if (game.state == 'READY') {
         drawState();
-    } else if (game.state == 'PLAYING' || game.state == 'PAUSED') {
+    } else if (game.state == 'PLAYING' || game.state == 'PAUSED' || game.state == 'STOPPED') {
         drawPot();
         drawBlinds();
         drawTimer();
-    } else if (game.state == 'STOPPED'){
-        drawState();
     }
 
-    drawFooter();
+    drawPayouts();
 
     ctx.restore();
+}
+
+/*private*/
+function drawDebug() {
+    drawText(view.refreshRate, 0, 0, TEXT_XSMALL, Color.RED, 'left', 'top');
 }
 
 /*private*/
@@ -499,11 +495,11 @@ function drawHeader() {
     // draw tournament name
     var x = WIDTH / 2;
     var y = 0;
-    drawText(view.title, x, y, TEXT_MEDIUM, view.color, 'center', 'top');
+    drawText(view.title, x, y, TEXT_SMALL, view.color, 'center', 'top');
 
     // draw clock
     x = WIDTH;
-    drawText(view.clock, x, y, TEXT_MEDIUM, view.color, 'right', 'top');
+    drawText(view.clock, x, y, TEXT_SMALL, view.color, 'right', 'top');
 }
 
 /*private*/
@@ -514,24 +510,39 @@ function drawTimer() {
     var radius = (0.6 * HEIGHT - lineWidth) / 2;
     var dashWeight = 13;
 
+    // adjust alpha
+    ctx.globalAlpha = view.timer.alpha;
+
     // draw the current blind progress ring
     var angleGap = 2 * Math.PI / (view.timer.dashesTotal * (dashWeight + 1));
     var angleDash = angleGap * dashWeight;
+    var color;
     ctx.lineWidth = lineWidth;
     for (var i = 0; i < view.timer.dashesTotal; i++) {
-        ctx.strokeStyle = (i < view.timer.dashesOff) ? Color.GREY : view.timer.color;
+        color = (i < view.timer.dashesOff) ? Color.GREY : view.timer.color;
         var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
         var angleEnd = angleStart + angleDash;
-        ctx.beginPath();
-        ctx.arc(x, y, radius, angleStart, angleEnd);
-        ctx.stroke();
+
+        drawArc(x, y, radius, angleStart, angleEnd, color);
     }
 
     // draw current timer text
-    drawText(view.timer.remaining, x, y, TEXT_XLARGE, view.timer.color, 'center', 'middle');
+    var text = (game.state == 'STOPPED') ? view.timer.elapsed : view.timer.remaining;
+    var textY = y + TEXT_LARGE * 0.5;
+    drawText(text, x, textY, TEXT_LARGE, view.timer.color, 'center', 'bottom');
 
     // draw total elapsed time text
-    drawText(view.timer.elapsed, x, y + TEXT_XLARGE / 2, TEXT_MEDIUM, Color.GREY, 'center', 'top');
+    text = (game.state == 'STOPPED') ? 'GAME TIME' : view.timer.elapsed;
+    drawText(text, x, textY, TEXT_SMALL, Color.GREY, 'center', 'middle');
+
+    // reset alpha
+    ctx.globalAlpha = 1;
+
+    // draw pause icon
+    if (game.state == 'PAUSED') {
+        drawRect(x - 30, y - 30, 15, 60, Color.BLUE);
+        drawRect(x + 15, y - 30, 15, 60, Color.BLUE);
+    }
 }
 
 /*private*/
@@ -549,7 +560,7 @@ function drawPot() {
     ctx.stroke();
 
     // draw current blind text
-    drawText(view.pot, x, y, TEXT_LARGE, view.potColor, 'center', 'middle');
+    drawText(view.pot, x, y, TEXT_MEDIUM, view.potColor, 'center', 'middle');
 }
 
 /*private*/
@@ -567,7 +578,7 @@ function drawBlinds() {
     ctx.stroke();
 
     // draw current blind text
-    drawText(view.blind.level, x, y, TEXT_LARGE, view.blind.color, 'center', 'middle');
+    drawText(view.blind.level, x, y, TEXT_MEDIUM, view.blind.color, 'center', 'middle');
 }
 
 /*private*/
@@ -575,24 +586,20 @@ function drawState() {
     var x = WIDTH / 2;
     var y = HEIGHT / 2;
 
-    drawText(game.state, x, y, TEXT_XLARGE, view.color, 'center', 'middle');
+    drawText(game.state, x, y, TEXT_LARGE, view.color, 'center', 'middle');
 }
 
 /*private*/
-function drawFooter() {
+function drawPayouts() {
     var lineHeight = TEXT_SMALL * 1.3;
     var spacing = WIDTH * .1;
     var x = (WIDTH - spacing * (view.payouts.length - 1)) / 2;
     var y = HEIGHT;
 
     // loop over payouts
-    var label;
-    var suffix = ['st', 'nd', 'rd', 'th'];
     for (var i = 0; i < view.payouts.length; i++) {
-        // draw label
-        label = '' + (i + 1) + suffix[Math.min(i, suffix.length - 1)];
-        drawText(label, x, y, TEXT_SMALL, view.color, 'center', 'bottom');
-        drawText(view.payouts[i], x, y - lineHeight, TEXT_MEDIUM, Color.GREEN, 'center', 'bottom');
+        drawText('' + (i + 1), x, y, TEXT_SMALL, Color.GREY, 'center', 'bottom');
+        drawText(view.payouts[i], x, y - lineHeight, TEXT_SMALL, view.potColor, 'center', 'bottom');
         x += spacing;
     }
 }
@@ -621,6 +628,27 @@ function drawLine(x0, y0, x1, y1, width, color) {
     ctx.stroke();
 }
 
+/*private*/
+function drawRect(x0, y0, x1, y1, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.rect(x0, y0, x1, y1);
+    ctx.fill();
+}
+
+/*private*/
+function drawArc(centerX, centerY, radius, angleStart, angleEnd, color) {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, angleStart, angleEnd);
+    ctx.stroke();
+}
+
+/*private*/
+function shortenNumber(number) {
+    return number > 999 ? (number / 1000).toFixed(1).replace('.0', '') + 'K' : '' + number;
+}
+
 // this special function allows you to run a low-pass filter
 // between 2 colors that will ultimately resolve to the final color
 // other color blending libraries run into rounding issues with low ratios
@@ -636,4 +664,9 @@ function filterColors(c1, c2, ratio) {
         b: c2.b - Math.trunc((c2.b - c1.b) * (1 - ratio))
     };
     return tinycolor(rgb).toHexString();
+}
+
+/*private*/
+function filterNumber(from, to, ratio) {
+    return from * (1 - ratio) + to * ratio;
 }
