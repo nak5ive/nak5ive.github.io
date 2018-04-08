@@ -17,23 +17,20 @@
         <canvas id="canvas"></canvas>
         <audio id="sounds" oncanplaythrough="this.play();"></audio>
 
-        <!-- debug -->
-        <div id="debug">
-            <div id="controls">
-                <button onclick="playPauseGame();">Play/Pause</button>
-                <button onclick="stopGame();">Stop</button>
-                <button onclick="resetGame();">Reset</button>
-                <button onclick="decreaseEntries();">- Entry</button>
-                <button onclick="increaseEntries();">+ Entry</button>
-                <button onclick="prevBlind();">&lt;&lt;</button>
-                <button onclick="prevMinute();">&lt;</button>
-                <button onclick="nextMinute();">&gt;</button>
-                <button onclick="nextBlind();">&gt;&gt;</button>
-            </div>
+        <!-- controls -->
+        <div id="controls">
+            <button onclick="playPauseGame();">Play/Pause</button>
+            <button onclick="stopGame();">Stop</button>
+            <button onclick="resetGame();">Reset</button>
+            <button onclick="decreaseEntries();">- Entry</button>
+            <button onclick="increaseEntries();">+ Entry</button>
+            <button onclick="prevBlind();">&lt;&lt;</button>
+            <button onclick="prevMinute();">&lt;</button>
+            <button onclick="nextMinute();">&gt;</button>
+            <button onclick="nextBlind();">&gt;&gt;</button>
         </div>
 
         <script>
-            const CHROMECAST = navigator.userAgent.indexOf('CrKey') >= 0;
             initCast().then(loadAssets).then(bootstrap);
         </script>
     </body>

@@ -1,4 +1,4 @@
-// init cast framework
+const CHROMECAST = navigator.userAgent.indexOf('CrKey') >= 0;
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
 const INTERVAL_LOOP = 50;
 const UI_HORIZONTAL_PADDING = 0.1;
@@ -75,8 +75,8 @@ var WIDTH, HEIGHT, TEXT_XSMALL, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE;
 function initCast() {
     return new Promise(function(resolve, reject) {
         if (!CHROMECAST) {
-            // only show debug info if not on chromecast device
-            document.getElementById('debug').style.display = 'block';
+            // only show controls if not on chromecast device
+            document.getElementById('controls').style.display = 'block';
             resolve('Cast not initiated');
             return;
         }
@@ -368,7 +368,7 @@ function refreshBlinds() {
     }
 
     // calculate timer alpha
-    var timerAlpha = (game.state == 'PAUSED') ? 0.3 : 1;
+    var timerAlpha = (game.state == 'PAUSED') ? 0.4 : 1;
     view.timer.alpha = filterNumber(view.timer.alpha, timerAlpha, ANIM_FILTER_SHORT);
 
     // blinds

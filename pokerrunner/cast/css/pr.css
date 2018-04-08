@@ -11,16 +11,8 @@ html, body {
     position: absolute;
 }
 
-#debug {
-    display: none;
-}
-#refresh-rate {
-    position: absolute;
-    left: 0;
-    top: 0;
-    color: red;
-}
 #controls {
+    display: none;
     position: absolute;
     bottom: 0;
     width: 100%;
