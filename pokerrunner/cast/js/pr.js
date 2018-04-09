@@ -9,8 +9,6 @@ const ANIM_DURATION_SHORT = 250;
 const ANIM_FILTER_SHORT = .1;
 const ANIM_FILTER_LONG = .05;
 const ANIM_FILTER_IMMEDIATE = 1;
-const ONE_SECOND = 1000;
-const ONE_MINUTE = 6E4;
 const FIVE_MINUTES = 3E5;
 
 const Color = {
