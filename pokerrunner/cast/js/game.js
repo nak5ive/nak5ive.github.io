@@ -1,10 +1,10 @@
 const ONE_SECOND = 1000;
 const ONE_MINUTE = 6E4;
 
-class PokerRunner {
+class Game {
     constructor() {
         // these come in from the app
-        this.config = {
+        this._config = {
             title: 'POKER RUNNER',
             blinds: [
                 {name: '1/2', length: 0, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%201%7C2'}
@@ -15,19 +15,68 @@ class PokerRunner {
     }
 
     reset() {
-        this.payouts = {
+        this._state = 'READY';
+        this._time = 0;
+
+        this._payouts = {
             pot: '$0',
             winners: []
         };
+    }
 
-        this.state = {
-            action: 'READY',
-            time: 0
-        };
+    get blindChangedCallback() {
+        return this._blindChangedCallback;
+    }
+
+    set blindChangedCallback(callback) {
+        this._blindChangedCallback = callback;
+    }
+
+    get config() {
+        return this._config;
+    }
+
+    set config(config) {
+        this._config = config;
     }
 
     get title() {
         return this.config.title;
+    }
+
+    get state() {
+        return this._state;
+    }
+
+    set state(state) {
+        this._state = state;
+    }
+
+    get time() {
+        return this._time;
+    }
+
+    set time(time) {
+        // run check if new blind
+        var currentBlind = this.currentBlindIndex;
+        var futureBlind = this.blindIndex(time);
+        if (currentBlind != futureBlind && this._blindsCallback != undefined) {
+            this._blindsCallback(this.config.blinds[futureBlind]);
+        }
+
+        this._time = time;
+    }
+
+    addTime(t) {
+        this.time = this.time + t;
+    }
+
+    get payouts() {
+        return this._payouts;
+    }
+
+    set payouts(payouts) {
+        this._payouts = payouts;
     }
 
     get pot() {
@@ -38,30 +87,20 @@ class PokerRunner {
         return this.payouts.winners;
     }
 
-    set action(a) {
-        this.state.action = a;
-    }
-
-    get time() {
-        return this.state.time;
-    }
-
-    set time(t) {
-        this.state.time = t;
-        // TODO trigger callbacks
-    }
-
-    addTime(t) {
-        this.state.time += t;
-        // TODO trigger callbacks
+    get currentBlind() {
+        return this.config.blinds[this.currentBlindIndex];
     }
 
     get currentBlindIndex() {
+        return this.blindIndex(this.time);
+    }
+
+    blindIndex(time) {
         var t = 0, blind;
         for (var i = 0; i < this.config.blinds.length; i++) {
             blind = this.getBlind(i);
             t += blind.length;
-            if (this.time < t) {
+            if (time < t) {
                 return i;
             }
         }
@@ -75,19 +114,19 @@ class PokerRunner {
     }
 
     isReady() {
-        return this.state.action == 'READY';
+        return this.state == 'READY';
     }
 
     isPlaying() {
-        return this.state.action == 'PLAYING';
+        return this.state == 'PLAYING';
     }
 
     isPaused() {
-        return this.state.action == 'PAUSED';
+        return this.state == 'PAUSED';
     }
 
     isStopped() {
-        return this.state.action == 'STOPPED';
+        return this.state == 'STOPPED';
     }
 
     nextMinute() {
@@ -128,34 +167,10 @@ class PokerRunner {
 
         this.time = t;
     }
-
-    blendColor(key, color, blendRatio) {
-        this.colors[key] = this.blendColors(this.colors[key], color, blendRatio);
-    }
-
-    blendAlpha(key, alpha, blendRatio) {
-        this.alphas[key] = this.blendNumbers(this.alphas[key], alpha, blendRatio);
-    }
-
-
-    /*private*/
-    blendColors(c1, c2, ratio) {
-        c1 = tinycolor(c1).toRgb();
-        c2 = tinycolor(c2).toRgb();
-
-        var rgb = {
-            r: c2.r - Math.trunc((c2.r - c1.r) * (1 - ratio)),
-            g: c2.g - Math.trunc((c2.g - c1.g) * (1 - ratio)),
-            b: c2.b - Math.trunc((c2.b - c1.b) * (1 - ratio))
-        };
-        return tinycolor(rgb).toHexString();
-    }
-
-    /*private*/
-    blendNumbers(from, to, ratio) {
-        return from * (1 - ratio) + to * ratio;
-    }
 }
+
+
+
 
 var gameConfig = {
     title: '$10 TEXAS HOLD \u2018EM',
@@ -177,6 +192,5 @@ var gameConfig = {
     ]
 };
 
-
-var testGame = new PokerRunner();
+var testGame = new Game();
 testGame.config = gameConfig;
