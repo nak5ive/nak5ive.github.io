@@ -68,22 +68,6 @@ class PokerRunner {
         });
     }
 
-    bootstrap() {
-        // handle window resizing
-        this.painter.resizeCanvas();
-        window.onresize = function() {
-            this.painter.resizeCanvas();
-            this.loop();
-        };
-
-        // start the loop
-        setInterval(this.loop, INTERVAL_LOOP);
-    }
-
-    loop() {
-        // this.painter.paint();
-    }
-
     get castContext() {
         if (this._castContext == undefined) {
             this._castContext = cast.framework.CastReceiverContext.getInstance();

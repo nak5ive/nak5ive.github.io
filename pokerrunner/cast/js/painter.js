@@ -92,6 +92,33 @@ class Painter {
     }
 
     paint() {
-        // TODO do paint
+        this.context.save();
+
+        // clear canvas
+        this.clear();
+
+        // translate to usable screen area
+        this.context.translate(this.canvas.width * UI_HORIZONTAL_PADDING, this.canvas.height * UI_VERTICAL_PADDING);
+
+        this.paintHeader();
+
+        this.context.restore();
+    }
+
+    clear() {
+        this.context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    paintHeader() {
+        // TODO color needs to be sourced correctly
+
+        // draw tournament name
+        var x = this.width / 2;
+        var y = 0;
+        drawText(this.game.title, x, y, this.textSmall, view.color, 'center', 'top');
+
+        // draw clock
+        x = this.width;
+        drawText(this.game.clock, x, y, this.textSmall, view.color, 'right', 'top');
     }
 }
