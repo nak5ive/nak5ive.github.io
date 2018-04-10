@@ -1,26 +1,19 @@
 const UI_HORIZONTAL_PADDING = 0.1;
 const UI_VERTICAL_PADDING = 0.05;
+const PAINT_INTERVAL = 50;
 
 class Painter {
-    constructor(runner) {
-        this._runner = runner;
+    constructor(game, canvas) {
+        this._game = game;
+        this._canvas = canvas;
+
         this.reset();
     }
 
-    reset() {
-        // cache for drawing params
-        this._colors = {};
-        this._alphas = {};
+    get game() {
+        return this._game;
     }
-
-    get runner() {
-        return this._runner;
-    }
-
     get canvas() {
-        if (this._canvas == undefined) {
-            this._canvas = document.getElementById('canvas');
-        }
         return this._canvas;
     }
     get context() {
@@ -29,7 +22,6 @@ class Painter {
         }
         return this._ctx;
     }
-
     get width() {
         return this.canvas.width * (1 - 2 * UI_HORIZONTAL_PADDING)
     }
@@ -49,15 +41,29 @@ class Painter {
         return this.height * 0.18;
     }
 
-    paint() {
-        var game = this.runner.game;
+    reset() {
+        // cache for drawing params
+        this._colors = {};
+        this._alphas = {};
     }
+    start() {
+        // local binding
+        var painter = this;
 
+        // resize canvas
+        this.resizeCanvas();
+        window.onresize = function() {
+            painter.resizeCanvas();
+            painter.paint();
+        }
+
+        // start painting
+        setInterval(function(){painter.paint();}, PAINT_INTERVAL);
+    }
     resizeCanvas() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
     }
-
     setColor(key, color, blendRatio) {
         if (blendRatio != undefined && this._colors[key] != undefined) {
             color = this.filterColors(this._colors[key], color, blendRatio);
@@ -83,5 +89,9 @@ class Painter {
     }
     filterNumbers(from, to, ratio) {
         return from * (1 - ratio) + to * ratio;
+    }
+
+    paint() {
+        // TODO do paint
     }
 }

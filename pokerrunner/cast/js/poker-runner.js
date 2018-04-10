@@ -3,13 +3,13 @@ const INTERVAL_LOOP = 50;
 class PokerRunner {
     constructor() {
         this._game = new Game(this);
-        this._painter = new Painter(this);
+        this._painter = new Painter(this.game, this.canvas);
     }
 
     start() {
         this.initCast()
             .then(this.loadFonts)
-            .then(this.bootstrap);
+            .then(this.painter.start);
     }
 
     initCast() {
@@ -81,7 +81,7 @@ class PokerRunner {
     }
 
     loop() {
-        this.painter.paint();
+        // this.painter.paint();
     }
 
     get castContext() {
@@ -112,8 +112,17 @@ class PokerRunner {
     get audio() {
         if (this._audio == undefined) {
             this._audio = document.getElementById('sounds');
+            this._audio.oncanplaythrough = function() {
+                this.play();
+            };
         }
         return this._audio;
+    }
+    get canvas() {
+        if (this._canvas == undefined) {
+            this._canvas = document.getElementById('canvas');
+        }
+        return this._canvas;
     }
 
     get clock() {
@@ -121,12 +130,28 @@ class PokerRunner {
         return clock.substring(0, clock.length - 1);
     }
 
-    draw() {
-        // TODO draw the game
+    onGameStart() {
+        this.playSound('sounds/gamestarted.mp3');
+    }
+
+    onGamePaused() {
+        this.playSound('sounds/gamepaused.mp3');
+    }
+
+    onGameOver() {
+        var runner = this;
+        this.playSound('sounds/gameover.mp3')
+            .then(function(){
+                runner.playSound('sounds/payhim.mp3');
+            });
     }
 
     onBlindChanged(blind) {
         this.playSound(blind.sound);
+    }
+
+    onOneMinuteWarning() {
+        this.playSound('sounds/onemimute.mp3');
     }
 
     playSound(url) {

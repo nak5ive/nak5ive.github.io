@@ -4,6 +4,7 @@ const ONE_MINUTE = 6E4;
 class Game {
     constructor(runner) {
         this._runner = runner;
+        this._timer = new Timer();
 
         // these come in from the app
         this._config = {
