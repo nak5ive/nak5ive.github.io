@@ -1,8 +1,5 @@
 const CHROMECAST = navigator.userAgent.indexOf('CrKey') >= 0;
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
-const INTERVAL_LOOP = 50;
-const UI_HORIZONTAL_PADDING = 0.1;
-const UI_VERTICAL_PADDING = 0.05;
 const ANIM_FLASH_DURATION = 1000;
 const ANIM_FADEOUT_DURATION = 250;
 const ANIM_DURATION_SHORT = 250;

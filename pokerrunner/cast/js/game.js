@@ -2,7 +2,9 @@ const ONE_SECOND = 1000;
 const ONE_MINUTE = 6E4;
 
 class Game {
-    constructor() {
+    constructor(runner) {
+        this._runner = runner;
+
         // these come in from the app
         this._config = {
             title: 'POKER RUNNER',
@@ -24,45 +26,47 @@ class Game {
         };
     }
 
-    get blindChangedCallback() {
-        return this._blindChangedCallback;
+    playPause() {
+        if (this.isReady || this.isPlaying || this.isPaused) {
+            this.state = this.isPlaying ? 'PAUSED' : 'PLAYING';
+        }
+    }
+    stop() {
+        if (this.isPlaying || this.isPaused) {
+            this.state = 'STOPPED';
+        }
     }
 
-    set blindChangedCallback(callback) {
-        this._blindChangedCallback = callback;
+    get runner() {
+        return this._runner;
     }
-
     get config() {
         return this._config;
     }
-
     set config(config) {
         this._config = config;
     }
-
     get title() {
         return this.config.title;
     }
-
     get state() {
         return this._state;
     }
-
     set state(state) {
         this._state = state;
     }
-
     get time() {
         return this._time;
     }
-
     set time(time) {
         // run check if new blind
         var currentBlind = this.currentBlindIndex;
         var futureBlind = this.blindIndex(time);
-        if (currentBlind != futureBlind && this._blindsCallback != undefined) {
-            this._blindsCallback(this.config.blinds[futureBlind]);
+        if (currentBlind != futureBlind && this.runner.onBlindChanged != undefined) {
+            this.runner.onBlindChanged(this.config.blinds[futureBlind]);
         }
+
+        // TODO check if 1 minute remaining
 
         this._time = time;
     }
@@ -113,19 +117,26 @@ class Game {
         return this.config.blinds[index];
     }
 
-    isReady() {
+    playPause() {
+        if (this.isReady || this.isPlaying || this.isPaused) {
+            this.state = this.isPlaying ? 'PAUSED' : 'PLAYING';
+        }
+    }
+    stop() {
+        if (this.isPlaying || this.isPaused) {
+            this.state = 'STOPPED';
+        }
+    }
+    get isReady() {
         return this.state == 'READY';
     }
-
-    isPlaying() {
+    get isPlaying() {
         return this.state == 'PLAYING';
     }
-
-    isPaused() {
+    get isPaused() {
         return this.state == 'PAUSED';
     }
-
-    isStopped() {
+    get isStopped() {
         return this.state == 'STOPPED';
     }
 
@@ -168,29 +179,3 @@ class Game {
         this.time = t;
     }
 }
-
-
-
-
-var gameConfig = {
-    title: '$10 TEXAS HOLD \u2018EM',
-    blinds: [
-        {name: '5/10', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%205%7C10'},
-        {name: '10/20', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%2010%7C20'},
-        {name: '20/40', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%2020%7C40'},
-        {name: '40/80', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%2040%7C80'},
-        {name: 'BREAK', length: 5 * ONE_MINUTE, isBreak: true, sound:'https://code.responsivevoice.org/getvoice.php?t=5%20minute%20break'},
-        {name: '50/100', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%2050%7C100'},
-        {name: '100/200', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%20100%7C200'},
-        {name: '200/400', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%20200%7C400'},
-        {name: '400/800', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%20400%7C800'},
-        {name: 'BREAK', length: 5 * ONE_MINUTE, isBreak: true, sound:'https://code.responsivevoice.org/getvoice.php?t=5%20minute%20break'},
-        {name: '500/1K', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%20500%7C1000'},
-        {name: '1K/2K', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%201000%7C2000'},
-        {name: '2K/4K', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%202000%7C4000'},
-        {name: '4K/8K', length: 0, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%204000%7C8000'}
-    ]
-};
-
-var testGame = new Game();
-testGame.config = gameConfig;
