@@ -1,6 +1,19 @@
 const UI_HORIZONTAL_PADDING = 0.1;
 const UI_VERTICAL_PADDING = 0.05;
-const PAINT_INTERVAL = 50;
+const PAINTER_LOOP_INTERVAL = 50;
+const FILTER_SHORT = .1;
+const FILTER_LONG = .05;
+const FILTER_IMMEDIATE = 1;
+const Color = {
+    BLACK: '#000',
+    GREY: '#59595b',
+    WHITE: '#fff',
+    GREEN: '#89d92e',
+    YELLOW: '#fff22d',
+    RED: '#ff0019',
+    BLUE: '#a5f1ff',
+    TEAL: '#57C683'
+}
 
 class Painter {
     constructor(game, canvas) {
@@ -40,35 +53,43 @@ class Painter {
     get textLarge() {
         return this.height * 0.18;
     }
+    get colors() {
+        return this._colors;
+    }
+    get alphas() {
+        return this._alphas;
+    }
 
     reset() {
-        // cache for drawing params
         this._colors = {};
         this._alphas = {};
     }
     start() {
-        // local binding
-        var painter = this;
-
         // resize canvas
         this.resizeCanvas();
-        window.onresize = function() {
-            painter.resizeCanvas();
-            painter.paint();
-        }
+        window.onresize = () => {
+            this.resizeCanvas();
+            this.loop();
+        };
 
         // start painting
-        setInterval(function(){painter.paint();}, PAINT_INTERVAL);
+        setInterval(() => this.loop(), PAINTER_LOOP_INTERVAL);
     }
     resizeCanvas() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
+    }
+    getColor(key) {
+        return this._colors[key];
     }
     setColor(key, color, blendRatio) {
         if (blendRatio != undefined && this._colors[key] != undefined) {
             color = this.filterColors(this._colors[key], color, blendRatio);
         }
         this._colors[key] = color;
+    }
+    getAlpha(key) {
+        return this._alphas[key];
     }
     setAlpha(key, alpha, blendRatio) {
         if (blendRatio != undefined && this._alphas[key] != undefined) {
@@ -91,34 +112,53 @@ class Painter {
         return from * (1 - ratio) + to * ratio;
     }
 
+    loop() {
+        // calc new colors/alphas
+        this.setColor('header', this.game.isPlaying ? Color.GREY : Color.BLUE, FILTER_SHORT);
+
+        this.paint();
+    }
+
     paint() {
+        this.beforePaint();
+
+        if (this.game.hasConfig) {
+            this.paintHeader();
+        }
+
+        this.afterPaint();
+    }
+
+    beforePaint() {
         this.context.save();
 
         // clear canvas
-        this.clear();
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         // translate to usable screen area
         this.context.translate(this.canvas.width * UI_HORIZONTAL_PADDING, this.canvas.height * UI_VERTICAL_PADDING);
-
-        this.paintHeader();
-
+    }
+    afterPaint() {
         this.context.restore();
     }
 
-    clear() {
-        this.context.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
     paintHeader() {
-        // TODO color needs to be sourced correctly
-
         // draw tournament name
         var x = this.width / 2;
         var y = 0;
-        drawText(this.game.title, x, y, this.textSmall, view.color, 'center', 'top');
+        this.paintText(this.game.title, x, y, this.textSmall, this.colors.header, 'center', 'top');
 
         // draw clock
         x = this.width;
-        drawText(this.game.clock, x, y, this.textSmall, view.color, 'right', 'top');
+        this.paintText(this.game.clock, x, y, this.textSmall, this.colors.header, 'right', 'top');
+    }
+
+
+    paintText(text, x, y, size, color, h, v, bold) {
+        this.context.fillStyle = color;
+        this.context.font = (bold ? 'bold ' : '') + size + 'px "Open Sans Condensed"';
+        this.context.textAlign = h;
+        this.context.textBaseline = v;
+        this.context.fillText(text, x, y);
     }
 }

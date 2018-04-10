@@ -7,13 +7,6 @@ class Game {
         this._timer = new Timer();
 
         // these come in from the app
-        this._config = {
-            title: 'POKER RUNNER',
-            blinds: [
-                {name: '1/2', length: 0, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%201%7C2'}
-            ]
-        };
-
         this.reset();
     }
 
@@ -47,8 +40,15 @@ class Game {
     set config(config) {
         this._config = config;
     }
+    get hasConfig() {
+        return this._config != undefined;
+    }
     get title() {
         return this.config.title;
+    }
+    get clock() {
+        var clock = moment().format('h:mm a');
+        return clock.substring(0, clock.length - 1);
     }
     get state() {
         return this._state;

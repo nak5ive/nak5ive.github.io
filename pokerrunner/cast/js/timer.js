@@ -27,8 +27,7 @@ class Timer {
         if (this._isRunning) return;
         this._prev = Date.now();
         this._isRunning = true;
-        var timer = this;
-        this._interval = setInterval(function() {timer.run();}, TIMER_INTERVAL);
+        this._interval = setInterval(() => this.run(), TIMER_INTERVAL);
     }
 
     stop() {

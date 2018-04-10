@@ -1,4 +1,4 @@
-const CHROMECAST = navigator.userAgent.indexOf('CrKey') >= 0;
+
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
 const ANIM_FLASH_DURATION = 1000;
 const ANIM_FADEOUT_DURATION = 250;
@@ -7,17 +7,8 @@ const ANIM_FILTER_SHORT = .1;
 const ANIM_FILTER_LONG = .05;
 const ANIM_FILTER_IMMEDIATE = 1;
 const FIVE_MINUTES = 3E5;
+const INTERVAL_LOOP = 50;
 
-const Color = {
-    BLACK: '#000',
-    GREY: '#59595b',
-    WHITE: '#fff',
-    GREEN: '#89d92e',
-    YELLOW: '#fff22d',
-    RED: '#ff0019',
-    BLUE: '#a5f1ff',
-    TEAL: '#57C683'
-}
 
 const BLIND_COLORS = ['#fff', '#a5f1ff', '#a5f1a9', '#00a8ec', '#00ce86', '#a6ff1a', '#ffc503', '#ffff00'];
 
