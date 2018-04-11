@@ -111,7 +111,7 @@ class PokerRunner {
     }
 
 
-    onGameStart() {
+    onGameStarted() {
         this.playSound('sounds/gamestarted.mp3')
             .then(() => this.playSound('sounds/letsplaycards.mp3'));
     }
@@ -120,7 +120,7 @@ class PokerRunner {
         this.playSound('sounds/gamepaused.mp3');
     }
 
-    onGameOver() {
+    onGameStopped() {
         this.playSound('sounds/gameover.mp3')
             .then(() => this.playSound('sounds/payhim.mp3'));
     }

@@ -4,16 +4,12 @@ const ONE_MINUTE = 6E4;
 class Game {
     constructor(runner) {
         this._runner = runner;
-        this._timer = new Timer();
-
-        // these come in from the app
         this.reset();
     }
 
     reset() {
         this._state = 'READY';
-        this._time = 0;
-
+        this._timer = new Timer();
         this._payouts = {
             pot: '$0',
             winners: []
@@ -24,7 +20,7 @@ class Game {
         if (this.isPlaying) {
             this.state = 'PAUSED';
             this._timer.stop();
-        } else if (this.isReady || this.isPaused) {
+        } else {
             this.state = 'PLAYING';
             this._timer.start();
         }
@@ -65,14 +61,14 @@ class Game {
         if (state == 'PAUSED') {
             this.runner.onGamePaused();
         } else if (state == 'STOPPED') {
-            this.runner.onGameOver();
+            this.runner.onGameStopped();
         } else if (state == 'PLAYING') {
             // TODO only want to run this once
             this.runner.onGameStarted();
         }
     }
     get time() {
-        return this._timer.time;
+        return this._timer.millis;
     }
     set time(time) {
         // run check if new blind
@@ -84,11 +80,7 @@ class Game {
 
         // TODO check if 1 minute remaining
 
-        this._timer.time = time;
-    }
-
-    addTime(t) {
-        this.time = this.time + t;
+        this._timer.millis = time;
     }
 
     get payouts() {
@@ -112,7 +104,7 @@ class Game {
     }
 
     get currentBlindIndex() {
-        return this.blindIndex(this.time);
+        return this.blindIndex(this._timer.millis);
     }
 
     get blindTimeRemaining() {
@@ -124,7 +116,7 @@ class Game {
             t += this.getBlind(i).length;
         }
 
-        return blind.length - (this.timer.time - t);
+        return blind.length - (this._timer.millis - t);
     }
 
     blindIndex(time) {
@@ -144,16 +136,6 @@ class Game {
         return this.config.blinds[index];
     }
 
-    playPause() {
-        if (this.isReady || this.isPlaying || this.isPaused) {
-            this.state = this.isPlaying ? 'PAUSED' : 'PLAYING';
-        }
-    }
-    stop() {
-        if (this.isPlaying || this.isPaused) {
-            this.state = 'STOPPED';
-        }
-    }
     get isReady() {
         return this.state == 'READY';
     }
@@ -188,7 +170,7 @@ class Game {
             t += this.getBlind(i).length;
         }
 
-        this.time = t;
+        this._timer.millis = t;
     }
 
     prevBlind() {
@@ -203,6 +185,6 @@ class Game {
             t += this.getBlind(i).length;
         }
 
-        this.time = t;
+        this._timer.millis = t;
     }
 }
