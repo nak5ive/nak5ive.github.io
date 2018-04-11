@@ -21,14 +21,20 @@ class Game {
     }
 
     playPause() {
-        if (this.isReady || this.isPlaying || this.isPaused) {
-            this.state = this.isPlaying ? 'PAUSED' : 'PLAYING';
+        if (this.isPlaying) {
+            this.state = 'PAUSED';
+            this._timer.stop();
+        } else if (this.isReady || this.isPaused) {
+            this.state = 'PLAYING';
+            this._timer.start();
         }
     }
     stop() {
         if (this.isPlaying || this.isPaused) {
             this.state = 'STOPPED';
         }
+
+        this._timer.stop();
     }
 
     get runner() {
@@ -55,9 +61,18 @@ class Game {
     }
     set state(state) {
         this._state = state;
+
+        if (state == 'PAUSED') {
+            this.runner.onGamePaused();
+        } else if (state == 'STOPPED') {
+            this.runner.onGameOver();
+        } else if (state == 'PLAYING') {
+            // TODO only want to run this once
+            this.runner.onGameStarted();
+        }
     }
     get time() {
-        return this._time;
+        return this._timer.time;
     }
     set time(time) {
         // run check if new blind
@@ -69,7 +84,7 @@ class Game {
 
         // TODO check if 1 minute remaining
 
-        this._time = time;
+        this._timer.time = time;
     }
 
     addTime(t) {
@@ -100,11 +115,22 @@ class Game {
         return this.blindIndex(this.time);
     }
 
+    get blindTimeRemaining() {
+        var index = this.currentBlindIndex;
+        var blind = this.currentBlind;
+
+        var t = 0;
+        for (var i = 0; i < index; i++) {
+            t += this.getBlind(i).length;
+        }
+
+        return blind.length - (this.timer.time - t);
+    }
+
     blindIndex(time) {
         var t = 0, blind;
         for (var i = 0; i < this.config.blinds.length; i++) {
-            blind = this.getBlind(i);
-            t += blind.length;
+            t += this.getBlind(i).length;
             if (time < t) {
                 return i;
             }

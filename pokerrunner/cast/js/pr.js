@@ -10,7 +10,7 @@ const FIVE_MINUTES = 3E5;
 const INTERVAL_LOOP = 50;
 
 
-const BLIND_COLORS = ['#fff', '#a5f1ff', '#a5f1a9', '#00a8ec', '#00ce86', '#a6ff1a', '#ffc503', '#ffff00'];
+
 
 var game = {
     title: '$10 TEXAS HOLD \u2018EM',

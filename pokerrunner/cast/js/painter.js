@@ -12,8 +12,11 @@ const Color = {
     YELLOW: '#fff22d',
     RED: '#ff0019',
     BLUE: '#a5f1ff',
-    TEAL: '#57C683'
+    TEAL: '#57C683',
+    ORANGE: '#FD9727'
 }
+
+const BLIND_COLORS = ['#fff', '#a5f1ff', '#a5f1a9', '#00a8ec', '#00ce86', '#a6ff1a', '#ffc503', '#ffff00'];
 
 class Painter {
     constructor(game, canvas) {
@@ -69,11 +72,11 @@ class Painter {
         this.resizeCanvas();
         window.onresize = () => {
             this.resizeCanvas();
-            this.loop();
+            this.paint();
         };
 
         // start painting
-        setInterval(() => this.loop(), PAINTER_LOOP_INTERVAL);
+        setInterval(() => this.paint(), PAINTER_LOOP_INTERVAL);
     }
     resizeCanvas() {
         this.canvas.width = window.innerWidth;
@@ -112,18 +115,14 @@ class Painter {
         return from * (1 - ratio) + to * ratio;
     }
 
-    loop() {
-        // calc new colors/alphas
-        this.setColor('header', this.game.isPlaying ? Color.GREY : Color.BLUE, FILTER_SHORT);
-
-        this.paint();
-    }
-
     paint() {
         this.beforePaint();
 
         if (this.game.hasConfig) {
             this.paintHeader();
+            this.paintWinners();
+            this.paintPot();
+            this.paintBlinds();
         }
 
         this.afterPaint();
@@ -143,6 +142,8 @@ class Painter {
     }
 
     paintHeader() {
+        this.setColor('header', this.game.isPlaying ? Color.GREY : Color.BLUE, FILTER_SHORT);
+
         // draw tournament name
         var x = this.width / 2;
         var y = 0;
@@ -153,6 +154,82 @@ class Painter {
         this.paintText(this.game.clock, x, y, this.textSmall, this.colors.header, 'right', 'top');
     }
 
+    paintWinners() {
+        if (this.game.payouts == undefined) return;
+
+        this.setColor('winners', this.game.isPlaying ? Color.TEAL : Color.BLUE, FILTER_SHORT);
+
+        var lineHeight = this.textSmall * 1.3;
+        var spacing = this.width * .1;
+        var x = (this.width - spacing * (this.game.payouts.winners.length - 1)) / 2;
+        var y = this.height;
+
+        // loop over payouts
+        for (var i = 0; i < this.game.payouts.winners.length; i++) {
+            this.paintText('' + (i + 1), x, y, this.textSmall, Color.GREY, 'center', 'bottom');
+            this.paintText(this.game.payouts.winners[i], x, y - lineHeight, this.textSmall, this.colors.winners, 'center', 'bottom');
+            x += spacing;
+        }
+    }
+
+    paintPot() {
+        if (this.game.payouts == undefined) return;
+
+        this.setColor('pot', this.game.isPlaying ? Color.TEAL : Color.BLUE, FILTER_SHORT);
+
+        var lineWidth = this.height * 0.003;
+        var radius = 0.2 * this.height - lineWidth / 2;
+        var x = radius;
+        var y = this.height / 2;
+
+        this.context.lineWidth = lineWidth;
+        this.paintArc(x, y, radius, 0, 2 * Math.PI, this.colors.pot);
+
+        this.paintText(this.game.pot, x, y, this.textMedium, this.colors.pot, 'center', 'middle');
+    }
+
+    paintBlinds() {
+        var index = this.game.currentBlindIndex;
+        var blind = this.game.getBlind(index);
+        var color = blind.isBreak ? Color.ORANGE : BLIND_COLORS[Math.min(index, BLIND_COLORS.length - 1)];
+        this.setColor('blinds', color, FILTER_SHORT);
+
+        var lineWidth = this.height * 0.003;
+        var radius = 0.2 * this.height - lineWidth / 2;
+        var x = this.width - radius;
+        var y = this.height / 2;
+
+        // draw the current blind ring
+        this.context.lineWidth = lineWidth;
+        this.paintArc(x, y, radius, 0, 2 * Math.PI, this.colors.blinds);
+
+        // draw current blind text
+        this.paintText(blind.name, x, y, this.textMedium, this.colors.blinds, 'center', 'middle');
+    }
+
+    paintTimer() {
+        var x = this.width / 2;
+        var y = this.height / 2;
+        var lineWidth = this.height * 0.01;
+        var radius = (0.6 * this.height - lineWidth) / 2;
+        var dashWeight = 13;
+
+        // TODO set global alpha
+
+        var blind = this.game.currentBlind;
+        var dashesOff = Math.floor((this.game.time % blind.interval) / ONE_MINUTE);
+        var dashesTotal = Math.ceil(blind.length / ONE_MINUTE);
+        var angleGap = Math.PI / 90; // 2 degrees
+        var angleDash = (2 * Math.PI - dashesTotal * angleGap) / dashesTotal;
+
+        // TODO reset global alpha
+
+        // draw pause icon
+        if (game.state == 'PAUSED') {
+            this.paintRect(x - 30, y - 30, 15, 60, Color.BLUE);
+            this.paintRect(x + 15, y - 30, 15, 60, Color.BLUE);
+        }
+    }
 
     paintText(text, x, y, size, color, h, v, bold) {
         this.context.fillStyle = color;
@@ -160,5 +237,19 @@ class Painter {
         this.context.textAlign = h;
         this.context.textBaseline = v;
         this.context.fillText(text, x, y);
+    }
+
+    paintArc(centerX, centerY, radius, angleStart, angleEnd, color) {
+        this.context.strokeStyle = color;
+        this.context.beginPath();
+        this.context.arc(centerX, centerY, radius, angleStart, angleEnd);
+        this.context.stroke();
+    }
+
+    paintRect(x0, y0, x1, y1, color) {
+        this.context.fillStyle = color;
+        this.context.beginPath();
+        this.context.rect(x0, y0, x1, y1);
+        this.context.fill();
     }
 }
