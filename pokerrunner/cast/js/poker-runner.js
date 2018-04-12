@@ -130,7 +130,7 @@ class PokerRunner {
     }
 
     onOneMinuteWarning() {
-        this.playSound('sounds/onemimute.mp3');
+        this.playSound('sounds/oneminute.mp3');
     }
 
     playSound(url) {

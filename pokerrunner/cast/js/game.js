@@ -44,12 +44,14 @@ class Game {
 
         // TODO add markers to timer
         this._timer.clearMarkers();
-        var game = this;
-        var t = 0;
-        config.blinds.forEach((blind, i) => {
-            game._timer.addMarker(t, () => {
-                game.runner.onBlindChanged(blind);
-            });
+        var game = this, t = 0, context;
+        config.blinds.forEach(blind => {
+            // add blind marker
+            game._timer.addMarker('blind', t, () => game.runner.onBlindChanged(blind));
+
+            // add one minute warning to blind markers
+            if (!blind.isBreak) game._timer.addMarker('warning', t + blind.length - 6E4, () => game.runner.onOneMinuteWarning());
+
             t += blind.length;
         });
     }
@@ -82,15 +84,6 @@ class Game {
         return this._timer.millis;
     }
     set time(time) {
-        // run check if new blind
-        var currentBlind = this.currentBlindIndex;
-        var futureBlind = this.blindIndex(time);
-        if (currentBlind != futureBlind && this.runner.onBlindChanged != undefined) {
-            this.runner.onBlindChanged(this.config.blinds[futureBlind]);
-        }
-
-        // TODO check if 1 minute remaining
-
         this._timer.millis = time;
     }
 
@@ -161,41 +154,30 @@ class Game {
     }
 
     nextMinute() {
-        // nextInterval(ONE_MINUTE);
+        if (this.isReady || this.isStopped) {
+            return console.log('Can only change time of a game in progress');
+        }
+        this._timer.nextMinute();
     }
 
     prevMinute() {
-        // prevInterval(ONE_MINUTE);
+        if (this.isReady || this.isStopped) {
+            return console.log('Can only change time of a game in progress');
+        }
+        this._timer.prevMinute();
     }
 
     nextBlind() {
-        var bi = this.currentBlindIndex;
-
-        // do nothing if already on last blind
-        if (bi == this.config.blinds.length - 1) {
-            return;
+        if (this.isReady || this.isStopped) {
+            return console.log('Can only change time of a game in progress');
         }
-
-        var t = 0;
-        for (var i = 0; i < bi + 1; i++) {
-            t += this.getBlind(i).length;
-        }
-
-        this._timer.millis = t;
+        this._timer.nextMarker('blind');
     }
 
     prevBlind() {
-        var bi = this.currentBlindIndex;
-
-        var t = 0;
-        for (var i = 0; i < bi + 1; i++) {
-            if (this.time < t + this.getBlind(i).length + ONE_SECOND) {
-                break;
-            }
-
-            t += this.getBlind(i).length;
+        if (this.isReady || this.isStopped) {
+            return console.log('Can only change time of a game in progress');
         }
-
-        this._timer.millis = t;
+        this._timer.prevMarker('blind');
     }
 }

@@ -15,10 +15,8 @@ class Timer {
         return this._cache + (this._running ? Date.now() - this._start : 0);
     }
     set time(time) {
-        this._cache = Math.max(time, 0);
+        this._markerStart = this._cache = Math.max(time, 0);
         this._start = Date.now();
-        this._markerStart = this._cache - 1;
-        if (!this._running) this.processMarkers();
     }
     get millis() {
         return this.time;
@@ -50,7 +48,7 @@ class Timer {
         // start marker interval
         this._markerStart = this._cache;
         var timer = this;
-        this._markerInterval = setInterval(() => timer.processMarkers(), MARKER_RESOLUTION);
+        this._markerInterval = setInterval(() => timer._readMarkers(), MARKER_RESOLUTION);
     }
     stop() {
         if (!this._running) return;
@@ -61,21 +59,49 @@ class Timer {
         // stop looking at markers
         clearInterval(this._markerInterval);
     }
-    addMarker(time, callback) {
-        this._markers.push({time: time, callback: callback});
+    addMarker(context, time, callback) {
+        this._markers.push({context: context, time: time, callback: callback});
+        this._markers.sort((a,b) => a.time - b.time);
     }
     clearMarkers() {
         this._markers = [];
     }
+    nextMinute() {
+        this.time = 60000 * (Math.floor(this.time / 60000) + 1);
+    }
+    prevMinute() {
+        this.time = Math.max(0, 60000 * Math.floor((this.time - 1000) / 60000));
+    }
+    nextMarker(context) {
+        for (var i = 0; i < this._markers.length; i++) {
+            var match = this._markers[i].time > this.time;
+            if (context) {
+                match = match && this._markers[i].context == context;
+            }
+            if (match) {
+                this.time = this._markers[i].time;
+                break;
+            }
+        }
+    }
+    prevMarker(context) {
+        for (var i = this._markers.length - 1; i >= 0; i--) {
+            var match = this._markers[i].time < this.time - 1000;
+            if (context) {
+                match = match && this._markers[i].context == context;
+            }
+            if (match) {
+                this.time = this._markers[i].time;
+                break;
+            }
+        }
+    }
 
-    processMarkers() {
+    _readMarkers() {
+        if (!this._running) return;
         var time = this.time;
         this._markers.forEach(marker => {
-            if (this._running) {
-                if (marker.time > this._markerStart && marker.time <= time) {
-                    marker.callback();
-                }
-            } else if (marker.time == time) {
+            if (marker.time >= this._markerStart && marker.time <= time) {
                 marker.callback();
             }
         });

@@ -23,21 +23,22 @@
 
         <!-- controls -->
         <div id="controls">
-            <button onclick="playPauseGame();">Play/Pause</button>
-            <button onclick="stopGame();">Stop</button>
-            <button onclick="resetGame();">Reset</button>
+            <button onclick="runner.game.config = testConfig;">Load Game</button>
+            <button onclick="runner.game.playPause();">Play/Pause</button>
+            <button onclick="runner.game.stop();">Stop</button>
+            <button onclick="runner.game.reset();">Reset</button>
             <button onclick="decreaseEntries();">- Entry</button>
             <button onclick="increaseEntries();">+ Entry</button>
-            <button onclick="prevBlind();">&lt;&lt;</button>
-            <button onclick="prevMinute();">&lt;</button>
-            <button onclick="nextMinute();">&gt;</button>
-            <button onclick="nextBlind();">&gt;&gt;</button>
+            <button onclick="runner.game.prevBlind();">&lt;&lt;</button>
+            <button onclick="runner.game.prevMinute();">&lt;</button>
+            <button onclick="runner.game.nextMinute();">&gt;</button>
+            <button onclick="runner.game.nextBlind();">&gt;&gt;</button>
         </div>
 
         <script>
             var runner = new PokerRunner();
 
-            var testGameConfig = {
+            var testConfig = {
                 title: '$10 TEXAS HOLD \u2018EM',
                 blinds: [
                     {name: '5/10', length: 15 * ONE_MINUTE, isBreak: false, sound:'https://code.responsivevoice.org/getvoice.php?t=blinds%205%7C10'},
