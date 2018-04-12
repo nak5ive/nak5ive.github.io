@@ -41,6 +41,17 @@ class Game {
     }
     set config(config) {
         this._config = config;
+
+        // TODO add markers to timer
+        this._timer.clearMarkers();
+        var game = this;
+        var t = 0;
+        config.blinds.forEach((blind, i) => {
+            game._timer.addMarker(t, () => {
+                game.runner.onBlindChanged(blind);
+            });
+            t += blind.length;
+        });
     }
     get hasConfig() {
         return this._config != undefined;

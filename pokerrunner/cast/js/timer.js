@@ -1,9 +1,9 @@
-const CALLBACK_RESOLUTION = 50; // ms
+const MARKER_RESOLUTION = 50; // ms
 
 class Timer {
     constructor() {
         this._running = false;
-        this.clearCallbacks();
+        this.clearMarkers();
         this.reset()
     }
 
@@ -17,6 +17,8 @@ class Timer {
     set time(time) {
         this._cache = Math.max(time, 0);
         this._start = Date.now();
+        this._markerStart = this._cache - 1;
+        if (!this._running) this.processMarkers();
     }
     get millis() {
         return this.time;
@@ -36,12 +38,6 @@ class Timer {
     set minutes(minutes) {
         this.seconds = minutes * 60;
     }
-    set callback(callback) {
-        this._callbacks.push(callback);
-    }
-    set callbacks(callbacks) {
-        this._callbacks = callbacks;
-    }
 
     reset() {
         this.time = 0;
@@ -49,40 +45,40 @@ class Timer {
     start() {
         if (this._running) return;
         this._start = Date.now();
-
-        // TODO start callback interval
-        this._callbackTime = this._cache;
-        var timer = this;
-        this._callbackInterval = setInterval(function() {timer.processCallbacks();}, CALLBACK_RESOLUTION);
-
         this._running = true;
+
+        // start marker interval
+        this._markerStart = this._cache;
+        var timer = this;
+        this._markerInterval = setInterval(() => timer.processMarkers(), MARKER_RESOLUTION);
     }
     stop() {
         if (!this._running) return;
 
-        clearInterval(this._callbackInterval);
-
         this.time = this.time; // neat!
         this._running = false;
+
+        // stop looking at markers
+        clearInterval(this._markerInterval);
     }
-    addCallback(t, c) {
-        this.callback = {time: t, callback: c};
+    addMarker(time, callback) {
+        this._markers.push({time: time, callback: callback});
     }
-    clearCallbacks() {
-        this._callbacks = [];
+    clearMarkers() {
+        this._markers = [];
     }
 
-    processCallbacks() {
-        if (!this._running) return;
-
-        var time = Date.now();
-        for (var i = 0; i < this._callbacks.length; i++) {
-            var c = this._callbacks[i];
-            if (c.time < time && c.time >= this._callbackTime) {
-                c.callback();
+    processMarkers() {
+        var time = this.time;
+        this._markers.forEach(marker => {
+            if (this._running) {
+                if (marker.time > this._markerStart && marker.time <= time) {
+                    marker.callback();
+                }
+            } else if (marker.time == time) {
+                marker.callback();
             }
-        }
-
-        this._callbackTime = time;
+        });
+        this._markerStart = time;
     }
 }
