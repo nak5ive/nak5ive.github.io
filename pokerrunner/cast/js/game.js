@@ -4,12 +4,17 @@ const ONE_MINUTE = 6E4;
 class Game {
     constructor(runner) {
         this._runner = runner;
+        this._timer = new Timer();
         this.reset();
     }
 
     reset() {
+        if (this.isPlaying || this.isPaused) {
+            return console.log('Can not reset a game in progress');
+        }
+
         this._state = 'READY';
-        this._timer = new Timer();
+        this._timer.reset();
         this._payouts = {
             pot: '$0',
             winners: []
@@ -33,24 +38,21 @@ class Game {
         this._timer.stop();
     }
 
-    get runner() {
-        return this._runner;
-    }
     get config() {
         return this._config;
     }
     set config(config) {
         this._config = config;
 
-        // TODO add markers to timer
+        // add markers to timer
         this._timer.clearMarkers();
-        var game = this, t = 0, context;
-        config.blinds.forEach(blind => {
+        var game = this, t = 0;
+        config.blinds.forEach((blind, i, arr) => {
             // add blind marker
-            game._timer.addMarker('blind', t, () => game.runner.onBlindChanged(blind));
+            game._timer.addMarker('blind', t, () => game._runner.onBlindChanged(blind, i));
 
             // add one minute warning to blind markers
-            if (!blind.isBreak) game._timer.addMarker('warning', t + blind.length - 6E4, () => game.runner.onOneMinuteWarning());
+            if (!blind.isBreak && i < arr.length - 2) game._timer.addMarker('warning', t + blind.length - 6E4, () => game._runner.onOneMinuteWarning());
 
             t += blind.length;
         });
@@ -72,12 +74,13 @@ class Game {
         this._state = state;
 
         if (state == 'PAUSED') {
-            this.runner.onGamePaused();
+            this._runner.onGamePaused();
         } else if (state == 'STOPPED') {
-            this.runner.onGameStopped();
+            this._runner.onGameStopped();
         } else if (state == 'PLAYING') {
-            // TODO only want to run this once
-            this.runner.onGameStarted();
+            if (this.time > 0) {
+                this._runner.onGameUnpaused();
+            }
         }
     }
     get time() {
@@ -96,11 +99,11 @@ class Game {
     }
 
     get pot() {
-        return this.payouts.pot;
+        return this._payouts.pot;
     }
 
     get winners() {
-        return this.payouts.winners;
+        return this._payouts.winners;
     }
 
     get currentBlind() {
@@ -141,16 +144,16 @@ class Game {
     }
 
     get isReady() {
-        return this.state == 'READY';
+        return this._state == 'READY';
     }
     get isPlaying() {
-        return this.state == 'PLAYING';
+        return this._state == 'PLAYING';
     }
     get isPaused() {
-        return this.state == 'PAUSED';
+        return this._state == 'PAUSED';
     }
     get isStopped() {
-        return this.state == 'STOPPED';
+        return this._state == 'STOPPED';
     }
 
     nextMinute() {

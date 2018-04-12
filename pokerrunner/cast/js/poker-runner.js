@@ -112,12 +112,15 @@ class PokerRunner {
 
 
     onGameStarted() {
-        this.playSound('sounds/gamestarted.mp3')
-            .then(() => this.playSound('sounds/letsplaycards.mp3'));
+
     }
 
     onGamePaused() {
         this.playSound('sounds/gamepaused.mp3');
+    }
+
+    onGameUnpaused() {
+        this.playSound('sounds/gamestarted.mp3');
     }
 
     onGameStopped() {
@@ -125,8 +128,14 @@ class PokerRunner {
             .then(() => this.playSound('sounds/payhim.mp3'));
     }
 
-    onBlindChanged(blind) {
-        this.playSound(blind.sound);
+    onBlindChanged(blind, index) {
+        if (index == 0) {
+            this.playSound('sounds/gamestarted.mp3')
+                .then(() => this.playSound(blind.sound))
+                .then(() => this.playSound('sounds/letsplaycards.mp3'));
+        } else {
+            this.playSound(blind.sound);
+        }
     }
 
     onOneMinuteWarning() {

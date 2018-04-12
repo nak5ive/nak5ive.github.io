@@ -123,6 +123,7 @@ class Painter {
             this.paintWinners();
             this.paintPot();
             this.paintBlinds();
+            this.paintTimer();
         }
 
         this.afterPaint();
@@ -182,8 +183,7 @@ class Painter {
         var x = radius;
         var y = this.height / 2;
 
-        this.context.lineWidth = lineWidth;
-        this.paintArc(x, y, radius, 0, 2 * Math.PI, this.colors.pot);
+        this.paintArc(x, y, radius, 0, 2 * Math.PI, this.colors.pot, lineWidth);
 
         this.paintText(this.game.pot, x, y, this.textMedium, this.colors.pot, 'center', 'middle');
     }
@@ -200,8 +200,7 @@ class Painter {
         var y = this.height / 2;
 
         // draw the current blind ring
-        this.context.lineWidth = lineWidth;
-        this.paintArc(x, y, radius, 0, 2 * Math.PI, this.colors.blinds);
+        this.paintArc(x, y, radius, 0, 2 * Math.PI, this.colors.blinds, lineWidth);
 
         // draw current blind text
         this.paintText(blind.name, x, y, this.textMedium, this.colors.blinds, 'center', 'middle');
@@ -214,7 +213,31 @@ class Painter {
         var radius = (0.6 * this.height - lineWidth) / 2;
         var dashWeight = 13;
 
-        // TODO set global alpha
+        var color = Color.BLUE;
+        // TODO determine the correct color
+        this.setColor('timer', color, FILTER_SHORT);
+
+        if (this.game.state == 'READY') {
+            // draw grey ring, with blue text
+            this.paintArc(x, y, radius, 0, 2 * Math.PI, Color.GREY, lineWidth);
+            this.paintText('READY', x, y, this.textLarge, this._colors.timer, 'center', 'middle');
+            return;
+        }
+
+        var textY = y + this.textLarge * 0.5;
+
+        if (this.game.state == 'STOPPED') {
+            this.paintArc(x, y, radius, 0, 2 * Math.PI, Color.GREY, lineWidth);
+            this.paintText('STOPPED', x, textY, this.textLarge, this._colors.timer, 'center', 'bottom');
+            this.paintText('GAME TIME', x, textY, this.textSmall, Color.GREY, 'center', 'middle')
+            return;
+        }
+
+        return;
+
+        // set global alpha
+        this.setAlpha('timer', this.game.state == 'PAUSED' ? 0.3 : 1);
+        ctx.globalAlpha = this._alphas['timer'];
 
         var blind = this.game.currentBlind;
         var dashesOff = Math.floor((this.game.time % blind.interval) / ONE_MINUTE);
@@ -222,10 +245,11 @@ class Painter {
         var angleGap = Math.PI / 90; // 2 degrees
         var angleDash = (2 * Math.PI - dashesTotal * angleGap) / dashesTotal;
 
-        // TODO reset global alpha
+        // reset global alpha
+        ctx.globalAlpha = 1;
 
         // draw pause icon
-        if (game.state == 'PAUSED') {
+        if (this.game.state == 'PAUSED') {
             this.paintRect(x - 30, y - 30, 15, 60, Color.BLUE);
             this.paintRect(x + 15, y - 30, 15, 60, Color.BLUE);
         }
@@ -239,7 +263,8 @@ class Painter {
         this.context.fillText(text, x, y);
     }
 
-    paintArc(centerX, centerY, radius, angleStart, angleEnd, color) {
+    paintArc(centerX, centerY, radius, angleStart, angleEnd, color, lineWidth) {
+        this.context.lineWidth = lineWidth;
         this.context.strokeStyle = color;
         this.context.beginPath();
         this.context.arc(centerX, centerY, radius, angleStart, angleEnd);
