@@ -70,23 +70,23 @@ class PokerRunner {
             runner.castContext.addCustomMessageListener(CAST_NAMESPACE, function(event) {
                 console.log(event);
                 if (event.data.action == 'playPause') {
-                    playPauseGame();
+                    runner.game.playPause();
                 } else if (event.data.action == 'stop') {
-                    stopGame();
+                    runner.game.stop();
                 } else if (event.data.action == 'reset') {
-                    resetGame();
+                    runner.game.reset();
                 } else if (event.data.action == 'nextMinute') {
-                    nextMinute();
+                    runner.game.nextMinute();
                 } else if (event.data.action == 'prevMinute') {
-                    prevMinute();
+                    runner.game.prevMinute();
                 } else if (event.data.action == 'nextBlind') {
-                    nextBlind();
+                    runner.game.nextBlind();
                 } else if (event.data.action == 'prevBlind') {
-                    prevBlind();
+                    runner.game.prevBlind();
                 } else if (event.data.action == 'increaseEntries') {
-                    increaseEntries();
+                    // increaseEntries();
                 } else if (event.data.action == 'decreaseEntries') {
-                    decreaseEntries();
+                    // decreaseEntries();
                 }
             });
 

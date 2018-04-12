@@ -86,7 +86,7 @@ class Painter {
         return this._colors[key];
     }
     setColor(key, color, blendRatio) {
-        if (blendRatio != undefined && this._colors[key] != undefined) {
+        if (blendRatio && this._colors[key]) {
             color = this.filterColors(this._colors[key], color, blendRatio);
         }
         this._colors[key] = color;
@@ -95,7 +95,7 @@ class Painter {
         return this._alphas[key];
     }
     setAlpha(key, alpha, blendRatio) {
-        if (blendRatio != undefined && this._alphas[key] != undefined) {
+        if (blendRatio && this._alphas[key]) {
             alpha = this.filterNumbers(this._alphas[key], alpha, blendRatio);
         }
         this._alphas[key] = alpha;
@@ -217,6 +217,10 @@ class Painter {
         // TODO determine the correct color
         this.setColor('timer', color, FILTER_SHORT);
 
+        // set global alpha
+        this.setAlpha('timer', this.game.state == 'PAUSED' ? 0.3 : 1, FILTER_SHORT);
+        this.context.globalAlpha = this._alphas.timer;
+
         if (this.game.state == 'READY') {
             // draw grey ring, with blue text
             this.paintArc(x, y, radius, 0, 2 * Math.PI, Color.GREY, lineWidth);
@@ -225,28 +229,36 @@ class Painter {
         }
 
         var textY = y + this.textLarge * 0.5;
+        var timeElapsed = this._formatTimeElapsed(this.game.time);
 
         if (this.game.state == 'STOPPED') {
             this.paintArc(x, y, radius, 0, 2 * Math.PI, Color.GREY, lineWidth);
-            this.paintText('STOPPED', x, textY, this.textLarge, this._colors.timer, 'center', 'bottom');
+            this.paintText(timeElapsed, x, textY, this.textLarge, this._colors.timer, 'center', 'bottom');
             this.paintText('GAME TIME', x, textY, this.textSmall, Color.GREY, 'center', 'middle')
             return;
         }
 
-        return;
-
-        // set global alpha
-        this.setAlpha('timer', this.game.state == 'PAUSED' ? 0.3 : 1);
-        ctx.globalAlpha = this._alphas['timer'];
-
+        // draw the ring
         var blind = this.game.currentBlind;
-        var dashesOff = Math.floor((this.game.time % blind.interval) / ONE_MINUTE);
+        var timeToNextBlind = this.game.timeToNextBlind;
+        var dashesOff = Math.floor((blind.length - timeToNextBlind) / ONE_MINUTE);
         var dashesTotal = Math.ceil(blind.length / ONE_MINUTE);
         var angleGap = Math.PI / 90; // 2 degrees
         var angleDash = (2 * Math.PI - dashesTotal * angleGap) / dashesTotal;
+        for (var i = 0; i < dashesTotal; i++) {
+            var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
+            var angleEnd = angleStart + angleDash;
+
+            var color = (i < dashesOff) ? Color.GREY : this._colors.timer;
+            this.paintArc(x, y, radius, angleStart, angleEnd, color, lineWidth);
+        }
+
+        var timeRemaining = this._formatTimeRemaining(this.game.timeToNextBlind);
+        this.paintText(timeRemaining, x, textY, this.textLarge, this._colors.timer, 'center', 'bottom');
+        this.paintText(timeElapsed, x, textY, this.textSmall, Color.GREY, 'center', 'middle')
 
         // reset global alpha
-        ctx.globalAlpha = 1;
+        this.context.globalAlpha = 1;
 
         // draw pause icon
         if (this.game.state == 'PAUSED') {
@@ -276,5 +288,30 @@ class Painter {
         this.context.beginPath();
         this.context.rect(x0, y0, x1, y1);
         this.context.fill();
+    }
+
+    _formatTimeRemaining(time) {
+        if (!time) time = 0;
+        var minutes = Math.floor(time / 60000);
+        var seconds = Math.ceil(time % 60000 / 1000);
+        if (seconds == 60) {
+            minutes += 1;
+            seconds = 0;
+        }
+
+        return (minutes < 10 ? '0' + minutes : minutes) + ':'
+            + (seconds < 10 ? '0' + seconds : seconds);
+    }
+
+    _formatTimeElapsed(time) {
+        if (!time) time = 0;
+        time = Math.floor(time / 1000); // seconds only
+        var hours = Math.floor(time / 3600);
+        var minutes = Math.floor(time % 3600 / 60);
+        var seconds = time % 60;
+
+        return (hours > 0 ? hours + ':' : '')
+            + (minutes < 10 ? '0' + minutes : minutes) + ':'
+            + (seconds < 10 ? '0' + seconds : seconds);
     }
 }

@@ -72,28 +72,44 @@ class Timer {
     prevMinute() {
         this.time = Math.max(0, 60000 * Math.floor((this.time - 1000) / 60000));
     }
-    nextMarker(context) {
+    getNextMarker(context) {
         for (var i = 0; i < this._markers.length; i++) {
             var match = this._markers[i].time > this.time;
             if (context) {
                 match = match && this._markers[i].context == context;
             }
             if (match) {
-                this.time = this._markers[i].time;
-                break;
+                return this._markers[i];
             }
         }
     }
-    prevMarker(context) {
+    getPrevMarker(context) {
         for (var i = this._markers.length - 1; i >= 0; i--) {
             var match = this._markers[i].time < this.time - 1000;
             if (context) {
                 match = match && this._markers[i].context == context;
             }
             if (match) {
-                this.time = this._markers[i].time;
-                break;
+                return this._markers[i];
             }
+        }
+    }
+    nextMarker(context) {
+        var marker = this.getNextMarker(context);
+        if (marker) {
+            this.time = marker.time;
+        }
+    }
+    prevMarker(context) {
+        var marker = this.getPrevMarker(context);
+        if (marker) {
+            this.time = marker.time;
+        }
+    }
+    timeToNextMarker(context) {
+        var marker = this.getNextMarker(context);
+        if (marker) {
+            return marker.time - this.time;
         }
     }
 

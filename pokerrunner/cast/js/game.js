@@ -126,6 +126,10 @@ class Game {
         return blind.length - (this._timer.millis - t);
     }
 
+    get timeToNextBlind() {
+        return this._timer.timeToNextMarker('blind');
+    }
+
     blindIndex(time) {
         var t = 0, blind;
         for (var i = 0; i < this.config.blinds.length; i++) {
