@@ -22,6 +22,7 @@ class Painter {
     constructor(game, canvas) {
         this._game = game;
         this._canvas = canvas;
+        this._benchmark = 0;
 
         this.reset();
     }
@@ -64,8 +65,10 @@ class Painter {
     }
 
     reset() {
+        // storage for filtered params
         this._colors = {};
         this._alphas = {};
+        this._dimens = {};
     }
     start() {
         // resize canvas
@@ -86,7 +89,7 @@ class Painter {
         return this._colors[key];
     }
     setColor(key, color, blendRatio) {
-        if (blendRatio && this._colors[key]) {
+        if (blendRatio != undefined && this._colors[key] != undefined) {
             color = this.filterColors(this._colors[key], color, blendRatio);
         }
         this._colors[key] = color;
@@ -95,10 +98,19 @@ class Painter {
         return this._alphas[key];
     }
     setAlpha(key, alpha, blendRatio) {
-        if (blendRatio && this._alphas[key]) {
+        if (blendRatio != undefined && this._alphas[key] != undefined) {
             alpha = this.filterNumbers(this._alphas[key], alpha, blendRatio);
         }
         this._alphas[key] = alpha;
+    }
+    getDimen(key) {
+        return this._dimens[key];
+    }
+    setDimen(key, dimen, blendRatio) {
+        if (blendRatio != undefined && this._dimens[key] != undefined) {
+            dimen = this.filterNumbers(this._dimens[key], dimen, blendRatio);
+        }
+        this._dimens[key] = dimen;
     }
     filterColors(c1, c2, ratio) {
         c1 = tinycolor(c1).toRgb();
@@ -116,6 +128,7 @@ class Painter {
     }
 
     paint() {
+        var benchmark = performance.now();
         this.beforePaint();
 
         if (this.game.hasConfig) {
@@ -127,6 +140,12 @@ class Painter {
         }
 
         this.afterPaint();
+
+        if (!CHROMECAST) {
+            benchmark = performance.now() - benchmark;
+            this._benchmark = this.filterNumbers(this._benchmark, benchmark, FILTER_LONG);
+            this.paintText(benchmark.toFixed(1) + 'ms (avg: ' + this._benchmark.toFixed(1) + 'ms)', 0, 0, this.textXSmall, Color.RED, 'left', 'top');
+        }
     }
 
     beforePaint() {
@@ -213,55 +232,72 @@ class Painter {
         var radius = (0.6 * this.height - lineWidth) / 2;
         var dashWeight = 13;
 
-        var color = Color.BLUE;
-        // TODO determine the correct color
-        this.setColor('timer', color, FILTER_SHORT);
-
-        // set global alpha
-        this.setAlpha('timer', this.game.state == 'PAUSED' ? 0.3 : 1, FILTER_SHORT);
-        this.context.globalAlpha = this._alphas.timer;
-
-        if (this.game.state == 'READY') {
-            // draw grey ring, with blue text
-            this.paintArc(x, y, radius, 0, 2 * Math.PI, Color.GREY, lineWidth);
-            this.paintText('READY', x, y, this.textLarge, this._colors.timer, 'center', 'middle');
-            return;
-        }
-
+        var blind = this.game.currentBlind;
+        var timeToNextBlind = this.game.timeToNextBlind;
         var textY = y + this.textLarge * 0.5;
         var timeElapsed = this._formatTimeElapsed(this.game.time);
 
-        if (this.game.state == 'STOPPED') {
-            this.paintArc(x, y, radius, 0, 2 * Math.PI, Color.GREY, lineWidth);
-            this.paintText(timeElapsed, x, textY, this.textLarge, this._colors.timer, 'center', 'bottom');
+        // determine the correct color
+        var ringColor, textColor;
+        if (this.game.isReady || this.game.isStopped) {
+            ringColor = Color.GREY;
+            textColor = Color.BLUE;
+        } else if (blind.isBreak) {
+            ringColor = textColor = Color.ORANGE;
+        } else if (timeToNextBlind < 60000) { // 1 minute
+            ringColor = textColor = Color.RED;
+        } else if (timeToNextBlind < 300000) { // 5 minutes
+            ringColor = textColor = Color.YELLOW;
+        } else {
+            ringColor = textColor = Color.GREEN;
+        }
+        this.setColor('timerRing', ringColor, FILTER_SHORT);
+        this.setColor('timerText', textColor, FILTER_SHORT);
+
+        // set global alpha
+        this.setAlpha('timer', this.game.isPaused ? 0.3 : 1, FILTER_SHORT);
+        this.context.globalAlpha = this._alphas.timer;
+
+        // dash gap width
+        this.setDimen('dashgap', this.game.isPlaying || this.game.isPaused ? Math.PI / 90 : 0, FILTER_SHORT);
+
+        if (this.game.isReady) {
+            // draw grey ring, with blue text
+            this.paintArc(x, y, radius, 0, 2 * Math.PI, this._colors.timerRing, lineWidth);
+            this.paintText('READY', x, textY, this.textLarge, this._colors.timerText, 'center', 'bottom');
+            this.paintText(timeElapsed, x, textY, this.textSmall, Color.GREY, 'center', 'middle')
+            return;
+        }
+
+        if (this.game.isStopped) {
+            this.paintArc(x, y, radius, 0, 2 * Math.PI, this._colors.timerRing, lineWidth);
+            this.paintText(timeElapsed, x, textY, this.textLarge, this._colors.timerText, 'center', 'bottom');
             this.paintText('GAME TIME', x, textY, this.textSmall, Color.GREY, 'center', 'middle')
             return;
         }
 
         // draw the ring
-        var blind = this.game.currentBlind;
-        var timeToNextBlind = this.game.timeToNextBlind;
         var dashesOff = Math.floor((blind.length - timeToNextBlind) / ONE_MINUTE);
         var dashesTotal = Math.ceil(blind.length / ONE_MINUTE);
-        var angleGap = Math.PI / 90; // 2 degrees
+        var angleGap = this._dimens.dashgap;
         var angleDash = (2 * Math.PI - dashesTotal * angleGap) / dashesTotal;
         for (var i = 0; i < dashesTotal; i++) {
             var angleStart = (angleGap / 2) - (Math.PI / 2) + i * (angleDash + angleGap);
             var angleEnd = angleStart + angleDash;
 
-            var color = (i < dashesOff) ? Color.GREY : this._colors.timer;
+            var color = (i < dashesOff) ? Color.GREY : this._colors.timerRing;
             this.paintArc(x, y, radius, angleStart, angleEnd, color, lineWidth);
         }
 
         var timeRemaining = this._formatTimeRemaining(this.game.timeToNextBlind);
-        this.paintText(timeRemaining, x, textY, this.textLarge, this._colors.timer, 'center', 'bottom');
+        this.paintText(timeRemaining, x, textY, this.textLarge, this._colors.timerText, 'center', 'bottom');
         this.paintText(timeElapsed, x, textY, this.textSmall, Color.GREY, 'center', 'middle')
 
         // reset global alpha
         this.context.globalAlpha = 1;
 
         // draw pause icon
-        if (this.game.state == 'PAUSED') {
+        if (this.game.isPaused) {
             this.paintRect(x - 30, y - 30, 15, 60, Color.BLUE);
             this.paintRect(x + 15, y - 30, 15, 60, Color.BLUE);
         }
