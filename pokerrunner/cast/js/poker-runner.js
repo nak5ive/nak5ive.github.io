@@ -72,6 +72,7 @@ class PokerRunner {
                 console.log(event);
                 if (event.data.action == 'load') {
                     runner.game.config = event.data.value;
+                    runner.startBroadcastingState();
                 } else if (event.data.action == 'playPause') {
                     runner.game.playPause();
                 } else if (event.data.action == 'stop') {
@@ -141,6 +142,19 @@ class PokerRunner {
 
     onOneMinuteWarning() {
         this.playSound('sounds/oneminute.mp3');
+    }
+
+    startBroadcastingState() {
+        var runner = this;
+        this._broadcastInterval = setInterval(() => runner.broadcastState(), 5 * 60000); // 5 seconds
+    }
+
+    stopBroadcastingState() {
+        clearInterval(this._broadcastInterval);
+    }
+
+    broadcastState() {
+        this.castContext.sendCustomMessage(CAST_NAMESPACE, undefined, "{data:'test'}");
     }
 
     playSound(url) {
