@@ -22,6 +22,7 @@ class Game {
     }
 
     playPause() {
+        if (!this.hasConfig) return;
         if (this.isPlaying) {
             this.state = 'PAUSED';
             this._timer.stop();
@@ -31,10 +32,10 @@ class Game {
         }
     }
     stop() {
+        if (!this.hasConfig) return;
         if (this.isPlaying || this.isPaused) {
             this.state = 'STOPPED';
         }
-
         this._timer.stop();
     }
 
@@ -42,6 +43,7 @@ class Game {
         return this._config;
     }
     set config(config) {
+        if (!this.isReady) return;
         this._config = config;
 
         // add markers to timer

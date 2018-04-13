@@ -69,7 +69,9 @@ class PokerRunner {
 
             runner.castContext.addCustomMessageListener(CAST_NAMESPACE, function(event) {
                 console.log(event);
-                if (event.data.action == 'playPause') {
+                if (event.data.action == 'load') {
+                    runner.game.config = event.data.value;
+                } else if (event.data.action == 'playPause') {
                     runner.game.playPause();
                 } else if (event.data.action == 'stop') {
                     runner.game.stop();
@@ -83,10 +85,8 @@ class PokerRunner {
                     runner.game.nextBlind();
                 } else if (event.data.action == 'prevBlind') {
                     runner.game.prevBlind();
-                } else if (event.data.action == 'increaseEntries') {
-                    // increaseEntries();
-                } else if (event.data.action == 'decreaseEntries') {
-                    // decreaseEntries();
+                } else if (event.data.action == 'payouts') {
+                    runner.game.payouts = event.data.value;
                 }
             });
 

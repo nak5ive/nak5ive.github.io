@@ -133,10 +133,13 @@ class Painter {
 
         if (this.game.hasConfig) {
             this.paintHeader();
+            this.paintBlindProgress();
             this.paintWinners();
             this.paintPot();
             this.paintBlinds();
             this.paintTimer();
+        } else {
+            this.paintSplash();
         }
 
         this.afterPaint();
@@ -161,6 +164,11 @@ class Painter {
         this.context.restore();
     }
 
+    paintSplash() {
+        this.paintText("POKER RUNNER", this.width / 2, this.height / 2, this.textMedium, Color.GREY, 'center', 'bottom');
+        this.paintText(this.game.clock, this.width / 2, this.height / 2, this.textSmall, Color.GREY, 'center', 'top');
+    }
+
     paintHeader() {
         this.setColor('header', this.game.isPlaying ? Color.GREY : Color.BLUE, FILTER_SHORT);
 
@@ -172,6 +180,32 @@ class Painter {
         // draw clock
         x = this.width;
         this.paintText(this.game.clock, x, y, this.textSmall, this.colors.header, 'right', 'top');
+    }
+
+    paintBlindProgress() {
+        var y = this.height * 0.125;
+        var x = this.width / 2;
+        var lineWidth = this.height * 0.002;
+
+        var index = this.game.currentBlindIndex;
+        var total = this.game.config.blinds.length;
+
+        this.paintRing(x, y, this.height * 0.015, Color.GREY, lineWidth);
+
+        var color, radius;
+        for (var i = index - 2; i <= index + 2; i++) {
+            if (i < 0 || i >= total) continue;
+            var offset = (i - index) * this.width * 0.05;
+
+            color = Color.BLUE;
+            radius = this.height * .004;
+            if (this.game.getBlind(i).isBreak) {
+                color = Color.ORANGE;
+                radius = this.height * .008;
+            }
+
+            this.paintCircle(x + offset, y, radius, color);
+        }
     }
 
     paintWinners() {
@@ -198,7 +232,7 @@ class Painter {
         this.setColor('pot', this.game.isPlaying ? Color.TEAL : Color.BLUE, FILTER_SHORT);
 
         var lineWidth = this.height * 0.003;
-        var radius = 0.2 * this.height - lineWidth / 2;
+        var radius = (0.375 * this.height - lineWidth) / 2;
         var x = radius;
         var y = this.height / 2;
 
@@ -210,11 +244,15 @@ class Painter {
     paintBlinds() {
         var index = this.game.currentBlindIndex;
         var blind = this.game.getBlind(index);
-        var color = blind.isBreak ? Color.ORANGE : BLIND_COLORS[Math.min(index, BLIND_COLORS.length - 1)];
+        var color = Color.BLUE;
+        if (this.game.isPlaying) {
+            color = blind.isBreak ? Color.ORANGE : BLIND_COLORS[Math.min(index, BLIND_COLORS.length - 1)];
+        }
+
         this.setColor('blinds', color, FILTER_SHORT);
 
         var lineWidth = this.height * 0.003;
-        var radius = 0.2 * this.height - lineWidth / 2;
+        var radius = (0.375 * this.height - lineWidth) / 2;
         var x = this.width - radius;
         var y = this.height / 2;
 
@@ -229,7 +267,7 @@ class Painter {
         var x = this.width / 2;
         var y = this.height / 2;
         var lineWidth = this.height * 0.01;
-        var radius = (0.6 * this.height - lineWidth) / 2;
+        var radius = (0.55 * this.height - lineWidth) / 2;
         var dashWeight = 13;
 
         var blind = this.game.currentBlind;
@@ -263,14 +301,14 @@ class Painter {
 
         if (this.game.isReady) {
             // draw grey ring, with blue text
-            this.paintArc(x, y, radius, 0, 2 * Math.PI, this._colors.timerRing, lineWidth);
+            this.paintRing(x, y, radius, this._colors.timerRing, lineWidth);
             this.paintText('READY', x, textY, this.textLarge, this._colors.timerText, 'center', 'bottom');
             this.paintText(timeElapsed, x, textY, this.textSmall, Color.GREY, 'center', 'middle')
             return;
         }
 
         if (this.game.isStopped) {
-            this.paintArc(x, y, radius, 0, 2 * Math.PI, this._colors.timerRing, lineWidth);
+            this.paintRing(x, y, radius, this._colors.timerRing, lineWidth);
             this.paintText(timeElapsed, x, textY, this.textLarge, this._colors.timerText, 'center', 'bottom');
             this.paintText('GAME TIME', x, textY, this.textSmall, Color.GREY, 'center', 'middle')
             return;
@@ -317,6 +355,17 @@ class Painter {
         this.context.beginPath();
         this.context.arc(centerX, centerY, radius, angleStart, angleEnd);
         this.context.stroke();
+    }
+
+    paintCircle(centerX, centerY, radius, color) {
+        this.context.fillStyle = color;
+        this.context.beginPath();
+        this.context.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        this.context.fill();
+    }
+
+    paintRing(centerX, centerY, radius, color, lineWidth) {
+        this.paintArc(centerX, centerY, radius, 0, 2 * Math.PI, color, lineWidth);
     }
 
     paintRect(x0, y0, x1, y1, color) {
