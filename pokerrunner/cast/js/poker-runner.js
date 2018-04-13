@@ -147,7 +147,7 @@ class PokerRunner {
     startBroadcastingState() {
         console.log('Setting up state broadcast');
         var runner = this;
-        this._broadcastInterval = setInterval(() => runner._broadcastState(), 5 * 60000); // 5 seconds
+        this._broadcastInterval = setInterval(() => runner._broadcastState(), 5000); // 5 seconds
     }
 
     stopBroadcastingState() {
