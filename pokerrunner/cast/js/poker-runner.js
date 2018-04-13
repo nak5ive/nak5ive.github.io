@@ -146,14 +146,15 @@ class PokerRunner {
 
     startBroadcastingState() {
         var runner = this;
-        this._broadcastInterval = setInterval(() => runner.broadcastState(), 5 * 60000); // 5 seconds
+        this._broadcastInterval = setInterval(() => runner._broadcastState(), 5 * 60000); // 5 seconds
     }
 
     stopBroadcastingState() {
         clearInterval(this._broadcastInterval);
     }
 
-    broadcastState() {
+    _broadcastState() {
+        console.log('Broadcasting state');
         this.castContext.sendCustomMessage(CAST_NAMESPACE, undefined, "{data:'test'}");
     }
 
