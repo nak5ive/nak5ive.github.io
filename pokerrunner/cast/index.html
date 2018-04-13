@@ -3,14 +3,13 @@
     <head>
         <script>
             // disable timeout to prevent cast session from ending
-            // window._setTimeout = window.setTimeout;
-            // window.setTimeout = function(a, b) {};
+            window._setTimeout = window.setTimeout;
+            window.setTimeout = function(a, b) {};
         </script>
         <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.1/tinycolor.min.js"></script>
-        <!-- <script src="js/webfontloader.js"></script> -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
+        <script src="js/webfontloader.js"></script>
         <script src="js/timer.js"></script>
         <script src="js/game.js"></script>
         <script src="js/painter.js"></script>
