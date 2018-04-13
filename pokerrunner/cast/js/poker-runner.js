@@ -1,4 +1,5 @@
 const CHROMECAST = navigator.userAgent.indexOf('CrKey') >= 0;
+const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
 
 class PokerRunner {
     constructor() {
