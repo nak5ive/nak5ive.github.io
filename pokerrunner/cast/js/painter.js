@@ -7,6 +7,7 @@ const FILTER_IMMEDIATE = 1;
 const Color = {
     BLACK: '#000',
     GREY: '#59595b',
+    DARK_GREY: '#1a1a1a',
     WHITE: '#fff',
     GREEN: '#89d92e',
     YELLOW: '#fff22d',
@@ -157,9 +158,18 @@ class Painter {
         // clear canvas
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        this.beforeTranslate();
+
         // translate to usable screen area
         this.context.translate(this.canvas.width * UI_HORIZONTAL_PADDING, this.canvas.height * UI_VERTICAL_PADDING);
     }
+    beforeTranslate() {
+        if (this.game.hasConfig) {
+            // draw dark header background
+            this.paintRect(0, 0, this.canvas.width, this.canvas.height * (UI_VERTICAL_PADDING + .075), Color.BLACK);
+        }
+    }
+
     afterPaint() {
         this.context.restore();
     }
@@ -172,6 +182,9 @@ class Painter {
     paintHeader() {
         this.setColor('header', this.game.isPlaying ? Color.GREY : Color.BLUE, FILTER_SHORT);
 
+        // draw background
+
+
         // draw tournament name
         var x = this.width / 2;
         var y = 0;
@@ -183,7 +196,7 @@ class Painter {
     }
 
     paintBlindProgress() {
-        var y = this.height * 0.125;
+        var y = this.height * 0.15;
         var x = this.width / 2;
         var lineWidth = this.height * 0.002;
 
@@ -256,6 +269,16 @@ class Painter {
         var x = this.width - radius;
         var y = this.height / 2;
 
+        // a break is a bold orange circle
+        if (blind.isBreak) {
+            color = Color.ORANGE;
+            radius = (0.375 * this.height) / 2;
+            x = this.width - radius;
+            this.paintCircle(x, y, radius, color);
+            this.paintText(blind.name, x, y, this.textMedium, Color.DARK_GREY, 'center', 'middle');
+            return;
+        }
+
         // draw the current blind ring
         this.paintArc(x, y, radius, 0, 2 * Math.PI, this.colors.blinds, lineWidth);
 
@@ -324,6 +347,16 @@ class Painter {
             var angleEnd = angleStart + angleDash;
 
             var color = (i < dashesOff) ? Color.GREY : this._colors.timerRing;
+
+            // blink the current dash
+            if (i == dashesOff) {
+                var millis = this.game.time % 1000;
+                if (millis > 500) {
+                    var offset = 100 * Math.abs(750 - millis) / 250;
+                    color = tinycolor.mix(Color.GREY, color, offset);
+                }
+            }
+
             this.paintArc(x, y, radius, angleStart, angleEnd, color, lineWidth);
         }
 
