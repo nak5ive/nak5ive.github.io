@@ -133,10 +133,10 @@ class PokerRunner {
     onBlindChanged(blind, index) {
         if (index == 0) {
             this.playSound('sounds/gamestarted.mp3')
-                .then(() => this.playSound(blind.sound))
+                .then(() => this.playSound(blind.soundUrl))
                 .then(() => this.playSound('sounds/letsplaycards.mp3'));
         } else {
-            this.playSound(blind.sound);
+            this.playSound(blind.soundUrl);
         }
     }
 
