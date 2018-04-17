@@ -1,6 +1,6 @@
 const CHROMECAST = navigator.userAgent.indexOf('CrKey') >= 0;
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
-const TTS_URL = 'https://nak5-pokerrunner.herokuapp.com/polly-proxy.php?text=';
+const TTS_URL = 'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=';
 
 class PokerRunner {
     constructor() {
