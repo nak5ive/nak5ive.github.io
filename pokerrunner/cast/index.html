@@ -14,7 +14,6 @@
         <script src="js/game.js"></script>
         <script src="js/painter.js"></script>
         <script src="js/poker-runner.js"></script>
-        <!-- <script src="js/pr.js"></script> -->
         <link rel="stylesheet" href="css/pr.css"/>
     </head>
     <body>
@@ -40,20 +39,20 @@
             var testConfig = {
                 title: '$10 TEXAS HOLD \u2018EM',
                 blinds: [
-                    {name: '5/10', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%205%2010'},
-                    {name: '10/20', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%2010%2020'},
-                    {name: '20/40', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%2020%2040'},
-                    {name: '40/80', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%2040%2080'},
-                    {name: 'BREAK', length: 5 * ONE_MINUTE, isBreak: true, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=5%20minute%20break'},
-                    {name: '50/100', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%2050%20100'},
-                    {name: '100/200', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%20100%20200'},
-                    {name: '200/400', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%20200%20400'},
-                    {name: '400/800', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%20400%20800'},
-                    {name: 'BREAK', length: 5 * ONE_MINUTE, isBreak: true, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=5%20minute%20break'},
-                    {name: '500/1K', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%20500%201000'},
-                    {name: '1K/2K', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%201000%202000'},
-                    {name: '2K/4K', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%202000%204000'},
-                    {name: '4K/8K', length: 0, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=blinds%204000%208000'}
+                    {name: '5/10', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 5, 10')},
+                    {name: '10/20', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 10, 20')},
+                    {name: '20/40', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 20, 40')},
+                    {name: '40/80', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 40, 80')},
+                    {name: 'BREAK', length: 5 * ONE_MINUTE, isBreak: true, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('5 minute break')},
+                    {name: '50/100', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 50, 100')},
+                    {name: '100/200', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 100, 200')},
+                    {name: '200/400', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 200, 400')},
+                    {name: '400/800', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 400, 800')},
+                    {name: 'BREAK', length: 5 * ONE_MINUTE, isBreak: true, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('5 minute break')},
+                    {name: '500/1K', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 500, 1000')},
+                    {name: '1K/2K', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 1000, 2000')},
+                    {name: '2K/4K', length: 15 * ONE_MINUTE, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 2000, 4000')},
+                    {name: '4K/8K', length: 0, isBreak: false, soundUrl:'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=' + encodeURI('blinds: 4000, 8000')}
                 ]
             };
 
@@ -61,8 +60,6 @@
                 pot: '$50',
                 winners: ['$40', '$10']
             };
-
-            // initCast().then(loadAssets).then(bootstrap);
         </script>
     </body>
 </html>
