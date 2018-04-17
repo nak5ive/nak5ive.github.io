@@ -55,7 +55,7 @@ class PokerRunner {
     start() {
         this.initCast()
             .then(() => this.initPing())
-            .done(() => this.loadFonts())
+            .then(() => this.loadFonts())
             .then(() => this.painter.start());
     }
 
@@ -184,7 +184,9 @@ class PokerRunner {
         var runner = this;
         setInterval(() => runner.ping(), PING_INTERVAL);
 
-        return this.ping();
+        return new Promise((resolve) => {
+            runner.ping().always(resolve);
+        });
     }
 
     ping() {
