@@ -55,7 +55,7 @@ class PokerRunner {
     start() {
         this.initCast()
             .then(() => this.initPing())
-            .then(() => this.loadFonts())
+            .done(() => this.loadFonts())
             .then(() => this.painter.start());
     }
 
