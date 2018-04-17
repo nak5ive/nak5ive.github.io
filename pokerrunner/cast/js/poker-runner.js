@@ -161,7 +161,7 @@ class PokerRunner {
     }
 
     speak(tts) {
-        return playSound(TTS_URL + encodeURI(tts));
+        return this.playSound(TTS_URL + encodeURI(tts));
     }
 
     playSound(url) {
