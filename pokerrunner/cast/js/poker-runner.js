@@ -1,5 +1,6 @@
 const CHROMECAST = navigator.userAgent.indexOf('CrKey') >= 0;
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
+const TTS_URL = 'https://nak5-pokerrunner.herokuapp.com/polly-proxy.php?text=';
 
 class PokerRunner {
     constructor() {
@@ -118,30 +119,30 @@ class PokerRunner {
     }
 
     onGamePaused() {
-        this.playSound('sounds/gamepaused.mp3');
+        this.speak('game paused');
     }
 
     onGameUnpaused() {
-        this.playSound('sounds/gamestarted.mp3');
+        this.speak('game started');
     }
 
     onGameStopped() {
-        this.playSound('sounds/gameover.mp3')
+        this.speak('game over')
             .then(() => this.playSound('sounds/payhim.mp3'));
     }
 
     onBlindChanged(blind, index) {
         if (index == 0) {
-            this.playSound('sounds/gamestarted.mp3')
-                .then(() => this.playSound(blind.soundUrl))
+            this.speak('game started')
+                .then(() => this.speak(blind.tts))
                 .then(() => this.playSound('sounds/letsplaycards.mp3'));
         } else {
-            this.playSound(blind.soundUrl);
+            this.speak(blind.tts);
         }
     }
 
     onOneMinuteWarning() {
-        this.playSound('sounds/oneminute.mp3');
+        this.speak('one minute remaining');
     }
 
     startBroadcastingState() {
@@ -157,6 +158,10 @@ class PokerRunner {
     _broadcastState() {
         console.log('Broadcasting state');
         this.castContext.sendCustomMessage(CAST_NAMESPACE, undefined, "{data:'test'}");
+    }
+
+    speak(tts) {
+        return playSound(TTS_URL + encodeURI(tts));
     }
 
     playSound(url) {
