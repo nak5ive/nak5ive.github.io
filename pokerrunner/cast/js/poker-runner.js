@@ -184,10 +184,11 @@ class PokerRunner {
         var runner = this;
         setInterval(() => runner.ping(), PING_INTERVAL);
 
-        return this.ping()
+        return this.ping();
     }
 
     ping() {
+        console.log('Pinging...');
         return $.get(PING_URL);
     }
 }
