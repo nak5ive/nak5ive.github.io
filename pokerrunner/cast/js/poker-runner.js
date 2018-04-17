@@ -1,6 +1,8 @@
 const CHROMECAST = navigator.userAgent.indexOf('CrKey') >= 0;
 const CAST_NAMESPACE = "urn:x-cast:com.nak5.pokerrunner";
 const TTS_URL = 'https://pokerrunner-platform-php.herokuapp.com/polly-proxy.php?text=';
+const PING_URL = 'https://pokerrunner-platform-php.herokuapp.com/ping.php';
+const PING_INTERVAL = 60000;
 
 class PokerRunner {
     constructor() {
@@ -52,7 +54,8 @@ class PokerRunner {
 
     start() {
         this.initCast()
-            .then(() => this.loadFonts())
+            .then(() => this.initPing())
+            .done(() => this.loadFonts())
             .then(() => this.painter.start());
     }
 
@@ -175,5 +178,16 @@ class PokerRunner {
             audio.onended = resolve;
             audio.src = url;
         });
+    }
+
+    initPing() {
+        var runner = this;
+        setInterval(() => runner.ping(), PING_INTERVAL);
+
+        return this.ping()
+    }
+
+    ping() {
+        return $.get(PING_URL);
     }
 }
