@@ -24,7 +24,7 @@
         <!-- controls -->
         <div id="controls">
             <button onclick="runner.game.config = testConfig;">Load Game</button>
-            <button onclick="runner.game.payouts = testPayouts;">Load Payouts</button>
+            <button onclick="runner.game.players = testPlayers;">Load Payouts</button>
             <button onclick="runner.game.playPause();">Play/Pause</button>
             <button onclick="runner.game.stop();">Stop</button>
             <button onclick="runner.game.reset();">Reset</button>
@@ -57,7 +57,9 @@
                 ]
             };
 
-            var testPayouts = {
+            var testPlayers = {
+                entries: 5,
+                buyin: 10,
                 pot: '$50',
                 winners: ['$40', '$10']
             };

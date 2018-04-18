@@ -6,16 +6,24 @@ const PING_INTERVAL = 60000;
 
 class PokerRunner {
     constructor() {
-        this._game = new Game(this);
-        this._painter = new Painter(this.game, this.canvas);
+        this._initializing = true;
 
         this.start();
     }
 
+    get initializing() {
+        return this._initializing;
+    }
     get game() {
+        if (this._game == undefined) {
+            this._game = new Game(this);
+        }
         return this._game;
     }
     get painter() {
+        if (this._painter == undefined) {
+            this._painter = new Painter(this, this.game, this.canvas);
+        }
         return this._painter;
     }
     get audio() {
@@ -54,9 +62,10 @@ class PokerRunner {
 
     start() {
         this.initCast()
-            .then(() => this.initPing())
             .then(() => this.loadFonts())
-            .then(() => this.painter.start());
+            .then(() => this.initPainter())
+            .then(() => this.initPing())
+            .then(() => this._initializing = false);
     }
 
     initCast() {
@@ -76,7 +85,6 @@ class PokerRunner {
                 console.log(event);
                 if (event.data.action == 'load') {
                     runner.game.config = event.data.value;
-                    runner.startBroadcastingState();
                 } else if (event.data.action == 'playPause') {
                     runner.game.playPause();
                 } else if (event.data.action == 'stop') {
@@ -92,11 +100,13 @@ class PokerRunner {
                 } else if (event.data.action == 'prevBlind') {
                     runner.game.prevBlind();
                 } else if (event.data.action == 'payouts') {
-                    runner.game.payouts = event.data.value;
+                    runner.game.players = event.data.value;
                 }
             });
 
             runner.castContext.start(runner.castOptions);
+
+            runner.startBroadcastingState();
 
             resolve('Cast initiated');
         });
@@ -113,6 +123,14 @@ class PokerRunner {
                     resolve('Fonts loaded');
                 }
             });
+        });
+    }
+    initPainter() {
+        var runner = this;
+        return new Promise(resolve => {
+            console.log('Starting painter');
+            runner.painter.start();
+            resolve();
         });
     }
 
@@ -149,9 +167,7 @@ class PokerRunner {
     }
 
     startBroadcastingState() {
-        console.log('Setting up state broadcast');
-        var runner = this;
-        this._broadcastInterval = setInterval(() => runner._broadcastState(), 5000); // 5 seconds
+        this._broadcastInterval = setInterval(() => this._broadcastState(), 5000); // 5 seconds
     }
 
     stopBroadcastingState() {
@@ -159,8 +175,13 @@ class PokerRunner {
     }
 
     _broadcastState() {
-        console.log('Broadcasting state');
-        this.castContext.sendCustomMessage(CAST_NAMESPACE, undefined, "{data:'test'}");
+        var data = {
+            state: this.initializing ? 'INITIALIZING' : this.game.state,
+            time: this.game.time,
+            players: this.game.players
+        };
+        console.log('Broadcasting state', data);
+        this.castContext.sendCustomMessage(CAST_NAMESPACE, undefined, data);
     }
 
     speak(tts) {
@@ -181,16 +202,15 @@ class PokerRunner {
     }
 
     initPing() {
-        var runner = this;
-        setInterval(() => runner.ping(), PING_INTERVAL);
+        setInterval(() => this.ping(), PING_INTERVAL);
 
-        return new Promise((resolve) => {
+        var runner = this;
+        return new Promise(resolve => {
             runner.ping().always(resolve);
         });
     }
 
     ping() {
-        console.log('Pinging...');
         return $.get(PING_URL);
     }
 }
