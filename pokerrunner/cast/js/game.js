@@ -15,10 +15,7 @@ class Game {
 
         this._state = 'READY';
         this._timer.reset();
-        this._payouts = {
-            pot: '$0',
-            winners: []
-        };
+        this._players = undefined;
     }
 
     playPause() {
@@ -92,20 +89,19 @@ class Game {
         this._timer.millis = time;
     }
 
-    get payouts() {
-        return this._payouts;
+    get players() {
+        return this._players;
     }
-
-    set payouts(payouts) {
-        this._payouts = payouts;
+    set players(players) {
+        this._players = players;
     }
 
     get pot() {
-        return this._payouts.pot;
+        return this._players.pot;
     }
 
     get winners() {
-        return this._payouts.winners;
+        return this._players.winners;
     }
 
     get currentBlind() {

@@ -20,7 +20,8 @@ const Color = {
 const BLIND_COLORS = ['#fff', '#a5f1ff', '#a5f1a9', '#00a8ec', '#00ce86', '#a6ff1a', '#ffc503', '#ffff00'];
 
 class Painter {
-    constructor(game, canvas) {
+    constructor(runner, game, canvas) {
+        this._runner = runner;
         this._game = game;
         this._canvas = canvas;
         this._benchmark = 0;
@@ -28,6 +29,9 @@ class Painter {
         this.reset();
     }
 
+    get runner() {
+        return this._runner;
+    }
     get game() {
         return this._game;
     }
@@ -132,15 +136,15 @@ class Painter {
         var benchmark = performance.now();
         this.beforePaint();
 
-        if (this.game.hasConfig) {
+        if (this.runner.initializing || !this.game.hasConfig) {
+            this.paintSplash();
+        } else {
             this.paintHeader();
             this.paintBlindProgress();
             this.paintWinners();
             this.paintPot();
             this.paintBlinds();
             this.paintTimer();
-        } else {
-            this.paintSplash();
         }
 
         this.afterPaint();
@@ -177,13 +181,13 @@ class Painter {
     paintSplash() {
         this.paintText("POKER RUNNER", this.width / 2, this.height / 2, this.textMedium, Color.GREY, 'center', 'bottom');
         this.paintText(this.game.clock, this.width / 2, this.height / 2, this.textSmall, Color.GREY, 'center', 'top');
+
+        var text = this.runner.initializing ? 'LOADING...' : 'READY';
+        this.paintText(text, this.width / 2, this.height, this.textSmall, Color.GREY, 'center', 'bottom');
     }
 
     paintHeader() {
         this.setColor('header', this.game.isPlaying ? Color.GREY : Color.BLUE, FILTER_SHORT);
-
-        // draw background
-
 
         // draw tournament name
         var x = this.width / 2;
@@ -222,25 +226,25 @@ class Painter {
     }
 
     paintWinners() {
-        if (this.game.payouts == undefined) return;
+        if (this.game.players == undefined) return;
 
         this.setColor('winners', this.game.isPlaying ? Color.TEAL : Color.BLUE, FILTER_SHORT);
 
         var lineHeight = this.textSmall * 1.3;
         var spacing = this.width * .1;
-        var x = (this.width - spacing * (this.game.payouts.winners.length - 1)) / 2;
+        var x = (this.width - spacing * (this.game.winners.length - 1)) / 2;
         var y = this.height;
 
         // loop over payouts
-        for (var i = 0; i < this.game.payouts.winners.length; i++) {
+        for (var i = 0; i < this.game.winners.length; i++) {
             this.paintText('' + (i + 1), x, y, this.textSmall, Color.GREY, 'center', 'bottom');
-            this.paintText(this.game.payouts.winners[i], x, y - lineHeight, this.textSmall, this.colors.winners, 'center', 'bottom');
+            this.paintText(this.game.winners[i], x, y - lineHeight, this.textSmall, this.colors.winners, 'center', 'bottom');
             x += spacing;
         }
     }
 
     paintPot() {
-        if (this.game.payouts == undefined) return;
+        if (this.game.players == undefined) return;
 
         this.setColor('pot', this.game.isPlaying ? Color.TEAL : Color.BLUE, FILTER_SHORT);
 
