@@ -9,19 +9,13 @@
           <dict>
             <key>DNSProtocol</key>
             <string>HTTPS</string>
-            <key>ServerAddresses</key>
-            <array>
-              <string>172.64.36.1</string>
-<string>2a06:98c1:54::16:af4d</string>
-
-            </array>
             <key>ServerURL</key>
             <string>https://gpnq4v3nyv.cloudflare-gateway.com/dns-query</string>
           </dict>
           <key>PayloadDescription</key>
           <string>Configures device to use Cloudflare Encrypted DNS over HTTPS</string>
           <key>PayloadDisplayName</key>
-          <string>Cloudflare DNS over HTTPS</string>
+          <string>Cloudflare Private DNS</string>
           <key>PayloadIdentifier</key>
           <string>com.apple.dnsSettings.managed.bf516e8a-ca25-4938-94db-9042610fd044</string>
           <key>PayloadType</key>
@@ -37,9 +31,9 @@
       <key>PayloadDescription</key>
       <string>Adds the Cloudflare DNS to Big Sur and iOS 14 based systems</string>
       <key>PayloadDisplayName</key>
-      <string>Cloudflare DNS over HTTPS</string>
+      <string>Cloudflare Private DNS</string>
       <key>PayloadIdentifier</key>
-      <string>plus.simpledns.apple-dns</string>
+      <string>com.nak5.apple-dns</string>
       <key>PayloadRemovalDisallowed</key>
       <false/>
       <key>PayloadType</key>
