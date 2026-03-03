@@ -15,7 +15,7 @@ function load<T>(filename: string): T {
 }
 
 export const getExperience  = (): Company[]       => load('experience.yaml');
-export const getProjects    = (): Project[]        => load('projects.yaml');
+export const getProjects    = (): Project[]        => (load('projects.yaml') ?? []);
 export const getSkills      = (): SkillCategory[]  => load('skills.yaml');
 export const getEducation   = (): Education[]      => load('education.yaml');
 export const getMeta        = (): Meta             => load('meta.yaml');
