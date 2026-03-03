@@ -11,6 +11,11 @@ const { meta } = Astro.props;
 // Encode at build time — plain text never reaches the static HTML.
 const encodedEmail = Buffer.from(meta.contact.email).toString('base64');
 const encodedPhone = Buffer.from(meta.contact.phone).toString('base64');
+
+const platformIcons: Record<string, string> = {
+  GitHub:   '/icons/github.svg',
+  LinkedIn: '/icons/linkedin.svg',
+};
 ---
 
 <header class="contact-header">
@@ -39,6 +44,9 @@ const encodedPhone = Buffer.from(meta.contact.phone).toString('base64');
           class="social-link"
           aria-label={`${label} on ${platform}`}
         >
+          {platformIcons[platform] && (
+            <img src={platformIcons[platform]} alt="" class="social-icon" aria-hidden="true" />
+          )}
           {label}
         </a>
       </li>
@@ -100,6 +108,9 @@ const encodedPhone = Buffer.from(meta.contact.phone).toString('base64');
   }
 
   .social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
     font-family: var(--font-mono);
     font-size: 0.8125rem;
     color: var(--color-text-secondary);
@@ -114,5 +125,18 @@ const encodedPhone = Buffer.from(meta.contact.phone).toString('base64');
   .social-link:hover {
     color: var(--color-accent);
     border-color: var(--color-accent);
+  }
+
+  .social-icon {
+    width: 0.9em;
+    height: 0.9em;
+    filter: invert(1);
+    opacity: 0.6;
+    transition: opacity var(--duration-fast) var(--ease-default);
+  }
+
+  .social-link:hover .social-icon {
+    opacity: 1;
+    filter: invert(73%) sepia(55%) saturate(500%) hue-rotate(118deg) brightness(103%);
   }
 </style>
