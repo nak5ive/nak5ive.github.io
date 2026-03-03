@@ -1,0 +1,90 @@
+---
+// ContactReveal.astro
+// Renders a masked field + [Reveal] button.
+// The encoded value is base64 — plain text never appears in the static HTML.
+// On reveal: decodes and shows the value. Button becomes [Copy].
+
+interface Props {
+  encoded: string; // Buffer.from(value).toString('base64')
+  label: string;   // "email" | "phone" — for aria-label
+}
+
+const { encoded, label } = Astro.props;
+---
+
+<span class="contact-reveal" data-encoded={encoded}>
+  <span class="cr-masked">••••••••••••••••</span>
+  <span class="cr-value" hidden></span>
+  <button class="reveal-btn" aria-label={`Reveal ${label}`}>Reveal</button>
+</span>
+
+<style>
+  .contact-reveal {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .cr-masked {
+    font-family: var(--font-mono);
+    color: var(--color-text-disabled);
+    letter-spacing: 0.1em;
+  }
+
+  .cr-value {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+  }
+
+  .reveal-btn {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-accent);
+    background: none;
+    border: 1px solid var(--color-accent);
+    padding: 0.2em 0.65em;
+    border-radius: 2px;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-default),
+      color            var(--duration-fast) var(--ease-default);
+  }
+
+  .reveal-btn:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.contact-reveal').forEach(el => {
+    const encoded  = el.dataset.encoded!;
+    const btn      = el.querySelector<HTMLButtonElement>('.reveal-btn')!;
+    const masked   = el.querySelector<HTMLElement>('.cr-masked')!;
+    const valueEl  = el.querySelector<HTMLElement>('.cr-value')!;
+
+    btn.addEventListener('click', function handler() {
+      if (btn.dataset.state === 'revealed') {
+        // Copy to clipboard
+        navigator.clipboard.writeText(atob(encoded)).then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => (btn.textContent = 'Copy'), 2000);
+        }).catch(() => {
+          // Clipboard blocked — select the text instead
+          const range = document.createRange();
+          range.selectNodeContents(valueEl);
+          window.getSelection()?.removeAllRanges();
+          window.getSelection()?.addRange(range);
+        });
+      } else {
+        // Reveal
+        valueEl.textContent = atob(encoded);
+        masked.hidden = true;
+        valueEl.hidden = false;
+        btn.textContent = 'Copy';
+        btn.dataset.state = 'revealed';
+      }
+    });
+  });
+</script>

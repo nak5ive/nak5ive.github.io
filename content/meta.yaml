@@ -1,0 +1,40 @@
+# meta.yaml
+#
+# Personal info and contact details.
+# phone and email are stored as plain values — obfuscation is handled at
+# render time by the ContactReveal island, not here.
+#
+# Schema:
+#   name:       string
+#   title:      string   — headline / role descriptor
+#   bio:        string   — short bio paragraph
+#   location:   string
+#   contact:
+#     email:    string
+#     phone:    string   — E.164 recommended
+#   social[]:
+#     platform: string
+#     url:      string
+#     label:    string
+
+name: Nevada Kent
+title: Android / Full-Stack Engineer
+
+bio: >
+  15+ years building software that ships: Android SDKs, mobile apps, web services,
+  and hardware prototypes across payments, public safety, and satellite communications.
+  Architected and led development of full-stack commercial products, owned features
+  end-to-end from proto definition to production observability, and built developer
+  tooling adopted across engineering organizations. Fast learner, effective communicator,
+  and relentless about code quality. Challenges welcomed.
+
+location: St. Louis, MO
+
+contact:
+  email: nak5ive@gmail.com
+  phone: "+16364483468"
+
+social:
+  - platform: GitHub
+    url: https://github.com/nak5ive
+    label: nak5ive

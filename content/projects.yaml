@@ -1,0 +1,46 @@
+# projects.yaml
+#
+# Standalone portfolio projects — personal, open-source, or hardware prototypes.
+# Distinct from work experience entries in experience.yaml.
+#
+# Schema:
+#   name:         string   — project name
+#   description:  string   — first-person, impact-focused
+#   tech:         string[] — technologies / languages / platforms
+#   links:
+#     github:     string   — GitHub URL (optional)
+#     demo:       string   — live demo URL (optional)
+#   screenshots:  string[] — paths under public/ (optional)
+
+- name: Chirp — BLE Push-to-Talk Button
+  description: >
+    Built a Bluetooth Low Energy push-to-talk hardware prototype using a Seeed XIAO
+    nRF52840 microcontroller. Wrote Arduino firmware implementing a GATT service with
+    button-state change notifications, deep sleep, NeoPixel LED status indication,
+    and BLE bond management. Paired with a macOS companion app using CoreBluetooth.
+  tech:
+    - Arduino / C++
+    - Bluetooth Low Energy (GATT)
+    - nRF52840
+    - Swift / CoreBluetooth
+    - macOS
+  links:
+    github: https://github.com/nak5ive/chirp
+  screenshots: []
+
+- name: "@Paparazzi — Snapshot Test Annotation Processor"
+  description: >
+    Designed and open-sourced a KSP annotation processor and Gradle plugin that
+    auto-generates Paparazzi screenshot tests from Compose @Preview functions.
+    Eliminates manual snapshot test boilerplate across large multi-module Android
+    projects. Includes lint checks, generic preview parameter type support, and
+    module-wide migration tooling.
+  tech:
+    - Kotlin
+    - KSP (Kotlin Symbol Processing)
+    - Gradle Plugin API
+    - Jetpack Compose
+    - Paparazzi
+  links:
+    github: https://github.com/nak5ive/akent-paparazzi-annotation
+  screenshots: []

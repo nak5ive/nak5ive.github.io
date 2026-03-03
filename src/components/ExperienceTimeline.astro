@@ -1,0 +1,78 @@
+---
+import type { Company } from '../types';
+import ShowcaseItem from './ShowcaseItem.astro';
+import { companyId } from '../lib/utils';
+
+interface Props {
+  experience: Company[];
+}
+
+const { experience } = Astro.props;
+
+// Compute global alternation index across all companies and all entries.
+// Counter advances even for no-screenshot items (per spec).
+let idx = 0;
+const enriched = experience.map(company => ({
+  ...company,
+  id: companyId(company.company),
+  entries: company.entries.map(entry => ({
+    data: entry,
+    globalIndex: idx++,
+  })),
+}));
+
+function formatYear(yyyymm: string) {
+  return yyyymm.slice(0, 4);
+}
+---
+
+<div class="experience-timeline">
+  {enriched.map(company => (
+    <div class="company-group" id={company.id}>
+
+      <div class="company-heading">
+        <span class="company-name">{company.company}</span>
+        <span class="company-meta">
+          {company.role}&ensp;·&ensp;{company.location}&ensp;·&ensp;{formatYear(company.start)}–{company.end === 'present' ? 'present' : formatYear(company.end)}
+        </span>
+      </div>
+
+      {company.entries.map(({ data, globalIndex }) => (
+        <ShowcaseItem item={data} globalIndex={globalIndex} />
+      ))}
+
+    </div>
+  ))}
+</div>
+
+<style>
+  .experience-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 5rem;
+  }
+
+  /* ── Company heading ─────────────────────────────────────────────────────── */
+
+  .company-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .company-name {
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+  }
+
+  .company-meta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-disabled);
+    letter-spacing: 0.02em;
+  }
+</style>

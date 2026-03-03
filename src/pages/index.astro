@@ -1,0 +1,70 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ContactHeader   from '../components/ContactHeader.astro';
+import ExperienceTimeline from '../components/ExperienceTimeline.astro';
+import ProjectList     from '../components/ProjectList.astro';
+import SkillGrid       from '../components/SkillGrid.astro';
+import ScrollIndicator from '../components/ScrollIndicator.astro';
+import { getExperience, getProjects, getSkills, getMeta } from '../lib/content';
+
+const meta       = getMeta();
+const experience = getExperience();
+const projects   = getProjects();
+const skills     = getSkills();
+---
+
+<Layout>
+  <ScrollIndicator experience={experience} />
+  <div class="page">
+
+    <section id="contact" class="section">
+      <ContactHeader meta={meta} />
+    </section>
+
+    <section id="experience" class="section">
+      <h2 class="section-label">experience</h2>
+      <ExperienceTimeline experience={experience} />
+    </section>
+
+    <section id="projects" class="section">
+      <h2 class="section-label">projects</h2>
+      <ProjectList projects={projects} />
+    </section>
+
+    <section id="skills" class="section">
+      <h2 class="section-label">skills</h2>
+      <SkillGrid skills={skills} />
+    </section>
+
+  </div>
+</Layout>
+
+<style>
+  .page {
+    padding-top: var(--nav-height);
+  }
+
+  .section {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 5rem var(--content-padding-x);
+  }
+
+  /* Reserve space for ScrollIndicator (Phase 4) */
+  @media (min-width: 1024px) {
+    .section {
+      padding-right: calc(var(--content-padding-x) + var(--scroll-indicator-offset));
+    }
+  }
+
+  /* Section label — monospace, muted, small */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--color-text-disabled);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+  }
+</style>

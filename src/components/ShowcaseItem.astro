@@ -1,0 +1,93 @@
+---
+import type { ShowcaseItem } from '../types';
+
+interface Props {
+  item: ShowcaseItem;
+  globalIndex: number; // cross-company counter — drives alternation
+}
+
+const { item, globalIndex } = Astro.props;
+
+const hasScreenshots  = item.screenshots.length > 0;
+// Spec: 1st/3rd/... = screenshot left → even 0-based index = screenshot left
+const screenshotLeft  = globalIndex % 2 === 0;
+---
+
+<article
+  class:list={[
+    'showcase-item',
+    hasScreenshots && 'has-screenshot',
+    hasScreenshots && (screenshotLeft ? 'screenshot-left' : 'screenshot-right'),
+  ]}
+>
+  {hasScreenshots && (
+    <div class="screenshot-col">
+      <img
+        src={item.screenshots[0]}
+        alt={item.name}
+        class="screenshot"
+        loading="lazy"
+      />
+    </div>
+  )}
+
+  <div class="text-col">
+    <h3 class="item-name">{item.name}</h3>
+    <p class="item-desc">{item.description}</p>
+  </div>
+</article>
+
+<style>
+  .showcase-item {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 3.5rem;
+  }
+
+  /* Single column when no screenshots */
+  .showcase-item:not(.has-screenshot) {
+    grid-template-columns: 1fr;
+  }
+
+  /* Two-column layout on desktop when screenshots exist */
+  @media (min-width: 1024px) {
+    .showcase-item.has-screenshot {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+
+    /* screenshot-right: swap column order */
+    .showcase-item.screenshot-right .screenshot-col { order: 2; }
+    .showcase-item.screenshot-right .text-col       { order: 1; }
+  }
+
+  /* ── Screenshot ──────────────────────────────────────────────────────────── */
+
+  .screenshot {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    display: block;
+  }
+
+  /* ── Text ────────────────────────────────────────────────────────────────── */
+
+  .item-name {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    line-height: 1.3;
+    margin-bottom: 0.75rem;
+  }
+
+  .item-desc {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--color-text-primary);
+    line-height: 1.75;
+    max-width: 60ch;
+  }
+</style>

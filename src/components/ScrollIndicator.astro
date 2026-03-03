@@ -1,0 +1,262 @@
+---
+// ScrollIndicator.astro
+// Fixed right-side scroll progress indicator.
+// Hidden below lg breakpoint (1024px).
+// Markers: one per company (logo or initial) + Projects + Skills.
+// Thumb (« ▓ »): draggable, tracks scroll progress.
+
+import type { Company } from '../types';
+import { companyId } from '../lib/utils';
+
+interface Props {
+  experience: Company[];
+}
+
+const { experience } = Astro.props;
+
+const markers = [
+  ...experience.map(c => ({
+    id:      companyId(c.company),
+    label:   c.company,
+    logo:    c.logo,
+    initial: c.company[0],
+  })),
+  { id: 'projects', label: 'Projects', logo: null as string | null, initial: 'P' },
+  { id: 'skills',   label: 'Skills',   logo: null as string | null, initial: 'S' },
+];
+---
+
+<aside class="scroll-indicator" id="scroll-indicator" aria-hidden="true">
+
+  <div class="track">
+    <div class="track-line"></div>
+
+    <div class="markers">
+      {markers.map(marker => (
+        <button
+          class="marker"
+          data-target={marker.id}
+          title={marker.label}
+        >
+          {marker.logo
+            ? <img src={marker.logo} alt="" class="marker-img" />
+            : <span class="marker-initial">{marker.initial}</span>
+          }
+        </button>
+      ))}
+    </div>
+
+    <div class="thumb" id="scroll-thumb">
+      <span>&laquo;&nbsp;&#x2593;&nbsp;&raquo;</span>
+    </div>
+  </div>
+
+</aside>
+
+<style>
+  /* Hidden on mobile — shown only at lg+ */
+  .scroll-indicator {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .scroll-indicator {
+      display: flex;
+      position: fixed;
+      right: 1.25rem;
+      top: calc(var(--nav-height) + 3rem);
+      bottom: 3rem;
+      width: 5rem;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  /* ── Track ───────────────────────────────────────────────────────────────── */
+
+  .track {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+
+  .track-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    background-color: var(--color-border);
+  }
+
+  /* ── Markers ─────────────────────────────────────────────────────────────── */
+
+  .markers {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1;
+  }
+
+  .marker {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.4;
+    transition:
+      opacity      var(--duration-fast) var(--ease-default),
+      border-color var(--duration-fast) var(--ease-default),
+      box-shadow   var(--duration-fast) var(--ease-default);
+    overflow: hidden;
+  }
+
+  .marker:hover {
+    opacity: 0.7;
+  }
+
+  .marker.active {
+    opacity: 1;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px var(--color-accent);
+  }
+
+  .marker-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .marker-initial {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .marker.active .marker-initial {
+    color: var(--color-accent);
+  }
+
+  /* ── Thumb ───────────────────────────────────────────────────────────────── */
+
+  .thumb {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0; /* set by JS */
+    z-index: 2;
+    cursor: grab;
+    user-select: none;
+    line-height: 1;
+  }
+
+  .thumb:active {
+    cursor: grabbing;
+  }
+
+  .thumb span {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  const indicator = document.getElementById('scroll-indicator') as HTMLElement;
+  const thumb     = document.getElementById('scroll-thumb') as HTMLElement;
+  const markers   = document.querySelectorAll<HTMLElement>('.marker');
+
+  if (!indicator || !thumb) throw new Error('ScrollIndicator: elements not found');
+
+  // ── Thumb position ────────────────────────────────────────────────────────
+
+  function updateThumb(): void {
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollable <= 0) return;
+    const progress   = Math.min(window.scrollY / scrollable, 1);
+    const trackH     = indicator.offsetHeight;
+    const thumbH     = thumb.offsetHeight;
+    thumb.style.top  = `${progress * (trackH - thumbH)}px`;
+  }
+
+  window.addEventListener('scroll', updateThumb, { passive: true });
+  window.addEventListener('resize', updateThumb, { passive: true });
+  updateThumb();
+
+  // ── Marker clicks → smooth scroll ────────────────────────────────────────
+
+  markers.forEach(marker => {
+    marker.addEventListener('click', () => {
+      const target = document.getElementById(marker.dataset.target!);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // ── IntersectionObserver → active marker ─────────────────────────────────
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const id = entry.target.id;
+      markers.forEach(m => m.classList.toggle('active', m.dataset.target === id));
+    });
+  }, { rootMargin: '-40% 0px -60% 0px', threshold: 0 });
+
+  markers.forEach(marker => {
+    const el = document.getElementById(marker.dataset.target!);
+    if (el) io.observe(el);
+  });
+
+  // ── Drag thumb → scroll page ──────────────────────────────────────────────
+
+  let dragging    = false;
+  let dragStartY  = 0;
+  let dragStartSY = 0;
+
+  function startDrag(y: number): void {
+    dragging    = true;
+    dragStartY  = y;
+    dragStartSY = window.scrollY;
+  }
+
+  function moveDrag(y: number): void {
+    if (!dragging) return;
+    const dy        = y - dragStartY;
+    const trackH    = indicator.offsetHeight - thumb.offsetHeight;
+    const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo(0, dragStartSY + (dy / trackH) * scrollMax);
+  }
+
+  function endDrag(): void { dragging = false; }
+
+  // Mouse
+  thumb.addEventListener('mousedown', e => { startDrag(e.clientY); e.preventDefault(); });
+  window.addEventListener('mousemove', e => moveDrag(e.clientY));
+  window.addEventListener('mouseup', endDrag);
+
+  // Touch
+  thumb.addEventListener('touchstart', e => { startDrag(e.touches[0].clientY); }, { passive: true });
+  window.addEventListener('touchmove',  e => { if (dragging) moveDrag(e.touches[0].clientY); }, { passive: true });
+  window.addEventListener('touchend', endDrag);
+</script>

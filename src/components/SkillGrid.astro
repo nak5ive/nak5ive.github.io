@@ -1,0 +1,66 @@
+---
+import type { SkillCategory } from '../types';
+
+interface Props {
+  skills: SkillCategory[];
+}
+
+const { skills } = Astro.props;
+---
+
+<div class="skill-grid">
+  {skills.map(({ category, skills: items }) => (
+    <div class="skill-category">
+      <h3 class="category-label">{category}</h3>
+      <ul class="skill-tags">
+        {items.map(skill => (
+          <li class="skill-tag">{skill}</li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>
+
+<style>
+  .skill-grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 767px) {
+    .skill-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Category ────────────────────────────────────────────────────────────── */
+
+  .category-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.875rem;
+  }
+
+  /* ── Tags ────────────────────────────────────────────────────────────────── */
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .skill-tag {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-text-primary);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 0.3em 0.7em;
+    border-radius: 2px;
+  }
+</style>

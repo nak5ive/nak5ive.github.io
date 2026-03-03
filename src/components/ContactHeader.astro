@@ -1,0 +1,118 @@
+---
+import type { Meta } from '../types';
+import ContactReveal from './ContactReveal.astro';
+
+interface Props {
+  meta: Meta;
+}
+
+const { meta } = Astro.props;
+
+// Encode at build time — plain text never reaches the static HTML.
+const encodedEmail = Buffer.from(meta.contact.email).toString('base64');
+const encodedPhone = Buffer.from(meta.contact.phone).toString('base64');
+---
+
+<header class="contact-header">
+
+  <h1 class="name">{meta.name}</h1>
+  <p class="title">{meta.title}</p>
+
+  <div class="contact-fields">
+    <div class="contact-field">
+      <span class="icon" aria-hidden="true">✉</span>
+      <ContactReveal encoded={encodedEmail} label="email" />
+    </div>
+    <div class="contact-field">
+      <span class="icon" aria-hidden="true">☎</span>
+      <ContactReveal encoded={encodedPhone} label="phone" />
+    </div>
+  </div>
+
+  <ul class="social-links">
+    {meta.social.map(({ url, label, platform }) => (
+      <li>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="social-link"
+          aria-label={`${label} on ${platform}`}
+        >
+          {label}
+        </a>
+      </li>
+    ))}
+  </ul>
+
+</header>
+
+<style>
+  .contact-header {
+    padding-top: 2rem;
+  }
+
+  .name {
+    font-family: var(--font-mono);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+
+  .title {
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 2.5rem;
+  }
+
+  /* ── Contact fields ──────────────────────────────────────────────────────── */
+
+  .contact-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .contact-field {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .icon {
+    width: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+  }
+
+  /* ── Social links ────────────────────────────────────────────────────────── */
+
+  .social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .social-link {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    padding: 0.35em 0.8em;
+    border-radius: 2px;
+    transition:
+      color        var(--duration-fast) var(--ease-default),
+      border-color var(--duration-fast) var(--ease-default);
+  }
+
+  .social-link:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+</style>

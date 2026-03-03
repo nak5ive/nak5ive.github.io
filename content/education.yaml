@@ -1,0 +1,22 @@
+# education.yaml
+#
+# Schema:
+#   institution:  string   — school name
+#   logo:         string   — path under public/ (optional)
+#   degree:       string   — full degree name
+#   field:        string   — field of study
+#   start:        string   — "YYYY-MM"
+#   end:          string   — "YYYY-MM"
+#   location:     string
+#   gpa:          string   — optional
+#   notes:        string   — optional (minor, honors, etc.)
+
+- institution: University of Missouri
+  logo: /logos/mizzou.svg
+  degree: Bachelor of Science
+  field: Mechanical Engineering
+  start: "2000-08"
+  end: "2004-12"
+  location: Columbia, MO
+  gpa: "3.346"
+  notes: Minor in Mathematics

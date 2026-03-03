@@ -1,0 +1,64 @@
+# skills.yaml
+#
+# Skills grouped by category.
+# Order of categories controls display order on the page.
+#
+# Schema:
+#   category:   string   — group label
+#   skills:     string[] — individual skill/tool names
+
+- category: Android
+  skills:
+    - Kotlin
+    - Jetpack Compose
+    - Android SDK
+    - Coroutines / Flow
+    - RxJava
+    - Molecule
+    - Dagger
+    - Gradle
+
+- category: Architecture
+  skills:
+    - MVP / MVVM
+    - Modular Architecture
+    - Clean Architecture
+    - Reactive Patterns
+    - Protocol Buffers
+    - gRPC
+    - REST / JSON
+
+- category: Developer Tooling
+  skills:
+    - KSP (Kotlin Symbol Processing)
+    - Gradle Plugin API
+    - Paparazzi (screenshot testing)
+    - R8 / ProGuard
+    - Jenkins / Travis CI
+    - Artifactory
+
+- category: Bluetooth & Hardware
+  skills:
+    - Bluetooth Low Energy (GATT)
+    - Arduino / C++
+    - nRF52840
+    - USB OTG
+    - CoreBluetooth (macOS)
+    - SATCOM / Satellite Modems
+
+- category: Backend & Web
+  skills:
+    - Groovy / Grails
+    - .NET MVC
+    - PHP
+    - MySQL
+    - Java
+    - HTML / CSS / JavaScript
+
+- category: Tools & Process
+  skills:
+    - Git / GitHub
+    - IntelliJ / Android Studio
+    - Atlassian Suite
+    - SAFe Agile
+    - Code Review

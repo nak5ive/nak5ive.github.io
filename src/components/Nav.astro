@@ -1,0 +1,182 @@
+---
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+
+const links = [
+  { href: '#experience', label: 'experience' },
+  { href: '#projects',   label: 'projects'   },
+  { href: '#skills',     label: 'skills'     },
+];
+---
+
+<nav class="nav" aria-label="Site navigation">
+  <div class="nav-inner">
+    <a href="#contact" class="nav-brand">{name}</a>
+
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <ul class="nav-links" id="nav-links">
+      {links.map(({ href, label }) => (
+        <li>
+          <a href={href} class="nav-link" data-nav-link={href.slice(1)}>{label}</a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</nav>
+
+<style>
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: var(--nav-height);
+    background-color: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--content-max-width);
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 var(--content-padding-x);
+  }
+
+  .nav-brand {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-accent);
+    letter-spacing: 0.05em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--color-accent);
+  }
+
+  /* Hamburger button — hidden on desktop */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 2rem;
+    height: 2rem;
+    padding: 0.25rem;
+    cursor: pointer;
+  }
+
+  .bar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-text-secondary);
+    border-radius: 1px;
+    transition:
+      transform var(--duration-base) var(--ease-default),
+      opacity   var(--duration-base) var(--ease-default);
+  }
+
+  /* ── Mobile ─────────────────────────────────────────────────────────────── */
+  @media (max-width: 767px) {
+    .nav {
+      height: auto;
+    }
+
+    .nav-inner {
+      flex-wrap: wrap;
+      height: var(--nav-height);
+    }
+
+    .nav-toggle {
+      display: flex;
+    }
+
+    .nav-links {
+      display: none;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
+      padding: 0.5rem 0 1rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .nav-links.is-open {
+      display: flex;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 0.5rem 0;
+    }
+
+    /* Hamburger → X */
+    .nav.is-open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg);  }
+    .nav.is-open .bar:nth-child(2) { opacity: 0;                                }
+    .nav.is-open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  }
+</style>
+
+<script>
+  const nav    = document.querySelector('.nav')!;
+  const toggle = document.querySelector('.nav-toggle')!;
+  const links  = document.querySelector('.nav-links')!;
+
+  // Hamburger toggle
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!expanded));
+    nav.classList.toggle('is-open');
+    links.classList.toggle('is-open');
+  });
+
+  // Close mobile nav when a link is tapped
+  links.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      toggle.setAttribute('aria-expanded', 'false');
+      nav.classList.remove('is-open');
+      links.classList.remove('is-open');
+    });
+  });
+
+  // Scroll-spy: highlight the nav link for the visible section
+  const navLinks = document.querySelectorAll<HTMLElement>('[data-nav-link]');
+  const sections = ['experience', 'projects', 'skills']
+    .map(id => document.getElementById(id))
+    .filter((el): el is HTMLElement => el !== null);
+
+  const spy = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.dataset.navLink === entry.target.id);
+      });
+    });
+  }, { rootMargin: '-40% 0px -60% 0px', threshold: 0 });
+
+  sections.forEach(s => spy.observe(s));
+</script>
