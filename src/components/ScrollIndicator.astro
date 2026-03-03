@@ -55,7 +55,8 @@ const markers = [
     </div>
 
     <div class="thumb" id="scroll-thumb">
-      <span>&laquo;&nbsp;&#x2593;&nbsp;&raquo;</span>
+      <span class="thumb-caret">&lsaquo;</span>
+      <span class="thumb-caret">&rsaquo;</span>
     </div>
   </div>
 
@@ -189,24 +190,29 @@ const markers = [
 
   .thumb {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
     top: 0; /* set by JS */
+    transform: translateY(-50%);
     z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2px;
     cursor: grab;
     user-select: none;
-    line-height: 1;
+    pointer-events: auto;
   }
 
   .thumb:active {
     cursor: grabbing;
   }
 
-  .thumb span {
+  .thumb-caret {
     font-family: var(--font-mono);
-    font-size: 0.625rem;
+    font-size: 1rem;
     color: var(--color-accent);
-    white-space: nowrap;
+    line-height: 1;
   }
 </style>
 
@@ -272,10 +278,8 @@ const markers = [
   function updateThumb(): void {
     const scrollable = document.documentElement.scrollHeight - window.innerHeight;
     if (scrollable <= 0) return;
-    const trackH    = indicator.offsetHeight;
-    const thumbH    = thumb.offsetHeight;
     const progress  = Math.min(window.scrollY / scrollable, 1);
-    thumb.style.top = `${progress * (trackH - thumbH)}px`;
+    thumb.style.top = `${progress * indicator.offsetHeight}px`;
   }
 
   function update(): void { positionMarkers(); updateThumb(); }
@@ -335,9 +339,8 @@ const markers = [
   function moveDrag(y: number): void {
     if (!dragging) return;
     const dy         = y - dragStartY;
-    const trackH     = indicator.offsetHeight;
     const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-    window.scrollTo(0, dragStartSY + (dy / trackH) * scrollable);
+    window.scrollTo(0, dragStartSY + (dy / indicator.offsetHeight) * scrollable);
   }
 
   function endDrag(): void { dragging = false; }
