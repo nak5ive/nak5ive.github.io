@@ -11,13 +11,7 @@ const { name } = Astro.props;
   <div class="nav-inner">
     <a href="#contact" class="nav-brand">{name}</a>
 
-    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
-      <span class="bar"></span>
-      <span class="bar"></span>
-      <span class="bar"></span>
-    </button>
-
-    <ul class="nav-links" id="nav-links">
+    <ul class="nav-links">
       <li>
         <a
           href="https://docs.google.com/document/d/1kBWzl7B9GDs21maZrb2tjh33vH6U3iqeWhI1-wm8MHc/export?format=pdf"
@@ -79,90 +73,4 @@ const { name } = Astro.props;
     background-color: var(--color-accent);
     color: var(--color-bg);
   }
-
-  /* Hamburger button — hidden on desktop */
-  .nav-toggle {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    width: 2rem;
-    height: 2rem;
-    padding: 0.25rem;
-    cursor: pointer;
-  }
-
-  .bar {
-    display: block;
-    width: 100%;
-    height: 2px;
-    background-color: var(--color-text-secondary);
-    border-radius: 1px;
-    transition:
-      transform var(--duration-base) var(--ease-default),
-      opacity   var(--duration-base) var(--ease-default);
-  }
-
-  /* ── Mobile ─────────────────────────────────────────────────────────────── */
-  @media (max-width: 767px) {
-    .nav {
-      height: auto;
-    }
-
-    .nav-inner {
-      flex-wrap: wrap;
-      height: var(--nav-height);
-    }
-
-    .nav-toggle {
-      display: flex;
-    }
-
-    .nav-links {
-      display: none;
-      flex-direction: column;
-      gap: 0;
-      width: 100%;
-      padding: 0.5rem 0 1rem;
-      border-top: 1px solid var(--color-border);
-    }
-
-    .nav-links.is-open {
-      display: flex;
-    }
-
-    .nav-resume {
-      display: inline-block;
-      margin: 0.25rem 0 0.5rem;
-    }
-
-    /* Hamburger → X */
-    .nav.is-open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg);  }
-    .nav.is-open .bar:nth-child(2) { opacity: 0;                                }
-    .nav.is-open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-  }
 </style>
-
-<script>
-  const nav    = document.querySelector('.nav')!;
-  const toggle = document.querySelector('.nav-toggle')!;
-  const links  = document.querySelector('.nav-links')!;
-
-  // Hamburger toggle
-  toggle.addEventListener('click', () => {
-    const expanded = toggle.getAttribute('aria-expanded') === 'true';
-    toggle.setAttribute('aria-expanded', String(!expanded));
-    nav.classList.toggle('is-open');
-    links.classList.toggle('is-open');
-  });
-
-  // Close mobile nav when a link is tapped
-  links.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', () => {
-      toggle.setAttribute('aria-expanded', 'false');
-      nav.classList.remove('is-open');
-      links.classList.remove('is-open');
-    });
-  });
-
-</script>
