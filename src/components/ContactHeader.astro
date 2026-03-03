@@ -32,11 +32,11 @@ const platformIcons: Record<string, string> = {
 
   <div class="contact-fields">
     <div class="contact-field">
-      <span class="icon" aria-hidden="true">✉</span>
+      <img src="/icons/email.svg" alt="" class="field-icon" aria-hidden="true" />
       <ContactReveal encoded={encodedEmail} label="email" />
     </div>
     <div class="contact-field">
-      <span class="icon" aria-hidden="true">☎</span>
+      <img src="/icons/phone.svg" alt="" class="field-icon" aria-hidden="true" />
       <ContactReveal encoded={encodedPhone} label="phone" />
     </div>
   </div>
@@ -121,11 +121,11 @@ const platformIcons: Record<string, string> = {
     font-size: 0.875rem;
   }
 
-  .icon {
-    width: 1.25rem;
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
+  .field-icon {
+    width: 1.125rem;
+    height: 1.125rem;
     flex-shrink: 0;
+    filter: invert(55%);
   }
 
   /* ── Social links ────────────────────────────────────────────────────────── */
