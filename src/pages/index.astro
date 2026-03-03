@@ -26,10 +26,12 @@ const skills     = getSkills();
       <ExperienceTimeline experience={experience} />
     </section>
 
-    <section id="projects" class="section">
-      <h2 class="section-label">projects</h2>
-      <ProjectList projects={projects} />
-    </section>
+    {projects.length > 0 && (
+      <section id="projects" class="section">
+        <h2 class="section-label">projects</h2>
+        <ProjectList projects={projects} />
+      </section>
+    )}
 
     <section id="skills" class="section">
       <h2 class="section-label">skills</h2>
