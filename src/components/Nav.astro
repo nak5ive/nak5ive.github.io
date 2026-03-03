@@ -28,6 +28,13 @@ const links = [
           <a href={href} class="nav-link" data-nav-link={href.slice(1)}>{label}</a>
         </li>
       ))}
+      <li>
+        <a
+          href="https://docs.google.com/document/d/1kBWzl7B9GDs21maZrb2tjh33vH6U3iqeWhI1-wm8MHc/export?format=pdf"
+          class="nav-resume"
+          download
+        >resume</a>
+      </li>
     </ul>
   </div>
 </nav>
@@ -76,6 +83,23 @@ const links = [
   .nav-link:hover,
   .nav-link.active {
     color: var(--color-accent);
+  }
+
+  .nav-resume {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    padding: 0.25em 0.75em;
+    border-radius: 2px;
+    transition:
+      background-color var(--duration-fast) var(--ease-default),
+      color            var(--duration-fast) var(--ease-default);
+  }
+
+  .nav-resume:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
   }
 
   /* Hamburger button — hidden on desktop */
@@ -132,6 +156,11 @@ const links = [
     .nav-link {
       display: block;
       padding: 0.5rem 0;
+    }
+
+    .nav-resume {
+      display: inline-block;
+      margin: 0.25rem 0 0.5rem;
     }
 
     /* Hamburger → X */
