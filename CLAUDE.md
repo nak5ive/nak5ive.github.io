@@ -18,6 +18,8 @@ These rules apply to every change made to this repository:
 
 **Rule 3 — Content files are canonical:** Data files in `content/` are the single source of truth for all portfolio content (experience, projects, skills, education, personal info). Never hardcode content in components or templates.
 
+**Rule 4 — README stays in sync:** When spec documents, the tech stack, deployment strategy, repository structure, or build commands change, update `README.md` in the same commit/changeset.
+
 ---
 
 ## Instructions for Claude

@@ -1,12 +1,12 @@
 # nak5-portfolio
 
-Personal resume and portfolio webapp for nak5. A dark, technical developer portfolio showcasing work history, projects, skills, and contact information.
+Personal portfolio site for Nevada (Al) Kent — a dark, technical developer portfolio showcasing work history, projects, skills, and contact information. Live at [nak5.com](https://nak5.com).
 
 ---
 
 ## What This Site Showcases
 
-- **Work history** — professional experience timeline
+- **Work history** — professional experience timeline sourced from resume
 - **Projects** — selected personal and professional projects
 - **Skills** — tools, languages, and technologies
 - **Contact** — links and contact information
@@ -18,50 +18,50 @@ Personal resume and portfolio webapp for nak5. A dark, technical developer portf
 | Layer | Choice |
 |-------|--------|
 | Framework | [Astro](https://astro.build) — static-first, zero JS by default |
-| Styling | Raw CSS, mobile-first |
-| Data | Static YAML/JSON in `content/` |
+| Styling | Raw CSS, no utility frameworks |
+| Data | Static YAML in `content/` |
 | Build output | Static HTML/CSS in `dist/` |
-| Server | nginx (served from Docker container) |
-
----
-
-## Deployment
-
-Docker multi-stage build → nginx:alpine serving static files → Raspberry Pi (ARM-compatible images) → DigitalOcean (same image, no changes needed).
-
-See [`spec/deployment.md`](spec/deployment.md) for full details.
-
----
-
-## Spec Documents
-
-The `spec/` directory is the source of truth for all design and architecture decisions. See [`CLAUDE.md`](CLAUDE.md) for the sync rules that keep spec and code aligned.
-
-| Document | Description |
-|----------|-------------|
-| [`spec/look-and-feel.md`](spec/look-and-feel.md) | Visual design, color palette, typography, animation |
-| [`spec/architecture.md`](spec/architecture.md) | Framework, data layer, site structure, build pipeline |
-| [`spec/deployment.md`](spec/deployment.md) | Docker strategy, nginx config, deployment targets |
+| Hosting | GitHub Pages (custom domain: `nak5.com`) |
+| CI/CD | GitHub Actions — push to `master` triggers build + deploy |
 
 ---
 
 ## Quick Start
 
-> TBD — to be filled in once the build system is bootstrapped.
-
 ```bash
 # Install dependencies
-# TBD
+npm install
 
 # Run dev server
-# TBD
+npm run dev
 
 # Build for production
-# TBD
+npm run build
 
-# Build Docker image
-# TBD
+# Preview production build locally
+npm run preview
 ```
+
+---
+
+## Deployment
+
+Every push to `master` triggers a GitHub Actions workflow that builds the site and deploys `dist/` to GitHub Pages. No manual steps required.
+
+See [`spec/deployment.md`](spec/deployment.md) for full CI/CD details and custom domain setup.
+
+---
+
+## Spec Documents
+
+The `spec/` directory is the source of truth for all design and architecture decisions. See [`CLAUDE.md`](CLAUDE.md) for the sync rules that keep spec, code, and README aligned.
+
+| Document | Description |
+|----------|-------------|
+| [`spec/look-and-feel.md`](spec/look-and-feel.md) | Visual design, color palette, typography, animation |
+| [`spec/architecture.md`](spec/architecture.md) | Framework, data layer, site structure, build pipeline |
+| [`spec/deployment.md`](spec/deployment.md) | GitHub Pages, GitHub Actions CI/CD, custom domain |
+| [`spec/roadmap.md`](spec/roadmap.md) | Remaining implementation steps, ordered by phase |
 
 ---
 
@@ -69,15 +69,29 @@ The `spec/` directory is the source of truth for all design and architecture dec
 
 ```
 nak5-portfolio/
-├── CLAUDE.md              # Sync rules — spec is source of truth
-├── README.md              # This file
-├── spec/                  # Specification documents
+├── CLAUDE.md                  # Sync rules — spec is source of truth
+├── README.md                  # This file
+├── astro.config.mjs           # Astro configuration
+├── package.json
+├── spec/                      # Specification documents
 │   ├── look-and-feel.md
 │   ├── architecture.md
-│   └── deployment.md
-├── content/               # TBD — static data files (YAML/JSON)
-├── src/                   # TBD — Astro source
-└── dist/                  # TBD — build output (gitignored)
+│   ├── deployment.md
+│   └── roadmap.md
+├── content/                   # Static data files — single source of truth for content
+│   ├── meta.yaml              # Personal info, contact, social links
+│   ├── experience.yaml        # Work history (sourced from resume)
+│   ├── experience-extended.yaml  # Extended prose descriptions (reference)
+│   ├── projects.yaml          # Projects
+│   ├── skills.yaml            # Skills by category
+│   └── education.yaml         # Education
+├── src/
+│   ├── layouts/               # Astro layout components
+│   ├── pages/                 # Route-mapped page files
+│   ├── components/            # Reusable section components
+│   ├── lib/                   # Content loaders, utilities
+│   ├── styles/                # Global CSS and design tokens
+│   └── types.ts               # TypeScript interfaces for all content schemas
+├── public/                    # Static assets (images, logos, icons, fonts)
+└── dist/                      # Build output (gitignored)
 ```
-
-> **Note:** The `spec/` directory is the authoritative source of truth. All code changes must stay in sync with it. See [`CLAUDE.md`](CLAUDE.md).
