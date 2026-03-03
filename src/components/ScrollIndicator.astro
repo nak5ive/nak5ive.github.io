@@ -280,8 +280,21 @@ const markers = [
 
   function update(): void { positionMarkers(); updateThumb(); }
 
-  window.addEventListener('scroll', updateThumb, { passive: true });
-  window.addEventListener('resize', update,      { passive: true });
+  function setActiveMarker(id: string): void {
+    markers.forEach(m => m.classList.toggle('active', m.dataset.target === id));
+  }
+
+  function checkBottomActive(): void {
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollable <= 0) return;
+    if (window.scrollY >= scrollable - 2) {
+      const last = markers[markers.length - 1];
+      if (last) setActiveMarker(last.dataset.target!);
+    }
+  }
+
+  window.addEventListener('scroll', () => { updateThumb(); checkBottomActive(); }, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
   update();
 
   // ── Marker clicks → smooth scroll ────────────────────────────────────────
@@ -298,8 +311,7 @@ const markers = [
   const io = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
-      const id = entry.target.id;
-      markers.forEach(m => m.classList.toggle('active', m.dataset.target === id));
+      setActiveMarker(entry.target.id);
     });
   }, { rootMargin: '-40% 0px -60% 0px', threshold: 0 });
 
