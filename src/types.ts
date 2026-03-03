@@ -4,7 +4,8 @@
 
 export interface ShowcaseItem {
   name: string;
-  description: string;
+  description?: string;
+  bullets?: string[];
   screenshots: string[];
 }
 
@@ -15,6 +16,7 @@ export interface Company {
   end: string;
   location: string;
   logo: string;
+  responsibilities?: string[];
   entries: ShowcaseItem[];
 }
 

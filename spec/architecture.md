@@ -45,25 +45,35 @@ Entries are **grouped by company**. Each company can have multiple showcase item
 
 ```yaml
 - company: Acme Corp
-  logo: /logos/acme.svg        # required — used by ScrollIndicator
+  role: Senior Engineer
+  start: "2020-01"
+  end: "2024-06"             # or "present"
+  location: Remote
+  logo: /logos/acme.svg      # required — used by ScrollIndicator
+  responsibilities:          # optional — company-level bullets (non-project)
+    - Led cross-functional teams across three time zones
+    - Practiced SAFe Agile with iterative releases
   entries:
     - name: Project Phoenix
-      description: >
+      description: >         # prose form; use when not sourced from resume
         Led the migration of the legacy billing system to a microservices
         architecture, reducing deployment time by 60%.
-      screenshots:             # optional — omit or leave empty if none
+      screenshots:           # optional — omit or leave empty if none
         - /screenshots/phoenix-1.png
-        - /screenshots/phoenix-2.png
     - name: Internal Dashboard
-      description: >
-        Designed and built a real-time ops dashboard used daily by 40+
-        engineers, replacing a manual Slack-based reporting workflow.
+      bullets:               # bullet-point form; preferred when sourced from resume
+        - Designed and built a real-time ops dashboard used daily by 40+ engineers
+        - Replaced a manual Slack-based reporting workflow
       screenshots: []
 ```
 
-**Content framing rule:** `description` must describe what *you* did and the impact you had — not what the product does. Write in first person or active voice. "Led", "built", "designed", "reduced", "replaced" — not "a platform that enables...".
+**`description` vs `bullets`:** Use `bullets` when content is sourced directly from a resume (preserves original format). Use `description` for prose-form write-ups. Only one is required per entry.
+
+**Content framing rule:** Content must describe what *you* did and the impact you had — not what the product does. Write in first person or active voice. "Led", "built", "designed", "reduced", "replaced" — not "a platform that enables...".
 
 `logo` is required. Store logo files in `public/logos/` as SVG preferred, PNG acceptable.
+
+A reference copy of the full extended prose descriptions is kept in `content/experience-extended.yaml` for future use.
 
 ### Data Access Pattern
 

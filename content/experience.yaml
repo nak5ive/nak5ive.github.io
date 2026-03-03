@@ -5,15 +5,17 @@
 # The scroll indicator shows one logo marker per company.
 #
 # Schema:
-#   company:      string   — display name
-#   role:         string   — job title
-#   start:        string   — e.g. "2014-03"
-#   end:          string   — e.g. "2021-11" or "present"
-#   location:     string
-#   logo:         string   — path under public/ (required for ScrollIndicator)
+#   company:           string   — display name
+#   role:              string   — job title
+#   start:             string   — e.g. "2014-03"
+#   end:               string   — e.g. "2021-11" or "present"
+#   location:          string
+#   logo:              string   — path under public/ (required for ScrollIndicator)
+#   responsibilities:  string[] — company-level bullets (non-project); optional
 #   entries[]:
 #     name:         string   — project/product name
-#     description:  string   — first-person, impact-focused (what YOU did)
+#     description:  string   — prose description; use when not sourced from resume
+#     bullets:      string[] — bullet points; preferred when sourced from resume
 #     screenshots:  string[] — paths under public/ (empty list if none)
 
 - company: Block (Cash App)
@@ -22,104 +24,70 @@
   end: "2026-02"
   location: Remote
   logo: /logos/block.svg
+  responsibilities:
+    - Delivered peer-to-peer payment features for tens of millions of users in a multi-module Kotlin/Compose codebase with focus on unidirectional data flow and testability
+    - Scaled strategic features and managed phased rollouts over geographic and targeted audiences
+    - Led as a DRI, developing new products to help people manage finances
+    - Elevated engineering culture through mentorship and code reviews
+    - Accepted challenging tasks and presented demos to stakeholders
+    - Assisted junior engineers with onboarding into complex ecosystem
   entries:
 
     - name: Pools — Group Savings
-      description: >
-        Built the entire Pools feature from zero across 155+ PRs: defined proto schemas,
-        wired contribution flows with payment instrument selection and IDV integration,
-        built animated progress rings and goal celebration animations, shipped teen and
-        sponsored account support, and led two full redesigns (V1 and V2 create and
-        contribution flows) through to production launch. Owned the feature end-to-end
-        from first proto commit to final observability pass.
+      bullets:
+        - Served as Android DRI for full-featured group savings product
+        - Built and maintained all feature surfaces
+        - Collaborated cross-functionally to deliver solution to 100% of users in 6 months
+        - "Result: 2M customers, $100M GPV, 3x network density"
       screenshots: []
 
-    - name: Nearby — BLE Peer Discovery
-      description: >
-        Architected a Bluetooth Low Energy system for discovering nearby Cash App users
-        for in-person payments. Designed the advertisement and discovery abstraction layer,
-        built gRPC session resolution with real-time streaming, managed Bluetooth and
-        location permission state across device models, and delivered the Pay and Get Paid
-        UI flow end-to-end. Also built a companion sample app for physical device testing.
+    - name: Nearby — Payments
+      bullets:
+        - Prototyped proximity payment solution using Bluetooth and Ultra-wideband
+        - Collaborated with engineering leads on unified protocol
+        - Implemented custom animations using local ranging data
+        - Developed functional demo for executives
       screenshots: []
 
-    - name: Arcade Design System Migration
-      description: >
-        Led the organization-wide migration from the legacy Mooncake design system to
-        Arcade across ~200 PRs, touching every major screen in Cash App Android — Account,
-        Discover, P2P, Onboarding/IDV, QR, Documents, Settings, and Security. Built core
-        Arcade components including segmented controls, badge system, inline messages, and
-        a masked input field system. Net result: 30,000+ lines of legacy UI code deleted
-        and a consistent design language across the entire app.
+    - name: Arcade Design System
+      bullets:
+        - Co-developed app-wide design system
+        - Created custom Composable UI components
+        - Led migrations removing 30k+ lines of legacy view code
       screenshots: []
 
-    - name: "@Paparazzi — Snapshot Testing Framework"
-      description: >
-        Designed and built a KSP annotation processor and Gradle plugin that
-        auto-generates Paparazzi screenshot tests directly from Compose @Preview
-        functions, eliminating manual test boilerplate across large multi-module Android
-        projects. Added lint checks, generic type support, and module-wide migration
-        tooling. Adopted team-wide as the foundational UI testing infrastructure for
-        Cash App Android.
-      screenshots: []
-
-    - name: Personalized Payments
-      description: >
-        Built Cash App's interactive payment customization experience: drag-and-drop
-        element management with gesture transformations (zoom, rotate, reposition),
-        a carousel picker, sticker and text overlays, server-driven tooltips, and a
-        real-time glitter shader effect driven by the device gyroscope. The shader used
-        procedural normal map generation, a lifecycle-aware sensor manager, and a
-        5-point lighting model with gyro-to-light-source vector transformation and
-        fallback emulation when gyro was unavailable.
-      screenshots: []
-
-    - name: Threads — 1:1 Messaging
-      description: >
-        Built the Cash App 1-to-1 messaging feature end-to-end: scalable message renderer
-        architecture using a factory pattern with dedicated submodule, protobuf v2 message
-        types, payment message redesign with BTC/sats display, navigation layer with
-        feature-flag gating, experimentation integration (LaunchDarkly to Amplitude), and
-        offline message support. When the product direction changed, systematically deleted
-        the entire feature — removing 15,756 lines cleanly across all modules.
-      screenshots: []
-
-    - name: Profile & Account Rewrite
-      description: >
-        Rebuilt the Cash App profile and account experience from scratch within the first
-        six months on the team: migrated legacy XML views to Jetpack Compose, adopted
-        Molecule for reactive state management, built a full profile photo management
-        system (capture, crop, upload, preview), implemented cashtag deep linking, added
-        verified and business badge support, migrated analytics to CDF, and shipped a
-        "preview your profile as others see it" feature.
+    - name: "@Paparazzi — Snapshot Testing"
+      bullets:
+        - Developed KSP plugin automating snapshot testing for composable previews
+        - Became app-wide standard, reducing development time
       screenshots: []
 
 - company: Mastercard
-  role: Mobile Engineering Manager
+  role: Mobile Tech Lead
   start: "2014-03"
   end: "2021-11"
   location: O'Fallon, MO
   logo: /logos/mastercard.svg
+  responsibilities:
+    - Served as development lead with direct reports for mobile solutions in Payment Gateway Services
+    - Collaborated with engineers across US, Ireland, and Australia
+    - Ensured security standards through encryption, PCI compliance, and penetration testing
+    - Practiced SAFe Agile development with code reviews and iterative releases
+    - Managed CI via Jenkins/Travis
   entries:
 
-    - name: Mastercard Payment Gateway Android SDK
-      description: >
-        Architected and built Mastercard's full-featured Android SDK in Kotlin, supporting
-        basic card transactions, EMV 3DS authentication, and Google Pay. Designed the SDK
-        for external developer consumption, open-sourced early versions on GitHub, and
-        implemented asynchronous flows using Kotlin coroutines. Interfaced with security
-        teams across the US, Ireland, and Australia to meet PCI compliance standards and
-        pass penetration testing.
+    - name: Simplify Commerce
+      bullets:
+        - Released white-labeled Android app to production
+        - Developed around RxJava and MVP for testability
+        - Built native SDKs for Miura Bluetooth/IP card readers
+        - Developed Payshield HSM-interfacing microservices in Groovy/Grails
       screenshots: []
 
-    - name: Simplify Commerce Merchant App
-      description: >
-        Developed and shipped the white-labeled Simplify Commerce Android merchant app to
-        the Google Play Store. Implemented reactive patterns with RxJava, maintained MVP
-        architecture for testability, and designed and built SDKs for Bluetooth and
-        IP-connected card readers — providing a high-level API over raw socket connections.
-        Also built Groovy/Grails microservices to expose hardware security modules (HSMs)
-        to backend payment services.
+    - name: Mastercard Payment Gateway Android SDK
+      bullets:
+        - Architected Kotlin SDK supporting EMV 3DS and Google Pay, built around coroutines
+        - Maintained as open-sourced project (github.com/Mastercard-Gateway/gateway-android-sdk)
       screenshots: []
 
 - company: Coolfire Solutions
@@ -131,20 +99,14 @@
   entries:
 
     - name: 911 Call Center Product
-      description: >
-        Led full-stack agile development of a commercial product for supplementing
-        emergency 911 call centers, built on .NET MVC with companion Android and iOS apps.
-        Drove the project from early concept through to commercial release, leading a team
-        targeting public safety agencies.
+      bullets:
+        - Led full-stack (.NET MVC) and mobile development for 911-supplemental product
       screenshots: []
 
     - name: SATCOM Field Tools
-      description: >
-        Developed Android applications for commercial satellite communications clients,
-        interfacing directly with satellite modems. Designed and built a system for
-        pointing a satellite antenna and validating signal acquisition from a mobile
-        device. Engineered custom USB OTG cables connecting Android devices to secure
-        radios used by US soldiers in the field.
+      bullets:
+        - Developed Android toolkits for SATCOM field technicians
+        - Established antenna connections and engineered custom USB OTG cables for military radio-network connections
       screenshots: []
 
 - company: Snap Creative
@@ -156,17 +118,12 @@
   entries:
 
     - name: Ascension Health Web Platform
-      description: >
-        Developed and maintained the public-facing website for the largest Catholic
-        healthcare provider in the United States. Built on Joomla CMS with custom
-        components and security hardening across staging, test, and production
-        environments.
+      bullets:
+        - Developed public site for Ascension Health using Joomla
       screenshots: []
 
     - name: TrueColors HR Tool
-      description: >
-        Architected and built a web-based personality-assessment product for HR
-        departments — interactive color-assignment quizzes, results visualization, and
-        a custom PHP CMS. Integrated PayPal and Authorize.Net for e-commerce and social
-        networking APIs throughout.
+      bullets:
+        - Built custom PHP CMS for interactive HR personality assessment tool
+        - Integrated e-commerce platforms (PayPal, Authorize.Net) and social APIs
       screenshots: []

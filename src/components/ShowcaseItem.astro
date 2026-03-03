@@ -33,7 +33,13 @@ const screenshotLeft  = globalIndex % 2 === 0;
 
   <div class="text-col">
     <h3 class="item-name">{item.name}</h3>
-    <p class="item-desc">{item.description}</p>
+    {item.bullets && item.bullets.length > 0 ? (
+      <ul class="item-bullets">
+        {item.bullets.map(b => <li>{b}</li>)}
+      </ul>
+    ) : (
+      <p class="item-desc">{item.description}</p>
+    )}
   </div>
 </article>
 
@@ -89,5 +95,19 @@ const screenshotLeft  = globalIndex % 2 === 0;
     color: var(--color-text-primary);
     line-height: 1.75;
     max-width: 60ch;
+  }
+
+  .item-bullets {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--color-text-primary);
+    line-height: 1.75;
+    max-width: 60ch;
+    padding-left: 1.25rem;
+    margin: 0;
+  }
+
+  .item-bullets li {
+    margin-bottom: 0.25rem;
   }
 </style>

@@ -42,6 +42,12 @@ function formatYear(yyyymm: string) {
         </div>
       </div>
 
+      {company.responsibilities && company.responsibilities.length > 0 && (
+        <ul class="company-responsibilities">
+          {company.responsibilities.map(r => <li>{r}</li>)}
+        </ul>
+      )}
+
       {company.entries.map(({ data, globalIndex }) => (
         <ShowcaseItem item={data} globalIndex={globalIndex} />
       ))}
@@ -95,5 +101,18 @@ function formatYear(yyyymm: string) {
     font-size: 0.75rem;
     color: var(--color-text-disabled);
     letter-spacing: 0.02em;
+  }
+
+  .company-responsibilities {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    line-height: 1.75;
+    padding-left: 1.25rem;
+    margin: 0 0 2.5rem 0;
+  }
+
+  .company-responsibilities li {
+    margin-bottom: 0.25rem;
   }
 </style>
