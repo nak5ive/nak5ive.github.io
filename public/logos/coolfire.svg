@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1" viewBox="0 0 236 299.94">
+  <defs>
+    <style>.cls-1{fill:none;}.cls-1,.cls-2,.cls-3{stroke-width:0px;}.cls-2{fill:#266afa;}.cls-4{clip-path:url(#clippath);}.cls-5{font-family:SourceSansPro-Regular, 'Source Sans Pro';font-size:60px;}.cls-5,.cls-3{fill:#1b1f2c;}</style>
+    <clipPath id="clippath">
+      <rect class="cls-1" x="0" width="1077.17" height="293.59"></rect>
+    </clipPath>
+  </defs>
+  <g class="cls-4">
+    <path class="cls-2" d="m33.73,93.52L100.14,27.11C108.06,19.19,113.82,9.9,117.36,0c.1.07.19.14.29.22,1.76,1.28,3.47,2.75,5.06,4.33,14.76,14.74,16.88,37.32,6.36,54.34-1.76,2.87-3.88,5.56-6.36,8.04l-55.21,55.24c-16.92,15.84-26.44,39.62-22.49,65.36,4.79,31.19,29.25,55.92,60.39,60.95,46.01,7.43,85.76-27.91,85.76-72.52,0-31.13-19.33-57.74-46.64-68.45l32.89-32.87c41.53,24.53,66.63,73.83,55.02,127.58-9.76,45.17-45.97,80.34-91.35,89.1C65.85,305.84,0,248.59,0,175.96c0-32.12,12.88-61.23,33.73-82.44"></path>
+  </g>
+</svg>
