@@ -190,30 +190,33 @@ const markers = [
   if (!indicator || !thumb) throw new Error('ScrollIndicator: elements not found');
 
   // ── Proportional marker placement ─────────────────────────────────────────
-  // Each marker is positioned at (section.offsetTop / scrollHeight) * trackHeight,
-  // matching the same ratio used by the thumb so they stay in sync.
+  // Markers are placed using section.offsetTop / scrollable so that the same
+  // denominator is used for both markers and the thumb — keeping them in sync,
+  // and allowing the thumb to reach the very bottom when fully scrolled.
 
   function positionMarkers(): void {
-    const scrollH = document.documentElement.scrollHeight;
-    const trackH  = indicator.offsetHeight;
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollable <= 0) return;
+    const trackH = indicator.offsetHeight;
     markers.forEach(marker => {
       const section = document.getElementById(marker.dataset.target!);
       if (!section) return;
-      marker.style.top = `${(section.offsetTop / scrollH) * trackH}px`;
+      const ratio = Math.min(section.offsetTop / scrollable, 1);
+      marker.style.top = `${ratio * trackH}px`;
     });
   }
 
   // ── Thumb position ────────────────────────────────────────────────────────
-  // Uses the same (value / scrollHeight) ratio as positionMarkers so the
-  // thumb naturally lines up with whichever marker is active.
+  // Maps scrollY [0, scrollable] → top [0, trackH - thumbH] so the thumb
+  // travels the full length of the track.
 
   function updateThumb(): void {
-    const scrollH = document.documentElement.scrollHeight;
-    if (scrollH <= 0) return;
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollable <= 0) return;
     const trackH    = indicator.offsetHeight;
     const thumbH    = thumb.offsetHeight;
-    const ratio     = window.scrollY / scrollH;
-    thumb.style.top = `${ratio * trackH - thumbH / 2}px`;
+    const progress  = Math.min(window.scrollY / scrollable, 1);
+    thumb.style.top = `${progress * (trackH - thumbH)}px`;
   }
 
   function update(): void { positionMarkers(); updateThumb(); }
@@ -260,10 +263,10 @@ const markers = [
 
   function moveDrag(y: number): void {
     if (!dragging) return;
-    const dy      = y - dragStartY;
-    const trackH  = indicator.offsetHeight;
-    const scrollH = document.documentElement.scrollHeight;
-    window.scrollTo(0, dragStartSY + (dy / trackH) * scrollH);
+    const dy         = y - dragStartY;
+    const trackH     = indicator.offsetHeight;
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo(0, dragStartSY + (dy / trackH) * scrollable);
   }
 
   function endDrag(): void { dragging = false; }
