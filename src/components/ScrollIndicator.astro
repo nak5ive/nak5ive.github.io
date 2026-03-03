@@ -213,14 +213,44 @@ const markers = [
 <script>
   const indicator = document.getElementById('scroll-indicator') as HTMLElement;
   const thumb     = document.getElementById('scroll-thumb') as HTMLElement;
-  const markers   = document.querySelectorAll<HTMLElement>('.marker');
 
   if (!indicator || !thumb) throw new Error('ScrollIndicator: elements not found');
 
+  // ── Filter markers to only those with a section present in the DOM ─────────
+  const markers = [...document.querySelectorAll<HTMLElement>('.marker')].filter(m => {
+    const exists = !!document.getElementById(m.dataset.target!);
+    if (!exists) m.style.display = 'none';
+    return exists;
+  });
+
   // ── Proportional marker placement ─────────────────────────────────────────
-  // Markers are placed using section.offsetTop / scrollable so that the same
-  // denominator is used for both markers and the thumb — keeping them in sync,
-  // and allowing the thumb to reach the very bottom when fully scrolled.
+  // After proportional placement, enforce a minimum gap so markers never
+  // overlap regardless of how close their sections are on the page.
+
+  const MARKER_MIN_GAP = 32; // px — marker height (28px) + 4px breathing room
+
+  function enforceMinSpacing(): void {
+    const trackH = indicator.offsetHeight;
+    // markers are already sorted top-to-bottom by section order
+    // Forward pass: push markers down if too close
+    for (let i = 1; i < markers.length; i++) {
+      const prev = parseFloat(markers[i - 1].style.top);
+      const min  = prev + MARKER_MIN_GAP;
+      if (parseFloat(markers[i].style.top) < min) {
+        markers[i].style.top = `${min}px`;
+      }
+    }
+    // If the last marker was pushed past the track bottom, pull everything up
+    const last = markers[markers.length - 1];
+    if (last) {
+      const overflow = parseFloat(last.style.top) - trackH;
+      if (overflow > 0) {
+        markers.forEach(m => {
+          m.style.top = `${parseFloat(m.style.top) - overflow}px`;
+        });
+      }
+    }
+  }
 
   function positionMarkers(): void {
     const scrollable = document.documentElement.scrollHeight - window.innerHeight;
@@ -232,6 +262,7 @@ const markers = [
       const ratio = Math.min(section.offsetTop / scrollable, 1);
       marker.style.top = `${ratio * trackH}px`;
     });
+    enforceMinSpacing();
   }
 
   // ── Thumb position ────────────────────────────────────────────────────────
