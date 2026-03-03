@@ -64,8 +64,9 @@ const markers = [
       display: flex;
       position: fixed;
       right: 1.25rem;
-      top: calc(var(--nav-height) + 3rem);
-      bottom: 3rem;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 50vh;
       width: 5rem;
       align-items: center;
       justify-content: center;
@@ -101,14 +102,13 @@ const markers = [
     bottom: 0;
     left: 0;
     right: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
     z-index: 1;
   }
 
   .marker {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
     width: 28px;
     height: 28px;
     border-radius: 6px;
@@ -189,20 +189,38 @@ const markers = [
 
   if (!indicator || !thumb) throw new Error('ScrollIndicator: elements not found');
 
-  // ── Thumb position ────────────────────────────────────────────────────────
+  // ── Proportional marker placement ─────────────────────────────────────────
+  // Each marker is positioned at (section.offsetTop / scrollHeight) * trackHeight,
+  // matching the same ratio used by the thumb so they stay in sync.
 
-  function updateThumb(): void {
-    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-    if (scrollable <= 0) return;
-    const progress   = Math.min(window.scrollY / scrollable, 1);
-    const trackH     = indicator.offsetHeight;
-    const thumbH     = thumb.offsetHeight;
-    thumb.style.top  = `${progress * (trackH - thumbH)}px`;
+  function positionMarkers(): void {
+    const scrollH = document.documentElement.scrollHeight;
+    const trackH  = indicator.offsetHeight;
+    markers.forEach(marker => {
+      const section = document.getElementById(marker.dataset.target!);
+      if (!section) return;
+      marker.style.top = `${(section.offsetTop / scrollH) * trackH}px`;
+    });
   }
 
+  // ── Thumb position ────────────────────────────────────────────────────────
+  // Uses the same (value / scrollHeight) ratio as positionMarkers so the
+  // thumb naturally lines up with whichever marker is active.
+
+  function updateThumb(): void {
+    const scrollH = document.documentElement.scrollHeight;
+    if (scrollH <= 0) return;
+    const trackH    = indicator.offsetHeight;
+    const thumbH    = thumb.offsetHeight;
+    const ratio     = window.scrollY / scrollH;
+    thumb.style.top = `${ratio * trackH - thumbH / 2}px`;
+  }
+
+  function update(): void { positionMarkers(); updateThumb(); }
+
   window.addEventListener('scroll', updateThumb, { passive: true });
-  window.addEventListener('resize', updateThumb, { passive: true });
-  updateThumb();
+  window.addEventListener('resize', update,      { passive: true });
+  update();
 
   // ── Marker clicks → smooth scroll ────────────────────────────────────────
 
@@ -242,10 +260,10 @@ const markers = [
 
   function moveDrag(y: number): void {
     if (!dragging) return;
-    const dy        = y - dragStartY;
-    const trackH    = indicator.offsetHeight - thumb.offsetHeight;
-    const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
-    window.scrollTo(0, dragStartSY + (dy / trackH) * scrollMax);
+    const dy      = y - dragStartY;
+    const trackH  = indicator.offsetHeight;
+    const scrollH = document.documentElement.scrollHeight;
+    window.scrollTo(0, dragStartSY + (dy / trackH) * scrollH);
   }
 
   function endDrag(): void { dragging = false; }
