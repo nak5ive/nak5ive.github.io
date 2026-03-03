@@ -8,7 +8,7 @@
 
 ## Overview
 
-The site is a fully static Astro build (HTML/CSS/minimal JS) deployed to **GitHub Pages** via **GitHub Actions**. On every push to `main`, the workflow builds the site and publishes the `dist/` output. No server, container, or external hosting account required.
+The site is a fully static Astro build (HTML/CSS/minimal JS) deployed to **GitHub Pages** via **GitHub Actions**. On every push to `master`, the workflow builds the site and publishes the `dist/` output. No server, container, or external hosting account required.
 
 ---
 
@@ -61,7 +61,7 @@ Setup checklist:
 
 File: `.github/workflows/deploy.yml`
 
-Trigger: push to `main`
+Trigger: push to `master`
 
 Steps:
 1. Checkout repo
@@ -78,7 +78,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -140,7 +140,7 @@ If build-time variables are ever needed (e.g. analytics ID):
 | Concern | Decision |
 |---------|---------|
 | Hosting | GitHub Pages |
-| Build trigger | Push to `main` via GitHub Actions |
+| Build trigger | Push to `master` via GitHub Actions |
 | Build command | `npm run build` → `dist/` |
 | Deploy method | `actions/upload-pages-artifact` + `actions/deploy-pages` |
 | HTTPS | Automatic |
