@@ -20,8 +20,15 @@ const platformIcons: Record<string, string> = {
 
 <header class="contact-header">
 
-  <h1 class="name">{meta.name}</h1>
-  <p class="title">{meta.title}</p>
+  <div class="name-row">
+    <div class="name-text">
+      <h1 class="name">{meta.name}</h1>
+      <p class="title">{meta.title}</p>
+    </div>
+    {meta.photo && (
+      <img src={meta.photo} alt={meta.name} class="profile-photo" />
+    )}
+  </div>
 
   <div class="contact-fields">
     <div class="contact-field">
@@ -60,6 +67,30 @@ const platformIcons: Record<string, string> = {
     padding-top: 2rem;
   }
 
+  .name-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .name-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .profile-photo {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 8px;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+  }
+
   .name {
     font-family: var(--font-mono);
     font-size: clamp(2rem, 5vw, 3.5rem);
@@ -73,7 +104,6 @@ const platformIcons: Record<string, string> = {
     font-family: var(--font-mono);
     font-size: 0.9375rem;
     color: var(--color-text-secondary);
-    margin-bottom: 2.5rem;
   }
 
   /* ── Contact fields ──────────────────────────────────────────────────────── */

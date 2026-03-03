@@ -10,9 +10,11 @@ import { companyId } from '../lib/utils';
 
 interface Props {
   experience: Company[];
+  photo?: string;
+  name?: string;
 }
 
-const { experience } = Astro.props;
+const { experience, photo, name } = Astro.props;
 
 const markers = [
   ...experience.map(c => ({
@@ -30,6 +32,12 @@ const markers = [
 
   <div class="track">
     <div class="track-line"></div>
+
+    {photo && (
+      <button class="marker profile-marker" data-target="contact" title={name ?? 'Contact'}>
+        <img src={photo} alt="" class="marker-img profile-img" />
+      </button>
+    )}
 
     <div class="markers">
       {markers.map(marker => (
@@ -144,6 +152,26 @@ const markers = [
     border-radius: 3px;
   }
 
+  /* ── Profile marker ──────────────────────────────────────────────────────── */
+
+  .profile-marker {
+    position: absolute;
+    left: 50%;
+    top: -2.5rem;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    padding: 2px;
+    z-index: 2;
+  }
+
+  .profile-img {
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 4px;
+  }
+
   .marker-initial {
     font-family: var(--font-mono);
     font-size: 0.625rem;
@@ -227,7 +255,7 @@ const markers = [
 
   // ── Marker clicks → smooth scroll ────────────────────────────────────────
 
-  markers.forEach(marker => {
+  document.querySelectorAll<HTMLElement>('[data-target]').forEach(marker => {
     marker.addEventListener('click', () => {
       const target = document.getElementById(marker.dataset.target!);
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
