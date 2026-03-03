@@ -63,6 +63,7 @@ export interface Contact {
 
 export interface Meta {
   name: string;
+  preferredName?: string;
   title: string;
   bio: string;
   location: string;

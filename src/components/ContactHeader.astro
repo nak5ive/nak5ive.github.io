@@ -8,6 +8,11 @@ interface Props {
 
 const { meta } = Astro.props;
 
+const [firstName, ...rest] = meta.name.split(' ');
+const displayName = meta.preferredName
+  ? `${firstName} (${meta.preferredName}) ${rest.join(' ')}`
+  : meta.name;
+
 // Encode at build time — plain text never reaches the static HTML.
 const encodedEmail = Buffer.from(meta.contact.email).toString('base64');
 const encodedPhone = Buffer.from(meta.contact.phone).toString('base64');
@@ -25,7 +30,7 @@ const platformIcons: Record<string, string> = {
       <img src={meta.photo} alt={meta.name} class="profile-photo" />
     )}
     <div class="name-text">
-      <h1 class="name">{meta.name}</h1>
+      <h1 class="name">{displayName}</h1>
       <p class="title">{meta.title}</p>
     </div>
   </div>

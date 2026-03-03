@@ -1,25 +1,13 @@
 ---
-interface Props {
-  name: string;
-}
-
-const { name } = Astro.props;
-
 ---
 
 <nav class="nav" aria-label="Site navigation">
   <div class="nav-inner">
-    <a href="#contact" class="nav-brand">{name}</a>
-
-    <ul class="nav-links">
-      <li>
-        <a
-          href="https://docs.google.com/document/d/1kBWzl7B9GDs21maZrb2tjh33vH6U3iqeWhI1-wm8MHc/export?format=pdf"
-          class="nav-resume"
-          download
-        >download resume</a>
-      </li>
-    </ul>
+    <a
+      href="https://docs.google.com/document/d/1kBWzl7B9GDs21maZrb2tjh33vH6U3iqeWhI1-wm8MHc/export?format=pdf"
+      class="nav-resume"
+      download
+    >download resume</a>
   </div>
 </nav>
 
@@ -38,23 +26,11 @@ const { name } = Astro.props;
   .nav-inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     max-width: var(--content-max-width);
     height: 100%;
     margin: 0 auto;
     padding: 0 var(--content-padding-x);
-  }
-
-  .nav-brand {
-    font-family: var(--font-mono);
-    font-size: 0.875rem;
-    color: var(--color-accent);
-    letter-spacing: 0.05em;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 2rem;
   }
 
   .nav-resume {
