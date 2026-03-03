@@ -95,6 +95,13 @@ const platformIcons: Record<string, string> = {
     border: 1px solid var(--color-border);
   }
 
+  @media (max-width: 767px) {
+    .profile-photo {
+      max-width: 33.333%;
+      height: auto;
+    }
+  }
+
   .name {
     font-family: var(--font-mono);
     font-size: clamp(1.333rem, 3.333vw, 2.333rem);
