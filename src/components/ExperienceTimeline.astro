@@ -31,10 +31,15 @@ function formatYear(yyyymm: string) {
     <div class="company-group" id={company.id}>
 
       <div class="company-heading">
-        <span class="company-name">{company.company}</span>
-        <span class="company-meta">
-          {company.role}&ensp;·&ensp;{company.location}&ensp;·&ensp;{formatYear(company.start)}–{company.end === 'present' ? 'present' : formatYear(company.end)}
-        </span>
+        {company.logo && (
+          <img src={company.logo} alt={company.company} class="company-logo" />
+        )}
+        <div class="company-text">
+          <span class="company-name">{company.company}</span>
+          <span class="company-meta">
+            {company.role}&ensp;·&ensp;{company.location}&ensp;·&ensp;{formatYear(company.start)}–{company.end === 'present' ? 'present' : formatYear(company.end)}
+          </span>
+        </div>
       </div>
 
       {company.entries.map(({ data, globalIndex }) => (
@@ -56,11 +61,27 @@ function formatYear(yyyymm: string) {
 
   .company-heading {
     display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
+    align-items: center;
+    gap: 1rem;
     margin-bottom: 2.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--color-border);
+  }
+
+  .company-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 6px;
+    background-color: var(--color-surface-raised);
+    padding: 6px;
+    flex-shrink: 0;
+  }
+
+  .company-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
   }
 
   .company-name {
