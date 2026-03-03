@@ -30,6 +30,7 @@ bio: >
 
 location: St. Louis, MO
 photo: /images/profile.jpg
+photoThumb: /images/profile_thumb.jpg
 
 contact:
   email: nak5ive@gmail.com

@@ -14,7 +14,7 @@ const skills     = getSkills();
 ---
 
 <Layout>
-  <ScrollIndicator experience={experience} photo={meta.photo} name={meta.name} />
+  <ScrollIndicator experience={experience} photo={meta.photoThumb ?? meta.photo} name={meta.name} />
   <div class="page">
 
     <section id="contact" class="section">

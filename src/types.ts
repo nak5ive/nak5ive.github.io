@@ -65,6 +65,7 @@ export interface Meta {
   bio: string;
   location: string;
   photo?: string;
+  photoThumb?: string;
   contact: Contact;
   social: SocialLink[];
 }
