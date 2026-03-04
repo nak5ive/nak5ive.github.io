@@ -59,7 +59,7 @@
     - name: "@Paparazzi — Snapshot Testing"
       bullets:
         - Developed KSP plugin automating snapshot testing for composable previews
-        - Became app-wide standard, reducing development time
+        - Quickly became the app-wide standard, adopted by all teams, automating nearly 2k tests across 80 modules
       screenshots: []
 
 - company: Mastercard
