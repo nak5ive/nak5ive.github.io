@@ -109,5 +109,17 @@ const screenshotLeft  = globalIndex % 2 === 0;
 
   .item-bullets li {
     margin-bottom: 0.25rem;
+    position: relative;
+  }
+
+  .item-bullets li::before {
+    content: '';
+    position: absolute;
+    left: -1.25rem;
+    top: 0.6em;
+    width: 0.4em;
+    height: 0.4em;
+    background: var(--color-border);
+    flex-shrink: 0;
   }
 </style>
