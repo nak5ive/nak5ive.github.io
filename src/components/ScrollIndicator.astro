@@ -217,13 +217,16 @@ const markers = [
 </style>
 
 <script>
-  const indicator = document.getElementById('scroll-indicator') as HTMLElement;
-  const thumb     = document.getElementById('scroll-thumb') as HTMLElement;
+  const indicator     = document.getElementById('scroll-indicator') as HTMLElement;
+  const thumb         = document.getElementById('scroll-thumb') as HTMLElement;
+  const profileMarker = document.querySelector<HTMLElement>('.profile-marker');
 
   if (!indicator || !thumb) throw new Error('ScrollIndicator: elements not found');
 
   // ── Filter markers to only those with a section present in the DOM ─────────
-  const markers = [...document.querySelectorAll<HTMLElement>('.marker')].filter(m => {
+  // Profile marker is excluded from positionMarkers — its CSS top: -2.5rem
+  // keeps it anchored above the track; it participates in active/click logic only.
+  const markers = [...document.querySelectorAll<HTMLElement>('.marker:not(.profile-marker)')].filter(m => {
     const exists = !!document.getElementById(m.dataset.target!);
     if (!exists) m.style.display = 'none';
     return exists;
@@ -286,6 +289,9 @@ const markers = [
 
   function setActiveMarker(id: string): void {
     markers.forEach(m => m.classList.toggle('active', m.dataset.target === id));
+    if (profileMarker) {
+      profileMarker.classList.toggle('active', profileMarker.dataset.target === id);
+    }
   }
 
   function checkBottomActive(): void {
@@ -323,6 +329,10 @@ const markers = [
     const el = document.getElementById(marker.dataset.target!);
     if (el) io.observe(el);
   });
+  if (profileMarker) {
+    const el = document.getElementById(profileMarker.dataset.target!);
+    if (el) io.observe(el);
+  }
 
   // ── Drag thumb → scroll page ──────────────────────────────────────────────
 
