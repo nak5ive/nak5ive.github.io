@@ -71,4 +71,5 @@ export interface Meta {
   photoThumb?: string;
   contact: Contact;
   social: SocialLink[];
+  resumeUrl?: string;
 }

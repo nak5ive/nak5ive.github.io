@@ -47,6 +47,16 @@ const platformIcons: Record<string, string> = {
   </div>
 
   <ul class="social-links">
+    {meta.resumeUrl && (
+      <li>
+        <a
+          href={meta.resumeUrl}
+          class="social-link resume-link"
+          download
+          aria-label="Download resume"
+        >download resume</a>
+      </li>
+    )}
     {meta.social.map(({ url, label, platform }) => (
       <li>
         <a
@@ -151,17 +161,32 @@ const platformIcons: Record<string, string> = {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
     color: var(--color-text-secondary);
     border: 1px solid var(--color-border);
     padding: 0.5em;
     border-radius: 2px;
     transition:
-      color        var(--duration-fast) var(--ease-default),
-      border-color var(--duration-fast) var(--ease-default);
+      background-color var(--duration-fast) var(--ease-default),
+      color            var(--duration-fast) var(--ease-default),
+      border-color     var(--duration-fast) var(--ease-default);
   }
 
   .social-link:hover {
     color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .resume-link {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    padding: 0.35em 0.75em;
+  }
+
+  .resume-link:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
     border-color: var(--color-accent);
   }
 

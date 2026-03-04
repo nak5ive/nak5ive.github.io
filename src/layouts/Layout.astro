@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import Nav from '../components/Nav.astro';
 import { getMeta } from '../lib/content';
 
 interface Props {
@@ -27,7 +26,6 @@ const {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
-    <Nav />
     <slot />
   </body>
 </html>
