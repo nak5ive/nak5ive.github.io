@@ -2,7 +2,7 @@
 // ContactReveal.astro
 // Renders a masked field + [Reveal] button.
 // The encoded value is base64 — plain text never appears in the static HTML.
-// On reveal: decodes and shows the value. Button becomes [Copy].
+// On reveal: decodes and animates value with a character-scramble effect. Button becomes [Copy].
 
 interface Props {
   encoded: string; // Buffer.from(value).toString('base64')
@@ -13,8 +13,10 @@ const { encoded, label } = Astro.props;
 ---
 
 <span class="contact-reveal" data-encoded={encoded}>
-  <span class="cr-masked">••••••••••••••••</span>
-  <span class="cr-value" hidden></span>
+  <span class="cr-display">
+    <span class="cr-masked">••••••••••••••••</span>
+    <span class="cr-value" aria-hidden="true"></span>
+  </span>
   <button class="reveal-btn" aria-label={`Reveal ${label}`}>Reveal</button>
 </span>
 
@@ -25,16 +27,39 @@ const { encoded, label } = Astro.props;
     gap: 0.75rem;
   }
 
-  .cr-masked {
+  .cr-display {
+    display: inline-grid;
     font-family: var(--font-mono);
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* Stack masked and value in the same grid cell so width never shifts */
+  .cr-masked,
+  .cr-value {
+    grid-area: 1 / 1;
+  }
+
+  .cr-masked {
     color: var(--color-text-disabled);
     letter-spacing: 0.1em;
+    transition: opacity 0.15s ease;
+  }
+
+  .cr-masked.hidden {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .cr-value {
-    font-family: var(--font-mono);
-    font-size: 0.875rem;
     color: var(--color-text-primary);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+
+  .cr-value.visible {
+    opacity: 1;
   }
 
   .reveal-btn {
@@ -49,6 +74,9 @@ const { encoded, label } = Astro.props;
     transition:
       background-color var(--duration-fast) var(--ease-default),
       color            var(--duration-fast) var(--ease-default);
+    /* Fixed width so button label changes don't shift layout */
+    min-width: 4.5rem;
+    text-align: center;
   }
 
   .reveal-btn:hover {
@@ -58,6 +86,62 @@ const { encoded, label } = Astro.props;
 </style>
 
 <script>
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*?';
+
+  function scrambleReveal(valueEl: HTMLElement, target: string, onDone: () => void) {
+    const len = target.length;
+    // How many frames each character scrambles before locking
+    const scrambleDuration = 10; // frames per char
+    const revealDelay = 3;       // frames between each char starting to lock
+
+    let frame = 0;
+    const revealed = new Array(len).fill(false);
+    const locked   = new Array(len).fill('');
+
+    function tick() {
+      let done = true;
+      let result = '';
+
+      for (let i = 0; i < len; i++) {
+        if (revealed[i]) {
+          result += locked[i];
+        } else {
+          const startLock = i * revealDelay;
+          if (frame >= startLock + scrambleDuration) {
+            revealed[i] = true;
+            locked[i] = target[i];
+            result += locked[i];
+          } else if (frame >= startLock) {
+            // Scrambling phase
+            done = false;
+            // Preserve spaces and @ and . as-is for readability
+            const ch = target[i];
+            if (ch === ' ' || ch === '@' || ch === '.') {
+              result += ch;
+            } else {
+              result += CHARS[Math.floor(Math.random() * CHARS.length)];
+            }
+          } else {
+            done = false;
+            result += CHARS[Math.floor(Math.random() * CHARS.length)];
+          }
+        }
+      }
+
+      valueEl.textContent = result;
+      frame++;
+
+      if (!done) {
+        requestAnimationFrame(tick);
+      } else {
+        valueEl.textContent = target;
+        onDone();
+      }
+    }
+
+    requestAnimationFrame(tick);
+  }
+
   document.querySelectorAll<HTMLElement>('.contact-reveal').forEach(el => {
     const encoded  = el.dataset.encoded!;
     const btn      = el.querySelector<HTMLButtonElement>('.reveal-btn')!;
@@ -71,19 +155,32 @@ const { encoded, label } = Astro.props;
           btn.textContent = 'Copied!';
           setTimeout(() => (btn.textContent = 'Copy'), 2000);
         }).catch(() => {
-          // Clipboard blocked — select the text instead
           const range = document.createRange();
           range.selectNodeContents(valueEl);
           window.getSelection()?.removeAllRanges();
           window.getSelection()?.addRange(range);
         });
       } else {
-        // Reveal
-        valueEl.textContent = atob(encoded);
-        masked.hidden = true;
-        valueEl.hidden = false;
-        btn.textContent = 'Copy';
-        btn.dataset.state = 'revealed';
+        // Reveal with scramble animation
+        const target = atob(encoded);
+
+        // Pre-fill with scrambled chars at full width — reserves space without spoiling value
+        valueEl.textContent = Array.from(target).map(ch =>
+          (ch === ' ' || ch === '@' || ch === '.') ? ch : CHARS[Math.floor(Math.random() * CHARS.length)]
+        ).join('');
+
+        // Show scrambled value, fade out masked — no layout shift
+        valueEl.classList.add('visible');
+        masked.classList.add('hidden');
+
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        scrambleReveal(valueEl, target, () => {
+          btn.disabled = false;
+          btn.textContent = 'Copy';
+          btn.dataset.state = 'revealed';
+        });
       }
     });
   });
