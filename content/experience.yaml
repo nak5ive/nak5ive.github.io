@@ -40,7 +40,9 @@
         - Built and maintained all feature surfaces
         - Collaborated across design, product, server, and iOS teams to deliver the feature to 100% of users in under 6 months
         - Resulted in 2M active customers, $100M GPV, 3x network density in 2 quarters
-      screenshots: []
+      screenshots:
+        - /images/pools_create.gif
+        - /images/pools_contribute.gif
       links:
         - label: cash.app/pools
           url: https://cash.app/send/pools

@@ -9,6 +9,7 @@ interface Props {
 const { item, globalIndex } = Astro.props;
 
 const hasScreenshots = item.screenshots.length > 0;
+const hasCarousel = item.screenshots.length > 2;
 ---
 
 <article
@@ -19,12 +20,24 @@ const hasScreenshots = item.screenshots.length > 0;
 >
   {hasScreenshots && (
     <div class="screenshot-col">
-      <img
-        src={item.screenshots[0]}
-        alt={item.name}
-        class="screenshot"
-        loading="lazy"
-      />
+      {hasCarousel && (
+        <button class="sc-btn sc-prev" aria-label="Previous screenshots">&#8249;</button>
+      )}
+      <div class="sc-track">
+        {item.screenshots.map((src, i) => (
+          <img
+            src={src}
+            alt={`${item.name} screenshot ${i + 1}`}
+            class="screenshot"
+            data-sc-idx={i}
+            hidden={hasCarousel && i >= 2}
+            loading="lazy"
+          />
+        ))}
+      </div>
+      {hasCarousel && (
+        <button class="sc-btn sc-next" aria-label="Next screenshots">&#8250;</button>
+      )}
     </div>
   )}
 
@@ -76,14 +89,50 @@ const hasScreenshots = item.screenshots.length > 0;
 
   .screenshot-col {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sc-track {
+    display: flex;
+    gap: 0.75rem;
+    flex: 1;
+    justify-content: center;
+    align-items: flex-start;
   }
 
   .screenshot {
-    max-height: 400px;
+    max-height: 380px;
     width: auto;
     max-width: 100%;
     display: block;
+    object-fit: contain;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* ── Carousel buttons ────────────────────────────────────────────────────── */
+
+  .sc-btn {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-accent);
+    background: none;
+    border: 1px solid var(--color-border);
+    padding: 0.3em 0.4em;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.15s ease;
+  }
+
+  .sc-btn:hover:not(:disabled) {
+    border-color: var(--color-accent);
+  }
+
+  .sc-btn:disabled {
+    opacity: 0.2;
+    cursor: default;
   }
 
   /* ── Text ────────────────────────────────────────────────────────────────── */
@@ -156,3 +205,28 @@ const hasScreenshots = item.screenshots.length > 0;
     opacity: 1;
   }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.screenshot-col').forEach(col => {
+    const imgs = col.querySelectorAll<HTMLImageElement>('.screenshot');
+    if (imgs.length <= 2) return;
+
+    const prevBtn = col.querySelector<HTMLButtonElement>('.sc-prev')!;
+    const nextBtn = col.querySelector<HTMLButtonElement>('.sc-next')!;
+    const maxPage = Math.ceil(imgs.length / 2) - 1;
+    let page = 0;
+
+    function render() {
+      imgs.forEach((img, i) => {
+        img.hidden = i < page * 2 || i >= page * 2 + 2;
+      });
+      prevBtn.disabled = page === 0;
+      nextBtn.disabled = page === maxPage;
+    }
+
+    prevBtn.addEventListener('click', () => { page--; render(); });
+    nextBtn.addEventListener('click', () => { page++; render(); });
+
+    render();
+  });
+</script>
