@@ -15,3 +15,8 @@ export function slugify(str: string): string {
 export function companyId(name: string): string {
   return `company-${slugify(name)}`;
 }
+
+/** Convert backtick-wrapped runs to inline <code> elements. */
+export function inlineCode(text: string): string {
+  return text.replace(/`([^`]+)`/g, '<code>$1</code>');
+}

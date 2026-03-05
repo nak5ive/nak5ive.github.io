@@ -1,5 +1,6 @@
 ---
 import type { ShowcaseItem } from '../types';
+import { inlineCode } from '../lib/utils';
 
 interface Props {
   item: ShowcaseItem;
@@ -31,7 +32,7 @@ const hasCarousel = item.screenshots.length > 2;
     )}
     {item.bullets && item.bullets.length > 0 ? (
       <ul class="item-bullets">
-        {item.bullets.map(b => <li>{b}</li>)}
+        {item.bullets.map(b => <li set:html={inlineCode(b)} />)}
       </ul>
     ) : (
       <p class="item-desc">{item.description}</p>
@@ -166,6 +167,12 @@ const hasCarousel = item.screenshots.length > 2;
   .item-bullets li {
     margin-bottom: 0.25rem;
     position: relative;
+  }
+
+  .item-bullets code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    color: var(--color-accent);
   }
 
   .item-bullets li::before {
