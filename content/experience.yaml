@@ -41,7 +41,7 @@
         - "Result: 2M customers, $100M GPV, 3x network density"
       screenshots: []
 
-    - name: Nearby — Payments
+    - name: Nearby - Proximity Payments via Bluetooth
       bullets:
         - Prototyped proximity payment solution using Bluetooth and Ultra-wideband
         - Collaborated with engineering leads on unified protocol
