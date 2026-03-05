@@ -281,8 +281,14 @@ const markers = [
   function updateThumb(): void {
     const scrollable = document.documentElement.scrollHeight - window.innerHeight;
     if (scrollable <= 0) return;
-    const progress  = Math.min(window.scrollY / scrollable, 1);
-    thumb.style.top = `${progress * indicator.offsetHeight}px`;
+    const progress    = Math.min(window.scrollY / scrollable, 1);
+    const trackH      = indicator.offsetHeight;
+    // Start the thumb at the profile marker's center (above the track when at top),
+    // and travel to the bottom of the track at full scroll.
+    const startTop    = profileMarker
+      ? profileMarker.offsetTop + profileMarker.offsetHeight / 2
+      : 0;
+    thumb.style.top = `${startTop + progress * (trackH - startTop)}px`;
   }
 
   function update(): void { positionMarkers(); updateThumb(); }
