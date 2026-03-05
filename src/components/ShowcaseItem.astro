@@ -18,6 +18,26 @@ const hasCarousel = item.screenshots.length > 2;
     hasScreenshots && 'has-screenshot',
   ]}
 >
+  <div class="text-col">
+    <h3 class="item-name">{item.name}</h3>
+    {item.links && item.links.length > 0 && (
+      <div class="item-links">
+        {item.links.map(link => (
+          <a href={link.url} class="item-link" target="_blank" rel="noopener noreferrer">
+            {link.label}
+          </a>
+        ))}
+      </div>
+    )}
+    {item.bullets && item.bullets.length > 0 ? (
+      <ul class="item-bullets">
+        {item.bullets.map(b => <li>{b}</li>)}
+      </ul>
+    ) : (
+      <p class="item-desc">{item.description}</p>
+    )}
+  </div>
+
   {hasScreenshots && (
     <div class="screenshot-col">
       {hasCarousel && (
@@ -40,26 +60,6 @@ const hasCarousel = item.screenshots.length > 2;
       )}
     </div>
   )}
-
-  <div class="text-col">
-    <h3 class="item-name">{item.name}</h3>
-    {item.links && item.links.length > 0 && (
-      <div class="item-links">
-        {item.links.map(link => (
-          <a href={link.url} class="item-link" target="_blank" rel="noopener noreferrer">
-            {link.label}
-          </a>
-        ))}
-      </div>
-    )}
-    {item.bullets && item.bullets.length > 0 ? (
-      <ul class="item-bullets">
-        {item.bullets.map(b => <li>{b}</li>)}
-      </ul>
-    ) : (
-      <p class="item-desc">{item.description}</p>
-    )}
-  </div>
 </article>
 
 <style>
@@ -81,8 +81,7 @@ const hasCarousel = item.screenshots.length > 2;
       align-items: start;
     }
 
-    .showcase-item.has-screenshot .screenshot-col { order: 2; }
-    .showcase-item.has-screenshot .text-col       { order: 1; }
+
   }
 
   /* ── Screenshot ──────────────────────────────────────────────────────────── */
