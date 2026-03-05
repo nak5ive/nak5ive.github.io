@@ -13,7 +13,7 @@ const displayName = meta.preferredName
   ? `${firstName} (${meta.preferredName}) ${rest.join(' ')}`
   : meta.name;
 
-// Encode at build time — plain text never reaches the static HTML.
+// Encode at build time - plain text never reaches the static HTML.
 const encodedEmail = Buffer.from(meta.contact.email).toString('base64');
 const encodedPhone = Buffer.from(meta.contact.phone).toString('base64');
 

@@ -1,13 +1,13 @@
 # projects.yaml
 #
-# Standalone portfolio projects — personal, open-source, or hardware prototypes.
+# Standalone portfolio projects - personal, open-source, or hardware prototypes.
 # Distinct from work experience entries in experience.yaml.
 #
 # Schema:
-#   name:         string   — project name
-#   description:  string   — first-person, impact-focused
-#   tech:         string[] — technologies / languages / platforms
+#   name:         string   - project name
+#   description:  string   - first-person, impact-focused
+#   tech:         string[] - technologies / languages / platforms
 #   links:
-#     github:     string   — GitHub URL (optional)
-#     demo:       string   — live demo URL (optional)
-#   screenshots:  string[] — paths under public/ (optional)
+#     github:     string   - GitHub URL (optional)
+#     demo:       string   - live demo URL (optional)
+#   screenshots:  string[] - paths under public/ (optional)

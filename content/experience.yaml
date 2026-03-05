@@ -5,18 +5,18 @@
 # The scroll indicator shows one logo marker per company.
 #
 # Schema:
-#   company:           string   — display name
-#   role:              string   — job title
-#   start:             string   — e.g. "2014-03"
-#   end:               string   — e.g. "2021-11" or "present"
+#   company:           string   - display name
+#   role:              string   - job title
+#   start:             string   - e.g. "2014-03"
+#   end:               string   - e.g. "2021-11" or "present"
 #   location:          string
-#   logo:              string   — path under public/ (required for ScrollIndicator)
-#   responsibilities:  string[] — company-level bullets (non-project); optional
+#   logo:              string   - path under public/ (required for ScrollIndicator)
+#   responsibilities:  string[] - company-level bullets (non-project); optional
 #   entries[]:
-#     name:         string   — project/product name
-#     description:  string   — prose description; use when not sourced from resume
-#     bullets:      string[] — bullet points; preferred when sourced from resume
-#     screenshots:  string[] — paths under public/ (empty list if none)
+#     name:         string   - project/product name
+#     description:  string   - prose description; use when not sourced from resume
+#     bullets:      string[] - bullet points; preferred when sourced from resume
+#     screenshots:  string[] - paths under public/ (empty list if none)
 
 - company: Block (Cash App)
   role: Senior Android Engineer
@@ -33,7 +33,7 @@
     - Assisted junior engineers with onboarding into complex ecosystem
   entries:
 
-    - name: Pools — Group Savings
+    - name: Pools - Group Savings
       bullets:
         - Served as Android DRI for full-featured group savings product
         - Built and maintained all feature surfaces
@@ -56,7 +56,7 @@
         - Led migrations removing 30k+ lines of legacy view code
       screenshots: []
 
-    - name: "@Paparazzi — Snapshot Testing"
+    - name: "@Paparazzi - Snapshot Testing"
       bullets:
         - Developed KSP plugin automating snapshot testing for composable previews
         - Quickly became the app-wide standard, adopted by all teams, automating nearly 2k tests across 80 modules

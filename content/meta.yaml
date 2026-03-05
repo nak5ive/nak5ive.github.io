@@ -1,17 +1,17 @@
 # meta.yaml
 #
 # Personal info and contact details.
-# phone and email are stored as plain values — obfuscation is handled at
+# phone and email are stored as plain values - obfuscation is handled at
 # render time by the ContactReveal island, not here.
 #
 # Schema:
 #   name:       string
-#   title:      string   — headline / role descriptor
-#   bio:        string   — short bio paragraph
+#   title:      string   - headline / role descriptor
+#   bio:        string   - short bio paragraph
 #   location:   string
 #   contact:
 #     email:    string
-#     phone:    string   — E.164 recommended
+#     phone:    string   - E.164 recommended
 #   social[]:
 #     platform: string
 #     url:      string

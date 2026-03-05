@@ -63,7 +63,7 @@ const markers = [
 </aside>
 
 <style>
-  /* Hidden on mobile — shown only at lg+ */
+  /* Hidden on mobile - shown only at lg+ */
   .scroll-indicator {
     display: none;
   }
@@ -224,7 +224,7 @@ const markers = [
   if (!indicator || !thumb) throw new Error('ScrollIndicator: elements not found');
 
   // ── Filter markers to only those with a section present in the DOM ─────────
-  // Profile marker is excluded from positionMarkers — its CSS top: -2.5rem
+  // Profile marker is excluded from positionMarkers - its CSS top: -2.5rem
   // keeps it anchored above the track; it participates in active/click logic only.
   const markers = [...document.querySelectorAll<HTMLElement>('.marker:not(.profile-marker)')].filter(m => {
     const exists = !!document.getElementById(m.dataset.target!);
@@ -236,7 +236,7 @@ const markers = [
   // After proportional placement, enforce a minimum gap so markers never
   // overlap regardless of how close their sections are on the page.
 
-  const MARKER_MIN_GAP = 32; // px — marker height (28px) + 4px breathing room
+  const MARKER_MIN_GAP = 32; // px - marker height (28px) + 4px breathing room
 
   function enforceMinSpacing(): void {
     const trackH = indicator.offsetHeight;

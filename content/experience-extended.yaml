@@ -5,16 +5,16 @@
 # The scroll indicator shows one logo marker per company.
 #
 # Schema:
-#   company:      string   — display name
-#   role:         string   — job title
-#   start:        string   — e.g. "2014-03"
-#   end:          string   — e.g. "2021-11" or "present"
+#   company:      string   - display name
+#   role:         string   - job title
+#   start:        string   - e.g. "2014-03"
+#   end:          string   - e.g. "2021-11" or "present"
 #   location:     string
-#   logo:         string   — path under public/ (required for ScrollIndicator)
+#   logo:         string   - path under public/ (required for ScrollIndicator)
 #   entries[]:
-#     name:         string   — project/product name
-#     description:  string   — first-person, impact-focused (what YOU did)
-#     screenshots:  string[] — paths under public/ (empty list if none)
+#     name:         string   - project/product name
+#     description:  string   - first-person, impact-focused (what YOU did)
+#     screenshots:  string[] - paths under public/ (empty list if none)
 
 - company: Block (Cash App)
   role: Senior Android Engineer
@@ -24,7 +24,7 @@
   logo: /logos/block.svg
   entries:
 
-    - name: Pools — Group Savings
+    - name: Pools - Group Savings
       description: >
         Built the entire Pools feature from zero across 155+ PRs: defined proto schemas,
         wired contribution flows with payment instrument selection and IDV integration,
@@ -34,7 +34,7 @@
         from first proto commit to final observability pass.
       screenshots: []
 
-    - name: Nearby — BLE Peer Discovery
+    - name: Nearby - BLE Peer Discovery
       description: >
         Architected a Bluetooth Low Energy system for discovering nearby Cash App users
         for in-person payments. Designed the advertisement and discovery abstraction layer,
@@ -46,14 +46,14 @@
     - name: Arcade Design System Migration
       description: >
         Led the organization-wide migration from the legacy Mooncake design system to
-        Arcade across ~200 PRs, touching every major screen in Cash App Android — Account,
+        Arcade across ~200 PRs, touching every major screen in Cash App Android - Account,
         Discover, P2P, Onboarding/IDV, QR, Documents, Settings, and Security. Built core
         Arcade components including segmented controls, badge system, inline messages, and
         a masked input field system. Net result: 30,000+ lines of legacy UI code deleted
         and a consistent design language across the entire app.
       screenshots: []
 
-    - name: "@Paparazzi — Snapshot Testing Framework"
+    - name: "@Paparazzi - Snapshot Testing Framework"
       description: >
         Designed and built a KSP annotation processor and Gradle plugin that
         auto-generates Paparazzi screenshot tests directly from Compose @Preview
@@ -74,14 +74,14 @@
         fallback emulation when gyro was unavailable.
       screenshots: []
 
-    - name: Threads — 1:1 Messaging
+    - name: Threads - 1:1 Messaging
       description: >
         Built the Cash App 1-to-1 messaging feature end-to-end: scalable message renderer
         architecture using a factory pattern with dedicated submodule, protobuf v2 message
         types, payment message redesign with BTC/sats display, navigation layer with
         feature-flag gating, experimentation integration (LaunchDarkly to Amplitude), and
         offline message support. When the product direction changed, systematically deleted
-        the entire feature — removing 15,756 lines cleanly across all modules.
+        the entire feature - removing 15,756 lines cleanly across all modules.
       screenshots: []
 
     - name: Profile & Account Rewrite
@@ -117,7 +117,7 @@
         Developed and shipped the white-labeled Simplify Commerce Android merchant app to
         the Google Play Store. Implemented reactive patterns with RxJava, maintained MVP
         architecture for testability, and designed and built SDKs for Bluetooth and
-        IP-connected card readers — providing a high-level API over raw socket connections.
+        IP-connected card readers - providing a high-level API over raw socket connections.
         Also built Groovy/Grails microservices to expose hardware security modules (HSMs)
         to backend payment services.
       screenshots: []
@@ -166,7 +166,7 @@
     - name: TrueColors HR Tool
       description: >
         Architected and built a web-based personality-assessment product for HR
-        departments — interactive color-assignment quizzes, results visualization, and
+        departments - interactive color-assignment quizzes, results visualization, and
         a custom PHP CMS. Integrated PayPal and Authorize.Net for e-commerce and social
         networking APIs throughout.
       screenshots: []

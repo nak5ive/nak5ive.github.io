@@ -1,12 +1,12 @@
 ---
 // ContactReveal.astro
 // Renders a masked field + [Reveal] button.
-// The encoded value is base64 — plain text never appears in the static HTML.
+// The encoded value is base64 - plain text never appears in the static HTML.
 // On reveal: decodes and animates value with a character-scramble effect. Button becomes [Copy].
 
 interface Props {
   encoded: string; // Buffer.from(value).toString('base64')
-  label: string;   // "email" | "phone" — for aria-label
+  label: string;   // "email" | "phone" - for aria-label
 }
 
 const { encoded, label } = Astro.props;
@@ -164,12 +164,12 @@ const { encoded, label } = Astro.props;
         // Reveal with scramble animation
         const target = atob(encoded);
 
-        // Pre-fill with scrambled chars at full width — reserves space without spoiling value
+        // Pre-fill with scrambled chars at full width - reserves space without spoiling value
         valueEl.textContent = Array.from(target).map(ch =>
           (ch === ' ' || ch === '@' || ch === '.') ? ch : CHARS[Math.floor(Math.random() * CHARS.length)]
         ).join('');
 
-        // Show scrambled value, fade out masked — no layout shift
+        // Show scrambled value, fade out masked - no layout shift
         valueEl.classList.add('visible');
         masked.classList.add('hidden');
 

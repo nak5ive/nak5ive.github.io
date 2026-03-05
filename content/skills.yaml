@@ -4,8 +4,8 @@
 # Order of categories controls display order on the page.
 #
 # Schema:
-#   category:   string   — group label
-#   skills:     string[] — individual skill/tool names
+#   category:   string   - group label
+#   skills:     string[] - individual skill/tool names
 
 - category: Android
   skills:
