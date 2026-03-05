@@ -35,31 +35,32 @@
 
     - name: Pools - Group Savings
       bullets:
-        - Served as Android DRI for full-featured group savings product
+        - Served as the Android DRI for a full-featured group savings product
         - Built and maintained all feature surfaces
-        - Collaborated cross-functionally to deliver solution to 100% of users in 6 months
-        - "Result: 2M customers, $100M GPV, 3x network density"
+        - Collaborated across design, product, server, and iOS teams to deliver the feature to 100% of users in under 6 months
+        - Resulted in 2M active customers, $100M GPV, 3x network density in 2 quarters
       screenshots: []
 
     - name: Nearby - Proximity Payments via Bluetooth
       bullets:
-        - Prototyped proximity payment solution using Bluetooth and Ultra-wideband
-        - Collaborated with engineering leads on unified protocol
-        - Implemented custom animations using local ranging data
-        - Developed functional demo for executives
+        - Prototyped a proximity payment solution using Bluetooth and Ultra-wideband
+        - Collaborated with org-wide engineering leads on unified a BLE protocol that could be used for both CashApp and Square terminals
+        - Vibe-coded particle-effect animations used during proximity discovery and payment
+        - Delivered regular live demos to the larger team, including executives
       screenshots: []
 
     - name: Arcade Design System
       bullets:
-        - Co-developed app-wide design system
-        - Created custom Composable UI components
-        - Led migrations removing 30k+ lines of legacy view code
+        - Co-developed an app-wide design system to supplant a wide-spread fragmented design language
+        - Created shareable composable UI components to pixel-perfect design specifications
+        - Led view migrations removing 30k+ lines of legacy code
       screenshots: []
 
     - name: "@Paparazzi - Snapshot Testing"
       bullets:
-        - Developed KSP plugin automating snapshot testing for composable previews
-        - Quickly became the app-wide standard, adopted by all teams, automating nearly 2k tests across 80 modules
+        - Developed a KSP plugin automating snapshot testing for composable previews
+        - Quickly became the app-wide standard, adopted by all teams
+        - Currently automating nearly 2k tests across 80 modules
       screenshots: []
 
     - name: Glitter Theme
