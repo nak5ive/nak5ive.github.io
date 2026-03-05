@@ -62,10 +62,14 @@
 
     - name: "@Paparazzi - Snapshot Testing"
       bullets:
-        - Developed a KSP plugin automating snapshot testing for composable previews
+        - Internally developed a KSP plugin automating snapshot testing for composable previews
         - Quickly became the app-wide standard, adopted by all teams
         - Currently automating nearly 2k tests across 80 modules
+        - It has since been upstreamed into the open-source project
       screenshots: []
+      links:
+        - label: GitHub
+          url: https://github.com/cashapp/paparazzi
 
     - name: Glitter Theme
       bullets:
