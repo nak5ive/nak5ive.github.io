@@ -51,7 +51,7 @@
       bullets:
         - Prototyped a proximity payment solution using Bluetooth and Ultra-wideband
         - Collaborated with org-wide engineering leads on unified a BLE protocol that could be used for both CashApp and Square terminals
-        - Vibe-coded particle-effect animations used during proximity discovery and payment
+        - Vibe-coded particle-effect animations used during discovery and advertisement
         - Delivered regular live demos to the larger team, including executives
       screenshots: []
 
