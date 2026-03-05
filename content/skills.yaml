@@ -43,7 +43,7 @@
     - Arduino / C++
     - nRF52840
     - USB OTG
-    - CoreBluetooth (macOS)
+
     - SATCOM / Satellite Modems
 
 - category: Backend & Web
@@ -54,6 +54,13 @@
     - MySQL
     - Java
     - HTML / CSS / JavaScript
+
+- category: A.I.
+  skills:
+    - Claude / Claude Code
+    - Gemini
+    - Conductor
+    - Firebender
 
 - category: Tools & Process
   skills:
