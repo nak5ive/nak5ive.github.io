@@ -13,6 +13,7 @@ export interface ShowcaseItem {
   bullets?: string[];
   screenshots: string[];
   links?: ShowcaseLink[];
+  tags?: string[];
 }
 
 export interface Company {

@@ -18,6 +18,7 @@
 #     bullets:      string[] - bullet points; preferred when sourced from resume
 #     screenshots:  string[] - paths under public/ (empty list if none)
 #     links:        {label: string, url: string}[] - optional links (GitHub, demo, etc.)
+#     tags:         string[] - optional short labels (e.g. greenfield, poc, animation)
 
 - company: Block (Cash App)
   role: Senior Android Engineer
@@ -35,9 +36,11 @@
   entries:
 
     - name: Pools - Group Savings
+      tags: [greenfield, ui, animation]
       bullets:
-        - Served as the Android DRI for a full-featured group savings product
-        - Built and maintained all feature surfaces
+        - Served as the Android DRI for a major greenfield feature to create shared savings goals with friends, family, and out-of-network
+        - Built and maintained all feature surfaces, entry points, and animations
+        - Managed iterative development schedule and rollout strategy
         - Collaborated across design, product, server, and iOS teams to deliver the feature to 100% of users in under 6 months
         - Resulted in 2M active customers, $100M GPV, 3x network density in 2 quarters
       screenshots:
@@ -48,6 +51,7 @@
           url: https://cash.app/send/pools
 
     - name: Nearby - Proximity Payments via Bluetooth
+      tags: [poc, animation, bluetooth]
       bullets:
         - Prototyped a proximity payment solution using Bluetooth and Ultra-wideband
         - Collaborated with org-wide engineering leads on unified a BLE protocol that could be used for both CashApp and Square terminals
@@ -56,15 +60,18 @@
       screenshots: []
 
     - name: Arcade Design System
+      tags: [foundational, ui]
       bullets:
         - Co-developed an app-wide design system to supplant a wide-spread fragmented design language
         - Created shareable composable UI components to pixel-perfect design specifications
         - Led view migrations removing 30k+ lines of legacy code
       screenshots: []
 
-    - name: "@Paparazzi - Snapshot Testing"
+    - name: Paparazzi - Composable Preview Snapshots
+      tags: [tooling, dx]
       bullets:
-        - Internally developed a KSP plugin automating snapshot testing for composable previews
+        - Created `@Paparazzi` annotation that auto-generates snapshot tests from Compose Preview functions
+        - Internally developed a KSP plugin to integrate across all view modules with zero boilerplate
         - Quickly became the app-wide standard, adopted by all teams
         - Currently automating nearly 2k tests across 80 modules
         - It has since been upstreamed into the open-source project
@@ -74,6 +81,7 @@
           url: https://github.com/cashapp/paparazzi
 
     - name: Glitter Theme
+      tags: [animation, opengl, ui]
       bullets:
         - Wrote a script to programmatically generate the OpenGL normals map for the glitter texture
         - Created a shareable gyroscope handler to drive scene lighting from device orientation
@@ -97,6 +105,7 @@
   entries:
 
     - name: Simplify Commerce
+      tags: [hardware, sdk, ui]
       bullets:
         - Released white-labeled Android app to production
         - Developed around RxJava and MVP for testability
@@ -105,6 +114,7 @@
       screenshots: []
 
     - name: Mastercard Payment Gateway Android SDK
+      tags: [open-source, sdk]
       bullets:
         - Architected Kotlin SDK supporting EMV 3DS and Google Pay, built around coroutines
         - Maintained as an open-source project
@@ -122,11 +132,13 @@
   entries:
 
     - name: 911 Call Center Product
+      tags: [full-stack]
       bullets:
         - Led full-stack (.NET MVC) and mobile development for 911-supplemental product
       screenshots: []
 
     - name: SATCOM Field Tools
+      tags: [hardware]
       bullets:
         - Developed Android toolkits for SATCOM field technicians
         - Established antenna connections and engineered custom USB OTG cables for military radio-network connections
@@ -141,11 +153,13 @@
   entries:
 
     - name: Ascension Health Web Platform
+      tags: [cms, web]
       bullets:
         - Developed public site for Ascension Health using Joomla
       screenshots: []
 
     - name: TrueColors HR Tool
+      tags: [e-commerce, web]
       bullets:
         - Built custom PHP CMS for interactive HR personality assessment tool
         - Integrated e-commerce platforms (PayPal, Authorize.Net) and social APIs
