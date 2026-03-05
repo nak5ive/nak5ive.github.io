@@ -7,65 +7,64 @@
 #   category:   string   - group label
 #   skills:     string[] - individual skill/tool names
 
-- category: Android
-  skills:
-    - Kotlin
-    - Jetpack Compose
-    - Android SDK
-    - Coroutines / Flow
-    - RxJava
-    - Molecule
-    - Dagger
-    - Gradle
-
-- category: Architecture
-  skills:
-    - MVP / MVVM
-    - Modular Architecture
-    - Clean Architecture
-    - Reactive Patterns
-    - Protocol Buffers
-    - gRPC
-    - REST / JSON
-
-- category: Developer Tooling
-  skills:
-    - KSP (Kotlin Symbol Processing)
-    - Gradle Plugin API
-    - Paparazzi (screenshot testing)
-    - R8 / ProGuard
-    - Jenkins / Travis CI
-    - Artifactory
-
-- category: Bluetooth & Hardware
-  skills:
-    - Bluetooth Low Energy (GATT)
-    - Arduino / C++
-    - nRF52840
-    - USB OTG
-
-    - SATCOM / Satellite Modems
-
-- category: Backend & Web
-  skills:
-    - Groovy / Grails
-    - .NET MVC
-    - PHP
-    - MySQL
-    - Java
-    - HTML / CSS / JavaScript
-
 - category: A.I.
   skills:
     - Claude / Claude Code
-    - Gemini
     - Conductor
     - Firebender
+    - Gemini
+
+- category: Android
+  skills:
+    - Android SDK
+    - Coroutines / Flow
+    - Dagger
+    - Gradle
+    - Jetpack Compose
+    - Kotlin
+    - Molecule
+    - RxJava
+
+- category: Architecture
+  skills:
+    - Clean Architecture
+    - gRPC
+    - Modular Architecture
+    - MVP / MVVM
+    - Protocol Buffers
+    - Reactive Patterns
+    - REST / JSON
+
+- category: Backend & Web
+  skills:
+    - .NET MVC
+    - Groovy / Grails
+    - HTML / CSS / JavaScript
+    - Java
+    - MySQL
+    - PHP
+
+- category: Bluetooth & Hardware
+  skills:
+    - Arduino / C++
+    - Bluetooth Low Energy (GATT)
+    - nRF52840
+    - SATCOM / Satellite Modems
+    - USB OTG
+
+- category: Developer Tooling
+  skills:
+    - Artifactory
+    - Gradle Plugin API
+    - Jenkins / Travis CI
+    - KSP (Kotlin Symbol Processing)
+    - Paparazzi (screenshot testing)
+    - R8 / ProGuard
 
 - category: Tools & Process
   skills:
+    - Atlassian Suite
+    - Code Review
     - Git / GitHub
     - IntelliJ / Android Studio
-    - Atlassian Suite
     - SAFe Agile
-    - Code Review
