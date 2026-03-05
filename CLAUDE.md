@@ -20,6 +20,8 @@ These rules apply to every change made to this repository:
 
 **Rule 4 — README stays in sync:** When spec documents, the tech stack, deployment strategy, repository structure, or build commands change, update `README.md` in the same commit/changeset.
 
+**Rule 5 — Skills are alphabetical:** Categories in `content/skills.yaml` and skills within each category must always be in alphabetical order. Enforce this whenever adding or editing skills.
+
 ---
 
 ## Instructions for Claude

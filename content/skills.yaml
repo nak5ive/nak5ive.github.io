@@ -1,7 +1,7 @@
 # skills.yaml
 #
 # Skills grouped by category.
-# Order of categories controls display order on the page.
+# RULE: Categories and skills within each category must always be in alphabetical order.
 #
 # Schema:
 #   category:   string   - group label
