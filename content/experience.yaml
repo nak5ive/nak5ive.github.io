@@ -62,6 +62,15 @@
         - Quickly became the app-wide standard, adopted by all teams, automating nearly 2k tests across 80 modules
       screenshots: []
 
+    - name: Glitter Theme
+      bullets:
+        - Wrote a script to programmatically generate the OpenGL normals map for the glitter texture
+        - Created a shareable gyroscope handler to drive scene lighting from device orientation
+        - Implemented the background and effect as a Composable modifier, making it easily applicable across app surfaces
+        - Ported the same effect to iOS using SceneKit
+      screenshots:
+        - /images/glitter_theme.gif
+
 - company: Mastercard
   role: Mobile Tech Lead
   start: "2014-03"

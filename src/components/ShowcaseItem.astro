@@ -3,21 +3,18 @@ import type { ShowcaseItem } from '../types';
 
 interface Props {
   item: ShowcaseItem;
-  globalIndex: number; // cross-company counter - drives alternation
+  globalIndex: number;
 }
 
 const { item, globalIndex } = Astro.props;
 
-const hasScreenshots  = item.screenshots.length > 0;
-// Spec: 1st/3rd/... = screenshot left → even 0-based index = screenshot left
-const screenshotLeft  = globalIndex % 2 === 0;
+const hasScreenshots = item.screenshots.length > 0;
 ---
 
 <article
   class:list={[
     'showcase-item',
     hasScreenshots && 'has-screenshot',
-    hasScreenshots && (screenshotLeft ? 'screenshot-left' : 'screenshot-right'),
   ]}
 >
   {hasScreenshots && (
@@ -55,26 +52,28 @@ const screenshotLeft  = globalIndex % 2 === 0;
     grid-template-columns: 1fr;
   }
 
-  /* Two-column layout on desktop when screenshots exist */
+  /* Two-column layout on desktop when screenshots exist - text left, screenshot right */
   @media (min-width: 1024px) {
     .showcase-item.has-screenshot {
       grid-template-columns: 1fr 1fr;
       align-items: start;
     }
 
-    /* screenshot-right: swap column order */
-    .showcase-item.screenshot-right .screenshot-col { order: 2; }
-    .showcase-item.screenshot-right .text-col       { order: 1; }
+    .showcase-item.has-screenshot .screenshot-col { order: 2; }
+    .showcase-item.has-screenshot .text-col       { order: 1; }
   }
 
   /* ── Screenshot ──────────────────────────────────────────────────────────── */
 
+  .screenshot-col {
+    display: flex;
+    justify-content: flex-end;
+  }
+
   .screenshot {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    border: 1px solid var(--color-border);
-    border-radius: 3px;
+    max-height: 400px;
+    width: auto;
+    max-width: 100%;
     display: block;
   }
 
