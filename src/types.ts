@@ -2,11 +2,17 @@
 // TypeScript interfaces mirroring the YAML schemas in content/*.yaml
 // These are the single source of truth for data shapes used by all components.
 
+export interface ShowcaseLink {
+  label: string;
+  url: string;
+}
+
 export interface ShowcaseItem {
   name: string;
   description?: string;
   bullets?: string[];
   screenshots: string[];
+  links?: ShowcaseLink[];
 }
 
 export interface Company {

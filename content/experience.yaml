@@ -17,6 +17,7 @@
 #     description:  string   - prose description; use when not sourced from resume
 #     bullets:      string[] - bullet points; preferred when sourced from resume
 #     screenshots:  string[] - paths under public/ (empty list if none)
+#     links:        {label: string, url: string}[] - optional links (GitHub, demo, etc.)
 
 - company: Block (Cash App)
   role: Senior Android Engineer
@@ -40,6 +41,9 @@
         - Collaborated across design, product, server, and iOS teams to deliver the feature to 100% of users in under 6 months
         - Resulted in 2M active customers, $100M GPV, 3x network density in 2 quarters
       screenshots: []
+      links:
+        - label: cash.app/pools
+          url: https://cash.app/send/pools
 
     - name: Nearby - Proximity Payments via Bluetooth
       bullets:
@@ -97,8 +101,11 @@
     - name: Mastercard Payment Gateway Android SDK
       bullets:
         - Architected Kotlin SDK supporting EMV 3DS and Google Pay, built around coroutines
-        - Maintained as open-sourced project (github.com/Mastercard-Gateway/gateway-android-sdk)
+        - Maintained as an open-source project
       screenshots: []
+      links:
+        - label: GitHub
+          url: https://github.com/Mastercard-Gateway/gateway-android-sdk
 
 - company: Coolfire Solutions
   role: Lead Software Engineer

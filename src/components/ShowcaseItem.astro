@@ -37,6 +37,15 @@ const hasScreenshots = item.screenshots.length > 0;
     ) : (
       <p class="item-desc">{item.description}</p>
     )}
+    {item.links && item.links.length > 0 && (
+      <div class="item-links">
+        {item.links.map(link => (
+          <a href={link.url} class="item-link" target="_blank" rel="noopener noreferrer">
+            {link.label}
+          </a>
+        ))}
+      </div>
+    )}
   </div>
 </article>
 
@@ -120,5 +129,29 @@ const hasScreenshots = item.screenshots.length > 0;
     height: 0.4em;
     border: 1px solid var(--color-border);
     flex-shrink: 0;
+  }
+
+  /* ── Links ───────────────────────────────────────────────────────────────── */
+
+  .item-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.875rem;
+  }
+
+  .item-link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-accent);
+    text-decoration: none;
+    border: 1px solid var(--color-accent);
+    padding: 0.2em 0.6em;
+    opacity: 0.75;
+    transition: opacity 0.15s ease;
+  }
+
+  .item-link:hover {
+    opacity: 1;
   }
 </style>

@@ -65,6 +65,9 @@ Entries are **grouped by company**. Each company can have multiple showcase item
         - Designed and built a real-time ops dashboard used daily by 40+ engineers
         - Replaced a manual Slack-based reporting workflow
       screenshots: []
+      links:                 # optional — rendered as small labeled links below content
+        - label: GitHub
+          url: https://github.com/example/repo
 ```
 
 **`description` vs `bullets`:** Use `bullets` when content is sourced directly from a resume (preserves original format). Use `description` for prose-form write-ups. Only one is required per entry.
