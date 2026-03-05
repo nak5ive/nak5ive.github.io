@@ -30,13 +30,6 @@ const hasScreenshots = item.screenshots.length > 0;
 
   <div class="text-col">
     <h3 class="item-name">{item.name}</h3>
-    {item.bullets && item.bullets.length > 0 ? (
-      <ul class="item-bullets">
-        {item.bullets.map(b => <li>{b}</li>)}
-      </ul>
-    ) : (
-      <p class="item-desc">{item.description}</p>
-    )}
     {item.links && item.links.length > 0 && (
       <div class="item-links">
         {item.links.map(link => (
@@ -45,6 +38,13 @@ const hasScreenshots = item.screenshots.length > 0;
           </a>
         ))}
       </div>
+    )}
+    {item.bullets && item.bullets.length > 0 ? (
+      <ul class="item-bullets">
+        {item.bullets.map(b => <li>{b}</li>)}
+      </ul>
+    ) : (
+      <p class="item-desc">{item.description}</p>
     )}
   </div>
 </article>
@@ -137,7 +137,8 @@ const hasScreenshots = item.screenshots.length > 0;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-top: 0.875rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.875rem;
   }
 
   .item-link {
