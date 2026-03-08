@@ -309,9 +309,16 @@ const markers = [
     }
   }
 
-  window.addEventListener('scroll', () => { updateThumb(); checkBottomActive(); }, { passive: true });
+  function checkTopActive(): void {
+    if (window.scrollY === 0 && profileMarker) {
+      setActiveMarker(profileMarker.dataset.target!);
+    }
+  }
+
+  window.addEventListener('scroll', () => { updateThumb(); checkBottomActive(); checkTopActive(); }, { passive: true });
   window.addEventListener('resize', update, { passive: true });
   update();
+  checkTopActive();
 
   // ── Marker clicks → smooth scroll ────────────────────────────────────────
 

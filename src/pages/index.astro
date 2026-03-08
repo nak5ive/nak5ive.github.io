@@ -21,6 +21,12 @@ const skills     = getSkills();
       <ContactHeader meta={meta} />
     </section>
 
+    {meta.bio && (
+      <section class="section summary-section">
+        <p class="summary">{meta.bio}</p>
+      </section>
+    )}
+
     <section id="experience" class="section">
       <h2 class="section-label">experience</h2>
       <ExperienceTimeline experience={experience} />
@@ -53,6 +59,18 @@ const skills     = getSkills();
     .section {
       padding-right: calc(var(--content-padding-x) + var(--scroll-indicator-offset));
     }
+  }
+
+  .summary-section {
+    padding-top: 0;
+    padding-bottom: 2rem;
+  }
+
+  .summary {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+    max-width: 72ch;
   }
 
   /* Section label - monospace, muted, small */

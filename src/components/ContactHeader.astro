@@ -31,48 +31,56 @@ const platformIcons: Record<string, string> = {
     )}
     <div class="name-text">
       <h1 class="name">{displayName}</h1>
-      <p class="title">{meta.title}</p>
+      <p class="title">
+        {meta.title}
+        {meta.location && (
+          <span class="location">
+            <img src="/icons/location.svg" alt="" class="location-icon" aria-hidden="true" />
+            {meta.location}
+          </span>
+        )}
+      </p>
+
+      <div class="contact-fields">
+        <div class="contact-field">
+          <img src="/icons/email.svg" alt="" class="field-icon" aria-hidden="true" />
+          <ContactReveal encoded={encodedEmail} label="email" />
+        </div>
+        <div class="contact-field">
+          <img src="/icons/phone.svg" alt="" class="field-icon" aria-hidden="true" />
+          <ContactReveal encoded={encodedPhone} label="phone" />
+        </div>
+      </div>
+
+      <ul class="social-links">
+        {meta.resumeUrl && (
+          <li>
+            <a
+              href={meta.resumeUrl}
+              class="social-link resume-link"
+              download
+              aria-label="Download resume"
+            >download resume</a>
+          </li>
+        )}
+        {meta.social.map(({ url, label, platform }) => (
+          <li>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="social-link"
+              aria-label={`${label} on ${platform}`}
+            >
+              {platformIcons[platform] && (
+                <img src={platformIcons[platform]} alt="" class="social-icon" aria-hidden="true" />
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
-
-  <div class="contact-fields">
-    <div class="contact-field">
-      <img src="/icons/email.svg" alt="" class="field-icon" aria-hidden="true" />
-      <ContactReveal encoded={encodedEmail} label="email" />
-    </div>
-    <div class="contact-field">
-      <img src="/icons/phone.svg" alt="" class="field-icon" aria-hidden="true" />
-      <ContactReveal encoded={encodedPhone} label="phone" />
-    </div>
-  </div>
-
-  <ul class="social-links">
-    {meta.resumeUrl && (
-      <li>
-        <a
-          href={meta.resumeUrl}
-          class="social-link resume-link"
-          download
-          aria-label="Download resume"
-        >download resume</a>
-      </li>
-    )}
-    {meta.social.map(({ url, label, platform }) => (
-      <li>
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="social-link"
-          aria-label={`${label} on ${platform}`}
-        >
-          {platformIcons[platform] && (
-            <img src={platformIcons[platform]} alt="" class="social-icon" aria-hidden="true" />
-          )}
-        </a>
-      </li>
-    ))}
-  </ul>
 
 </header>
 
@@ -85,7 +93,6 @@ const platformIcons: Record<string, string> = {
     display: flex;
     align-items: flex-end;
     gap: 1.5rem;
-    margin-bottom: 2.5rem;
   }
 
   .name-text {
@@ -96,7 +103,8 @@ const platformIcons: Record<string, string> = {
 
   .profile-photo {
     width: 256px;
-    height: 256px;
+    min-height: 256px;
+    align-self: stretch;
     object-fit: cover;
     object-position: center top;
     border-radius: 8px;
@@ -107,6 +115,7 @@ const platformIcons: Record<string, string> = {
   @media (max-width: 767px) {
     .profile-photo {
       max-width: 33.333%;
+      min-height: unset;
       height: auto;
     }
   }
@@ -124,6 +133,25 @@ const platformIcons: Record<string, string> = {
     font-family: var(--font-mono);
     font-size: 0.9375rem;
     color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .location {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-size: 0.875rem;
+    color: var(--color-text-disabled);
+  }
+
+  .location-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+    flex-shrink: 0;
+    filter: invert(55%);
   }
 
   /* ── Contact fields ──────────────────────────────────────────────────────── */
@@ -132,7 +160,7 @@ const platformIcons: Record<string, string> = {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    margin-bottom: 2rem;
+    margin-top: 1rem;
   }
 
   .contact-field {
@@ -155,6 +183,7 @@ const platformIcons: Record<string, string> = {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
+    margin-top: 1rem;
   }
 
   .social-link {

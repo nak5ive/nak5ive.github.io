@@ -22,12 +22,14 @@ preferredName: Al
 title: Android / Full-Stack Engineer
 
 bio: >
-  15+ years building software that ships: Android SDKs, mobile apps, web services,
-  and hardware prototypes across payments, public safety, and satellite communications.
-  Architected and led development of full-stack commercial products, owned features
-  end-to-end from proto definition to production observability, and built developer
-  tooling adopted across engineering organizations. Fast learner, effective communicator,
-  and relentless about code quality. Challenges welcomed.
+  I am a Senior Android Engineer with 20 years of experience building high-impact mobile
+  products across fintech and enterprise software; most recently at Block
+  (CashApp), where I led peer-to-peer and savings features for tens of millions of
+  users. I specialize in modern Android development with Kotlin, Jetpack Compose,
+  and coroutines, emphasizing unidirectional data flow, testability, and scalable
+  architecture in large dynamic codebases. Skilled in leveraging AI-powered tools
+  including Claude Code, Firebender, and Conductor to accelerate velocity without
+  sacrificing quality.
 
 location: St. Louis, MO
 photo: /images/profile.jpg
