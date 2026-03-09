@@ -31,15 +31,12 @@ const platformIcons: Record<string, string> = {
     )}
     <div class="name-text">
       <h1 class="name">{displayName}</h1>
-      <p class="title">
-        {meta.title}
-        {meta.location && (
+      <p class="title">{meta.title}{meta.location && (
           <span class="location">
             <img src="/icons/location.svg" alt="" class="location-icon" aria-hidden="true" />
             {meta.location}
           </span>
-        )}
-      </p>
+        )}</p>
 
       <div class="contact-fields">
         <div class="contact-field">
@@ -113,10 +110,26 @@ const platformIcons: Record<string, string> = {
   }
 
   @media (max-width: 767px) {
+    .name-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
     .profile-photo {
-      max-width: 33.333%;
+      width: 160px;
+      height: 160px;
       min-height: unset;
-      height: auto;
+      align-self: auto;
+    }
+
+    .title {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+
+    .location {
+      align-self: flex-start;
     }
   }
 
